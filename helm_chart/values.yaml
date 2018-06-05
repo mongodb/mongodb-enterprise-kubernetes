@@ -1,0 +1,11 @@
+namespace: mongodb
+name: mongodb-enterprise-operator
+clusterAdminRole: cluster-admin
+
+env: dev
+operator:
+  image: quay.io/mongodb/mongodb-enterprise-operator:latest
+  pullPolicy: Always
+database:
+  image: quay.io/mongodb/mongodb-enterprise-database:latest
+  pullPolicy: Always

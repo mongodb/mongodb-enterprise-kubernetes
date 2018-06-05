@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongodb
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - services
+  verbs:
+  - get
+  - create
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs: ["*"]
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+- apiGroups:
+  - mongodb.com
+  resources:
+  - "*"
+  verbs:
+  - "*"
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mongodb-enterprise-operator
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-enterprise-operator
+  template:
+    metadata:
+      labels:
+        app: mongodb-enterprise-operator
+    spec:
+      serviceAccountName: mongodb-enterprise-operator
+      containers:
+      - name: mongodb-enterprise-operator
+        image: quay.io/mongodb/mongodb-enterprise-operator:latest
+        imagePullPolicy: Always
+        env:
+        - name: OPERATOR_ENV
+          value: "local"
+        - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
+          value: quay.io/mongodb/mongodb-enterprise-database:latest
+        - name: IMAGE_PULL_POLICY
+          value: Always
+        - name: IMAGE_PULL_SECRETS
+          value: ""

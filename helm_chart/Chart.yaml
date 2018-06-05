@@ -1,0 +1,11 @@
+name: mongodb-enterprise-operator
+description: MongoDB Kubernetes Enterprise Operator
+version: 0.1
+kubeVersion: ">=1.9"
+keywords:
+  - mongodb
+  - database
+  - nosql
+home: https://github.com/mongodb/mongodb-enterprise-kubernetes
+maintainers:
+  - name: Cloud Team

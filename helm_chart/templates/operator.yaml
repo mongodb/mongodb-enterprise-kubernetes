@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      containers:
+      - name: {{ .Values.name }}
+        image: {{ .Values.operator.image }}
+        imagePullPolicy: {{ .Values.operator.pullPolicy }}
+        env:
+        - name: OPERATOR_ENV
+          value: {{ .Values.env }}
+        - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
+          value: {{ .Values.database.image }}
+        - name: IMAGE_PULL_POLICY
+          value: {{ .Values.database.pullPolicy }}
+        - name: IMAGE_PULL_SECRETS
+          value: {{ .Values.imagePullSecrets }}
