@@ -5,11 +5,10 @@ metadata:
   name: mongodb
 
 ---
-kind: Role
+kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
-  namespace: mongodb
 rules:
 - apiGroups:
   - ""
@@ -50,29 +49,15 @@ metadata:
   namespace: mongodb
 
 ---
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator
-  namespace: mongodb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: mongodb-enterprise-operator
-subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-operator
-  namespace: mongodb
-
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: admin-binding
+  name: mongodb-enterprise-operator
+  namespace: mongodb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: mongodb-enterprise-operator
 subjects:
 - kind: ServiceAccount
   name: mongodb-enterprise-operator

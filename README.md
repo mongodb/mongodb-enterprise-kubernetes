@@ -2,6 +2,10 @@
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploys of MongoDB into Kubernetes clusters, using our management, monitoring and backup platforms, Ops Manager and Cloud Manager. By installing this integration, you will be able to deploy MongoDB instances with a single simple command.
 
+Please note that this project is currently in beta, and is not yet recommended for production use.
+
+You can discuss this integration in our [Slack](https://community-slack.mongodb.com) - join the [#enterprise-kubernetes](https://mongo-db.slack.com/messages/CB323LCG5/) channel.
+
 ## Requirements ##
 
 The MongoDB Enterprise Operator is compatible with Kubernetes v1.9 and above. It has been tested against Openshift 3.9.
@@ -37,7 +41,9 @@ For the Operator to work, you will need the following information:
 A `Project` object is a Kubernetes `ConfigMap` that points to an Ops Manager installation and a `Project`. This `ConfigMap` has the following structure:
 
 
-``` yaml
+```
+
+$ cat my-project.yaml
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -47,8 +53,11 @@ metadata:
 data:
   projectId: my-project-id
   baseUrl: https://my-ops-cloud-manager-url
-
 ```
+
+Apply this file to create the new `Project`:
+
+    kubectl apply -f my-project.yaml
 
 ### Credentials ###
 
@@ -61,7 +70,7 @@ $ kubectl -n mongodb create secret generic my-credentials --from-literal="user=s
 In this example, a `Secret` object with the name `my-credentials` was created. The contents of this `Secret` object is the `user` and `publicApiKey` attribute. You can see this secret with a command like:
 
 ``` bash
-$ kubectl get secret my-credentials
+$ kubectl describe secrets/my-credentials -n mongodb
 
 Name:         my-credentials
 Namespace:    mongodb
