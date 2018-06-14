@@ -95,7 +95,7 @@ A MongoDB object in Kubernetes can be a Standalone, a Replica Set or a Sharded C
 
 ``` yaml
 ---
-apiVersion: mongodb.com/v1beta1
+apiVersion: mongodb.com/v1
 kind: MongoDbReplicaSet
 metadata:
   name: my-replica-set
