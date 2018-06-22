@@ -3,9 +3,9 @@ name: mongodb-enterprise-operator
 
 env: dev
 operator:
-  image: quay.io/mongodb/mongodb-enterprise-operator:latest
+  image: quay.io/mongodb/mongodb-enterprise-operator:0.1
   pullPolicy: Always
 database:
-  image: quay.io/mongodb/mongodb-enterprise-database:latest
+  image: quay.io/mongodb/mongodb-enterprise-database:0.1
   pullPolicy: Always
 createNamespace: true
