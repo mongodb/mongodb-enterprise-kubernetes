@@ -12,7 +12,10 @@ rules:
   - services
   verbs:
   - get
+  - list
   - create
+  - update
+  - delete
 - apiGroups:
   - apps
   resources:

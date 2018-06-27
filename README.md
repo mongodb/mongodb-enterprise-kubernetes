@@ -6,11 +6,39 @@ Please note that this project is currently in beta, and is not yet recommended f
 
 You can discuss this integration in our [Slack](https://community-slack.mongodb.com) - join the [#enterprise-kubernetes](https://mongo-db.slack.com/messages/CB323LCG5/) channel.
 
+## Documentation ##
+
+[Install Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator)
+
+[Deploy Standalone](https://docs.opsmanager.mongodb.com/current/tutorial/deploy-standalone)
+
+[Deploy Replica Set](https://docs.opsmanager.mongodb.com/current/tutorial/deploy-replica-set)
+
+[Deploy Sharded Cluster](https://docs.opsmanager.mongodb.com/current/tutorial/deploy-sharded-cluster)
+
+[Edit Deployment](https://docs.opsmanager.mongodb.com/current/tutorial/edit-deployment)
+
+[Kubernetes Resource Specification](https://docs.opsmanager.mongodb.com/current/reference/k8s-operator-specification)
+
+[Known Issues for Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/reference/known-issues-k8s-beta)
+
 ## Requirements ##
 
 The MongoDB Enterprise Operator is compatible with Kubernetes v1.9 and above. It has been tested against Openshift 3.9.
 
-This Operator requires Ops Manager or Cloud Manager. In this document, when we refer to "Ops Manager", Cloud Manager may also be used.
+This Operator requires Ops Manager or Cloud Manager. In this document, when we refer to "Ops Manager", you may substitute "Cloud Manager". The functionality is the same.
+
+
+
+## Installation install ##
+
+This operator can also be installed using yaml files, in case you are not using Helm. You may apply the config directly from github clone this repo, and apply the file
+
+    kubectl apply -f https://raw.githubusercontent.com/mongodb/mongodb-enterprise-kubernetes/master/mongodb-enterprise.yaml
+
+or clone this repo, make any edits you need, and apply it from your machine.
+
+    kubectl apply -f mongodb-enterprise.yaml
 
 
 ## Helm Installation ##
@@ -20,11 +48,6 @@ If you have an Helm installation in your Kubernetes cluster, you can run:
     helm install helm_chart/ --name mongodb-enterprise
 
 
-## Non-Helm install ##
-
-This operator can also be installed using yaml files, in case you are not using Helm.
-
-    kubectl apply -f mongodb-enterprise.yaml
 
 
 ## Adding Ops Manager Credentials ##
@@ -36,13 +59,14 @@ For the Operator to work, you will need the following information:
 * User - an Ops Manager username
 * Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
 
+This is documented in greater detail in our [installation guide](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator)
+
+
 ### Projects ###
 
 A `Project` object is a Kubernetes `ConfigMap` that points to an Ops Manager installation and a `Project`. This `ConfigMap` has the following structure:
 
-
 ```
-
 $ cat my-project.yaml
 ---
 apiVersion: v1
@@ -51,8 +75,8 @@ metadata:
   name: my-project
   namespace: mongodb
 data:
-  projectId: my-project-id
-  baseUrl: https://my-ops-cloud-manager-url
+  projectId: my-project-id # get this from Ops Manager
+  baseUrl: https://my-ops-manager-or-cloud-manager-url
 ```
 
 Apply this file to create the new `Project`:
@@ -89,29 +113,10 @@ We can't see the contents of the `Secret`, because it is a secret!
 This is good, it will allow us to maintain a separation between our
 users.
 
-### Creating MongoDB Object ###
+### Creating a MongoDB Object ###
 
-A MongoDB object in Kubernetes can be a Standalone, a Replica Set or a Sharded Cluster. We are going to create a Replica Set to test that everything is working as expected. There is a ReplicaSet creation yaml file in the `samples/` directory. The contents of this file are as follows:
+A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster. We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replicaset.yaml`.
 
-``` yaml
----
-apiVersion: mongodb.com/v1
-kind: MongoDbReplicaSet
-metadata:
-  name: my-replica-set
-  namespace: mongodb
-spec:
-  members: 3
-  version: 3.6.5
+If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
-  persistent: false  # For testing, create Pods with NO persistent volumes.
-
-  project: my-project
-  credentials: my-credentials
-
-```
-
-If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running now and a new Replica Set with 3 members should soon appear in Ops Manager UI.
-
-
-    kubectl apply -f samples/replicaset.yaml
+    kubectl apply -f samples/minimal/replicaset.yaml

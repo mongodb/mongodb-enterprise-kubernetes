@@ -1,0 +1,28 @@
+#
+# This is a minimal config. To see all the options available, refer to the
+# "extended" directory
+#
+---
+apiVersion: mongodb.com/v1
+kind: MongoDbShardedCluster
+metadata:
+  name: my-sharded-cluster
+  namespace: mongodb
+spec:
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+  version: 4.0.0
+
+  # Before you create this object, you'll need to create a project ConfigMap and a
+  # credentials Secret. For instructions on how to do this, please refer to our
+  # documentation, here:
+  # https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator
+  project: my-project
+  credentials: my-credentials
+
+  # This flag allows the creation of pods without persistent volumes. This is for
+  # testing only, and must not be used in production. 'false' will disable
+  # Persistent Volume Claims. The default is 'true'
+  persistent: true

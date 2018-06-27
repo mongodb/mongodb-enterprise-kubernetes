@@ -1,0 +1,41 @@
+apiVersion: mongodb.com/v1
+kind: MongoDbStandalone
+metadata:
+  name: my-standalone
+  namespace: mongodb
+spec:
+  version: 4.0.0
+  service: my-service
+
+  ## Please Note: The default Kubernetes cluster name is `cluster.local`.
+  ## If your cluster has been configured with another name, you can specify
+  ## it with the `clusterName` attribute.
+  # clusterName: mycompany.net
+
+  project: my-project
+  credentials: my-credentials
+
+  persistent: true
+  podSpec:
+    cpu: '0.25'
+    memory: 512M
+    storage: 12G
+    storageClass: standard
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: failure-domain.beta.kubernetes.io/zone
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/e2e-az-name
+            operator: In
+            values:
+            - e2e-az1
+            - e2e-az2
