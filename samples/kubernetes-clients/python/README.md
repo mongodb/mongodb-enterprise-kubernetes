@@ -5,12 +5,11 @@ The following examples using the [Official Python client library for Kubernetes]
    - [ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#default-roles-and-role-bindings) and 
    - [ServiceAccount](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/)
    
-- Creation and deletion of MongoDB the following type of deployments:
+- Creation and deletion of the following type of MongoDB deployments:
    - Standalone
    - Replica Set
    - Sharded Cluster
 
 For more details, please refer to the repository for the Python client library for Kubernetes: https://github.com/kubernetes-client/python
 
-
-**NOTE**: the given examples assume the existence of the Kubernetes namespace `mongodb`. If using a different namespace, please modify the relevant variable in the sample code.
+**NOTE**: the given example assume the existence of the Kubernetes namespace `mongodb`. If using a different namespace, please modify the relevant variable in the sample code.

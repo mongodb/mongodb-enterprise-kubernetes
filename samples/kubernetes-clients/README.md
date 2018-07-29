@@ -4,7 +4,6 @@ The following directories include code samples for using the MongoDB Enterprise 
 
 ##Disclaimer
 
-
 Please note that the code and scripts in these sub-folders are released for use "AS IS" without any warranties of any kind, including, but not limited to their installation, use, or performance. 
  
 We do not warrant that the technology will meet your requirements, that the operation thereof will be uninterrupted or error-free, or that any errors will be corrected. 
