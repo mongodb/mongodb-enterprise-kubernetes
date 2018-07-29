@@ -412,8 +412,8 @@ class KubeClient(object):
         body = {"spec": {"shardCount": num_shards, "mongodsPerShardCount": num_mongod_per_shard,
                          "mongosCount": num_mongos, "persistent": False, "version": mongo_version,
                          "configServerCount": num_cfg_rs_members,
-                         "credentials": "dredd-om-credentials",
-                         "project": "dredd-project"},
+                         "credentials": "my-credentials",
+                         "project": "my-project"},
                 "kind": "MongoDbShardedCluster", "apiVersion": "mongodb.com/v1",
                 "metadata": {"name": name, "namespace": self.namespace}}
 
