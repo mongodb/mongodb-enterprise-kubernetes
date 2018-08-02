@@ -25,4 +25,4 @@ spec:
   # This flag allows the creation of pods without persistent volumes. This is for
   # testing only, and must not be used in production. 'false' will disable
   # Persistent Volume Claims. The default is 'true'
-  persistent: true
+  persistent: false

@@ -30,7 +30,7 @@ This Operator requires Ops Manager or Cloud Manager. In this document, when we r
 
 
 
-## Installation install ##
+## Installation ##
 
 This operator can also be installed using yaml files, in case you are not using Helm. You may apply the config directly from github clone this repo, and apply the file
 
@@ -119,4 +119,4 @@ A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet o
 
 If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
-    kubectl apply -f samples/minimal/replica-set.yaml
+    kubectl apply -f samples/minimal/replicaset.yaml

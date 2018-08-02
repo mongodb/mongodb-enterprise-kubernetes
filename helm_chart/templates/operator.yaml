@@ -2,29 +2,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Values.operator.name }}
   namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   selector:
       matchLabels:
-        app: {{ .Values.name }}
+        app: {{ .Values.operator.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        app: {{ .Values.operator.name }}
     spec:
-      serviceAccountName: {{ .Values.name }}
+      serviceAccountName: {{ .Values.operator.name }}
       containers:
-      - name: {{ .Values.name }}
-        image: {{ .Values.operator.image }}
+      - name: {{ .Values.operator.name }}
+        image: {{ .Values.registry.repository }}/mongodb-enterprise-operator:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.operator.pullPolicy }}
         env:
         - name: OPERATOR_ENV
-          value: {{ .Values.env }}
+          value: {{ .Values.operator.env }}
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: {{ .Values.database.image }}
+          value: {{ .Values.registry.repository }}/mongodb-enterprise-database:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
-          value: {{ .Values.database.pullPolicy }}
+          value: {{ .Values.registry.pullPolicy }}
         - name: IMAGE_PULL_SECRETS
-          value: {{ .Values.imagePullSecrets }}
+          value: {{ .Values.registry.imagePullSecrets }}
+      imagePullSecrets: 
+      - name: {{ .Values.registry.imagePullSecrets }}
