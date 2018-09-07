@@ -32,6 +32,16 @@ This Operator requires Ops Manager or Cloud Manager. In this document, when we r
 
 ## Installation ##
 
+### Create CustomResourceDefinitions
+
+The `CustomResourceDefinition` (or `crds`) should be installed before installing the operator into your Kubernetes cluster. To do this, make sure you have logged into your Kubernetes cluster and that you can perform Cluster level operations:
+
+    kubectl apply -f https://raw.githubusercontent.com/mongodb/mongodb-enterprise-kubernetes/master/crds.yaml
+
+This will create three new `crds` in your cluster, `MongoDbStandalone`, `MongoDbReplicaSet` and `MongoDbShardedCluster`. These new objects will be the ones used by the operator to perform the MongoDb operations needed to prepare each one of the different MongoDb types of deployments.
+
+### Operator Installation
+
 This operator can also be installed using yaml files, in case you are not using Helm. You may apply the config directly from github clone this repo, and apply the file
 
     kubectl apply -f https://raw.githubusercontent.com/mongodb/mongodb-enterprise-kubernetes/master/mongodb-enterprise.yaml
@@ -55,7 +65,9 @@ If you have an Helm installation in your Kubernetes cluster, you can run:
 For the Operator to work, you will need the following information:
 
 * Base Url - the url of an Ops Manager instance
-* Project Id - the id of a Project which MongoDBs will be deployed into.
+* Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
+ if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
+* (optionally) Organization Id - the id of organization to which Project belongs
 * User - an Ops Manager username
 * Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
 
@@ -75,10 +87,13 @@ metadata:
   name: my-project
   namespace: mongodb
 data:
-  projectId: my-project-id # get this from Ops Manager
+  projectName: myProjectName
+  orgId: 5b890e0feacf0b76ff3e7183 # this is an optional parameter
   baseUrl: https://my-ops-manager-or-cloud-manager-url
 ```
-
+> Note, that if `orgId` is skipped then the new organization named `projectName` will be automatically created and new 
+project will be added there.
+ 
 Apply this file to create the new `Project`:
 
     kubectl apply -f my-project.yaml
@@ -115,8 +130,8 @@ users.
 
 ### Creating a MongoDB Object ###
 
-A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster. We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replicaset.yaml`.
+A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster. We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replica-set.yaml`.
 
 If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
-    kubectl apply -f samples/minimal/replicaset.yaml
+    kubectl apply -f samples/minimal/replica-set.yaml

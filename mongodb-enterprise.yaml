@@ -1,14 +1,20 @@
 ---
+# Source: mongodb-enterprise-operator/templates/namespace.yaml
+
+---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: mongodb
 
 ---
-kind: ClusterRole
+# Source: mongodb-enterprise-operator/templates/roles.yaml
+---
+kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
+  namespace: mongodb
 rules:
 - apiGroups:
   - ""
@@ -28,16 +34,6 @@ rules:
   - statefulsets
   verbs: ["*"]
 - apiGroups:
-  - apiextensions.k8s.io
-  resources:
-  - customresourcedefinitions
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - delete
-- apiGroups:
   - mongodb.com
   resources:
   - "*"
@@ -45,27 +41,29 @@ rules:
   - "*"
 
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: mongodb-enterprise-operator
-  namespace: mongodb
-
----
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
   namespace: mongodb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: Role
   name: mongodb-enterprise-operator
 subjects:
 - kind: ServiceAccount
   name: mongodb-enterprise-operator
   namespace: mongodb
-
+---
+# Source: mongodb-enterprise-operator/templates/serviceaccount.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
+# Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -75,8 +73,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: mongodb-enterprise-operator
+      matchLabels:
+        app: mongodb-enterprise-operator
   template:
     metadata:
       labels:
@@ -85,16 +83,21 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:0.2
+        image: quay.io/mongodb/mongodb-enterprise-operator:0.3
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
-          value: "local"
+          value: prod
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:0.2
+          value: quay.io/mongodb/mongodb-enterprise-database:0.3
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: IMAGE_PULL_SECRETS
-          value: ""
-      imagePullSecrets:
-      - name: ""
+          value: 
+      imagePullSecrets: 
+      - name: 

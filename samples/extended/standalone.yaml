@@ -21,6 +21,9 @@ spec:
     memory: 512M
     storage: 12G
     storageClass: standard
+
+    # For podAffinity and nodeAffinity see Kubernetes Docs
+    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:

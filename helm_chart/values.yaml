@@ -1,10 +1,23 @@
-namespace: mongodb
+# Create the CustomerResourceDefinition for MongoDB custom types.
+createCrds: true
+
+# Create a Namespace for the Operator to be installed
 createNamespace: true
-registry:
-  repository: quay.io/mongodb
-  pullPolicy: Always
-  imagePullSecrets:
+# Name of the Namespace to use
+namespace: mongodb
+
+# Set this to true if your cluster is managing SecurityContext for you.
+# If running OpenShift (Cloud, Minishift, etc.), set this to true.
+managedSecurityContext: false
+
 operator:
+  # Execution environment for the operator, dev or prod.
+  env: prod
+
   name: mongodb-enterprise-operator
-  version: 0.2
-  env: dev
+  version: 0.3
+
+registry:
+  imagePullSecrets: null
+  pullPolicy: Always
+  repository: quay.io/mongodb

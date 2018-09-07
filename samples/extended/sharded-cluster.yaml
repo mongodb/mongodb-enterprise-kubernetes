@@ -26,6 +26,9 @@ spec:
     memory: 512M
     storage: 5G
     storageClass: fast
+
+    # For podAffinity and nodeAffinity see Kubernetes Docs
+    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     podAntiAffinityTopologyKey: kubernetes.io/hostname
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
