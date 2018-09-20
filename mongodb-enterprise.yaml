@@ -1,13 +1,4 @@
----
-# Source: mongodb-enterprise-operator/templates/namespace.yaml
-
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: mongodb
-
----
+##---
 # Source: mongodb-enterprise-operator/templates/roles.yaml
 ---
 kind: Role
@@ -54,7 +45,7 @@ subjects:
 - kind: ServiceAccount
   name: mongodb-enterprise-operator
   namespace: mongodb
----
+##---
 # Source: mongodb-enterprise-operator/templates/serviceaccount.yaml
 ---
 apiVersion: v1
@@ -62,7 +53,7 @@ kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-operator
   namespace: mongodb
----
+##---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
 apiVersion: apps/v1

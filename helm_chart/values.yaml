@@ -1,8 +1,6 @@
 # Create the CustomerResourceDefinition for MongoDB custom types.
 createCrds: true
 
-# Create a Namespace for the Operator to be installed
-createNamespace: true
 # Name of the Namespace to use
 namespace: mongodb
 
@@ -11,13 +9,17 @@ namespace: mongodb
 managedSecurityContext: false
 
 operator:
-  # Execution environment for the operator, dev or prod.
+  # Execution environment for the operator, dev or prod. Use dev for more verbose logging
   env: prod
 
+  # Name that will be assigned to most of internal Kubernetes objects like Deployment, ServiceAccount, Role etc.
   name: mongodb-enterprise-operator
+
+  # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
   version: 0.3
 
 registry:
+  # Specify if images are pulled from private repository
   imagePullSecrets: null
   pullPolicy: Always
   repository: quay.io/mongodb
