@@ -32,6 +32,16 @@ This Operator requires Ops Manager or Cloud Manager. In this document, when we r
 
 ## Installation ##
 
+### Create Kubernetes Namespace ###
+
+The Mongodb Enterprise Operator is installed, by default, into the `mongodb` Namespace, but this Namespace is not created automatically. To create this Namespace you should execute:
+
+    kubectl create namespace mongodb
+    
+If you plan on using any other Namespace, please make sure you update the yaml files' `metadata.namespace` attribute to 
+point to your preferred Namespace. If using `helm` you need to override the `namespace` attribute with `--set namespace=<..>` 
+during helm installation
+
 ### Create CustomResourceDefinitions
 
 The `CustomResourceDefinition` (or `crds`) should be installed before installing the operator into your Kubernetes cluster. To do this, make sure you have logged into your Kubernetes cluster and that you can perform Cluster level operations:
@@ -56,7 +66,6 @@ or clone this repo, make any edits you need, and apply it from your machine.
 If you have an Helm installation in your Kubernetes cluster, you can run:
 
     helm install helm_chart/ --name mongodb-enterprise
-
 
 
 
