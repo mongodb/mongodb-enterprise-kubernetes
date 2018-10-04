@@ -19,8 +19,14 @@ spec:
   podSpec:
     cpu: '0.25'
     memory: 512M
-    storage: 12G
-    storageClass: standard
+    # "single" persistence allows to mount different directories to single Persistent Volume
+    persistence:
+      single:
+        storage: 12G
+        storageClass: standard
+        labelSelector:
+          matchExpressions:
+          - {key: environment, operator: In, values: [dev]}
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/

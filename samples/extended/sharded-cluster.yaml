@@ -24,8 +24,8 @@ spec:
   configSrvPodSpec:
     cpu: '0.5'
     memory: 512M
-    storage: 5G
-    storageClass: fast
+
+    # if "persistence" element is omitted then Operator uses the default size (16G) for mounting single Persistent Volume
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
@@ -55,6 +55,13 @@ spec:
   shardPodSpec:
     cpu: '0.6'
     memory: 3G
-    storage: 25G
-    storageClass: standard
+    persistence:
+      multiple:
+        # if the child of "multiple" is omitted then the default size will be used.
+        # 16G for "data", 1G for "journal", 3Gb for "logs"
+        data:
+          storage: 20G
+        logs:
+          storage: 4G
+          storageClass: standard
     podAntiAffinityTopologyKey: kubernetes.io/hostname

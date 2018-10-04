@@ -21,8 +21,19 @@ spec:
   podSpec:
     cpu: '0.25'
     memory: 512M
-    storage: 12G
-    storageClass: standard
+    # "multiple" persistence allows to mount different directories to different Persistent Volumes
+    persistence:
+      multiple:
+        data:
+          storage: 10Gi
+        journal:
+          storage: 1Gi
+          labelSelector:
+            matchLabels:
+              app: "my-app"
+        logs:
+          storage: 500M
+          storageClass: standard
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
