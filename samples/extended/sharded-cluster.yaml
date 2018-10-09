@@ -25,7 +25,8 @@ spec:
     cpu: '0.5'
     memory: 512M
 
-    # if "persistence" element is omitted then Operator uses the default size (16G) for mounting single Persistent Volume
+    # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
+    # for config server
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
