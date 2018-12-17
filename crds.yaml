@@ -1,4 +1,4 @@
-##---
+---
 # Source: mongodb-enterprise-operator/templates/crds.yaml
 
 
@@ -30,6 +30,14 @@ spec:
                   type: string
                 version:
                   type: string
+                logLevel:
+                  type: string
+                  enum:
+                  - DEBUG
+                  - INFO
+                  - WARN
+                  - ERROR
+                  - FATAL
           required:
           - credentials
           - project
@@ -67,6 +75,14 @@ spec:
                   type: string
                 version:
                   type: string
+                logLevel:
+                  type: string
+                  enum:
+                  - DEBUG
+                  - INFO
+                  - WARN
+                  - ERROR
+                  - FATAL
           required:
           - credentials
           - project
@@ -115,6 +131,14 @@ spec:
                   type: string
                 version:
                   type: string
+                logLevel:
+                  type: string
+                  enum:
+                  - DEBUG
+                  - INFO
+                  - WARN
+                  - ERROR
+                  - FATAL
           required:
           - credentials
           - project

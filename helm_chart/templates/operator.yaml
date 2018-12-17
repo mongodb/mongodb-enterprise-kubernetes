@@ -3,7 +3,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.operator.name }}
+{{ if .Values.namespace }}
   namespace: {{ .Values.namespace }}
+{{ end }}
 spec:
   replicas: 1
   selector:
@@ -19,22 +21,38 @@ spec:
       - name: {{ .Values.operator.name }}
         image: {{ .Values.registry.repository }}/mongodb-enterprise-operator:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
+{{ if .Values.registry.imagePullSecrets}}
+        imagePullSecrets:
+        - name: {{ .Values.registry.imagePullSecrets }}
+{{ end }}
         env:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
         - name: WATCH_NAMESPACE
+{{ if .Values.operator.watchNamespace}}
+          value: "{{ .Values.operator.watchNamespace }}"
+{{ else }}
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+{{ end }}
 {{ if eq .Values.managedSecurityContext true}}
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
-{{end}}
+{{ end }}
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
           value: {{ .Values.registry.repository }}/mongodb-enterprise-database:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
+{{ if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}
-      imagePullSecrets: 
-      - name: {{ .Values.registry.imagePullSecrets }}
+{{ end }}
+{{ if .Values.operator.podWaitSeconds }}
+        - name: POD_WAIT_SEC
+          value: {{ quote .Values.operator.podWaitSeconds }}
+{{ end }}
+{{ if .Values.operator.podSetWaitRetries }}
+        - name: POD_WAIT_RETRIES
+          value: {{ quote .Values.operator.podSetWaitRetries }}
+{{ end }}

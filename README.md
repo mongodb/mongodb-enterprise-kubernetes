@@ -20,15 +20,16 @@ You can discuss this integration in our [Slack](https://community-slack.mongodb.
 
 [Kubernetes Resource Specification](https://docs.opsmanager.mongodb.com/current/reference/k8s-operator-specification)
 
+[Troubleshooting Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/reference/troubleshooting/k8s/)
+
 [Known Issues for Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/reference/known-issues-k8s-beta)
 
 ## Requirements ##
 
-The MongoDB Enterprise Operator is compatible with Kubernetes v1.9 and above. It has been tested against Openshift 3.9.
+The MongoDB Enterprise Operator is compatible with Kubernetes v1.11 and above. It has been tested against Openshift 3.11.
 
 This Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) or [Cloud Manager](https://cloud.mongodb.com/user#/cloud/login). In this document, when we refer to "Ops Manager", you may substitute "Cloud Manager". The functionality is the same.
 > If this is your first time trying the Operator, Cloud Manager is easier to get started 
-
 
 
 ## Installation
@@ -63,14 +64,19 @@ or clone this repo, make any edits you need, and apply it from your machine.
 
     kubectl apply -f mongodb-enterprise.yaml
 
+Check the end of the page for instructions on how to remove the Operator.
 
-### Helm Installation
+### Installation using Helm Chart
 
-If you have an Helm installation in your Kubernetes cluster, you can run:
+If you have installed the Helm client locally then you can run (note that `helm install` is a less preferred way as makes upgrades more complicated. 
+`kubectl apply` is a much clearer way of installing/upgrading):
 
-    helm install helm_chart/ --name mongodb-enterprise
+    helm template public/helm_chart > operator.yaml
+    kubectl apply -f operator.yaml
 
+You can customize installation by simple overriding of helm variables, for example use `--set operator.env="dev"` to run the Operator in development mode
 
+Check the end of the page for instructions on how to remove the Operator.
 
 ## Adding Ops Manager Credentials ##
 
@@ -142,8 +148,30 @@ users.
 
 ### Creating a MongoDB Object ###
 
-A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster. We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replicaset.yaml`.
+A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster (short names are `mst`, `mrs`, `msc`). We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replicaset.yaml`.
 
 If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
     kubectl apply -f samples/minimal/replicaset.yaml
+    
+### Correct order of Operator/Namespace removal
+
+It's important to keep correct order or removal operations. The simple rule is: **never remove Operator before mongodb resources**!
+The reason is that, starting from version `0.6`, the Operator adds a finalizer header to each mongodb resource, preventing 
+them from removal until a controller removes this header. As the MongoDB Operator is the only controller that can do this, 
+removing it before removing the mongodb resources is an error.
+
+These are the correct steps to clean up any MongoDB Operator resources:
+
+```bash
+# these three operations must be called first!
+kubectl delete mst --all -n <namespace>
+kubectl delete mrs --all -n <namespace>
+kubectl delete msc --all -n <namespace>
+
+# any of the following commands must be called removing all existing mongodb resources
+kubectl delete namespace <namespace>
+kubectl delete deployment mongodb-enterprise-operator -n <namespace>
+kubectl delete crd --all
+```
+   
