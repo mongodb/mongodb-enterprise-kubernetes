@@ -85,7 +85,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:0.6
+        image: quay.io/mongodb/mongodb-enterprise-operator:0.7
         imagePullPolicy: Always
 
         env:
@@ -99,7 +99,7 @@ spec:
 
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:0.6
+          value: quay.io/mongodb/mongodb-enterprise-database:0.7
         - name: IMAGE_PULL_POLICY
           value: Always
 

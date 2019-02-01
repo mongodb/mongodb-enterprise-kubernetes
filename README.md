@@ -124,28 +124,6 @@ For a user to be able to create or update objects in this Ops Manager Project th
 $ kubectl -n mongodb create secret generic my-credentials --from-literal="user=some@example.com" --from-literal="publicApiKey=my-public-api-key"
 ```
 
-In this example, a `Secret` object with the name `my-credentials` was created. The contents of this `Secret` object is the `user` and `publicApiKey` attribute. You can see this secret with a command like:
-
-``` bash
-$ kubectl describe secrets/my-credentials -n mongodb
-
-Name:         my-credentials
-Namespace:    mongodb
-Labels:       <none>
-Annotations:  <none>
-
-Type:  Opaque
-
-Data
-====
-publicApiKey:  41 bytes
-user:          14 bytes
-```
-
-We can't see the contents of the `Secret`, because it is a secret!
-This is good, it will allow us to maintain a separation between our
-users.
-
 ### Creating a MongoDB Object ###
 
 A MongoDB object in Kubernetes can be a MongoDBStandalone, a MongoDBReplicaSet or a MongoDBShardedCluster (short names are `mst`, `mrs`, `msc`). We are going to create a replica set to test that everything is working as expected. There is a MongoDBReplicaSet yaml file in `samples/minimal/replicaset.yaml`.

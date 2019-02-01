@@ -32,12 +32,6 @@ spec:
                   type: string
                 logLevel:
                   type: string
-                  enum:
-                  - DEBUG
-                  - INFO
-                  - WARN
-                  - ERROR
-                  - FATAL
           required:
           - credentials
           - project
@@ -77,12 +71,6 @@ spec:
                   type: string
                 logLevel:
                   type: string
-                  enum:
-                  - DEBUG
-                  - INFO
-                  - WARN
-                  - ERROR
-                  - FATAL
           required:
           - credentials
           - project
@@ -133,12 +121,6 @@ spec:
                   type: string
                 logLevel:
                   type: string
-                  enum:
-                  - DEBUG
-                  - INFO
-                  - WARN
-                  - ERROR
-                  - FATAL
           required:
           - credentials
           - project
