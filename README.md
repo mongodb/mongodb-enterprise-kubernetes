@@ -74,7 +74,8 @@ If you have installed the Helm client locally then you can run (note that `helm 
     helm template public/helm_chart > operator.yaml
     kubectl apply -f operator.yaml
 
-You can customize installation by simple overriding of helm variables, for example use `--set operator.env="dev"` to run the Operator in development mode
+You can customize installation by simple overriding of helm variables, for example use `--set operator.env="dev"` to run the Operator in development mode 
+(this will turn logging level to `Debug` and will make logging output as non-json)
 
 Check the end of the page for instructions on how to remove the Operator.
 
@@ -135,11 +136,9 @@ If you have a correctly created Project with the name `my-project` and Credentia
 ### Correct order of Operator/Namespace removal
 
 It's important to keep correct order or removal operations. The simple rule is: **never remove Operator before mongodb resources**!
-The reason is that, starting from version `0.6`, the Operator adds a finalizer header to each mongodb resource, preventing 
-them from removal until a controller removes this header. As the MongoDB Operator is the only controller that can do this, 
-removing it before removing the mongodb resources is an error.
+The reason is that the Operator cleans state in Ops Manager on deletion of the MongoDB resource in Kubernetes. 
 
-These are the correct steps to clean up any MongoDB Operator resources:
+These are the correct steps to remove any MongoDB Operator resources:
 
 ```bash
 # these three operations must be called first!
@@ -147,7 +146,7 @@ kubectl delete mst --all -n <namespace>
 kubectl delete mrs --all -n <namespace>
 kubectl delete msc --all -n <namespace>
 
-# any of the following commands must be called removing all existing mongodb resources
+# any of the following commands must be called after removing all existing mongodb resources
 kubectl delete namespace <namespace>
 kubectl delete deployment mongodb-enterprise-operator -n <namespace>
 kubectl delete crd --all

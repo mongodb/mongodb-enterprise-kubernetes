@@ -1,7 +1,7 @@
 ---
 # Source: mongodb-enterprise-operator/templates/roles.yaml
 ---
-kind: Role
+kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
@@ -35,7 +35,7 @@ rules:
   - "*"
 
 ---
-kind: RoleBinding
+kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
@@ -44,7 +44,7 @@ metadata:
 
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind:  Role 
   name: mongodb-enterprise-operator
 subjects:
 - kind: ServiceAccount
@@ -85,7 +85,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:0.7
+        image: quay.io/mongodb/mongodb-enterprise-operator:0.8
         imagePullPolicy: Always
 
         env:
@@ -99,7 +99,7 @@ spec:
 
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:0.7
+          value: quay.io/mongodb/mongodb-enterprise-database:0.8
         - name: IMAGE_PULL_POLICY
           value: Always
 

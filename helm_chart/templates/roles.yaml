@@ -1,5 +1,5 @@
 ---
-kind: Role
+kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRole {{ else }} Role {{ end }} {{ else }} Role {{ end }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.operator.name }}
@@ -33,7 +33,7 @@ rules:
   - "*"
 
 ---
-kind: RoleBinding
+kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRoleBinding {{ else }} RoleBinding {{ end }} {{ else }} RoleBinding {{ end }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.operator.name }}
@@ -42,7 +42,7 @@ metadata:
 {{ end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRole {{ else }} Role {{ end }} {{ else }} Role {{ end }}
   name: {{ .Values.operator.name }}
 subjects:
 - kind: ServiceAccount
