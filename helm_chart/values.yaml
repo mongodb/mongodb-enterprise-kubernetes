@@ -16,7 +16,7 @@ operator:
   name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: '0.8'
+  version: '0.9'
 
 registry:
   # Specify if images are pulled from private repository
