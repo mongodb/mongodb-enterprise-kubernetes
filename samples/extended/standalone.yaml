@@ -2,7 +2,7 @@ apiVersion: mongodb.com/v1
 kind: MongoDbStandalone
 metadata:
   name: my-standalone
-  namespace: mongodb
+  namespace: mongodb2
 spec:
   version: 4.0.0
   service: my-service
