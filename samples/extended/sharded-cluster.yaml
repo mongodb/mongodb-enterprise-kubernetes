@@ -1,6 +1,6 @@
 ---
 apiVersion: mongodb.com/v1
-kind: MongoDbShardedCluster
+kind: MongoDB
 metadata:
   name: my-sharded-cluster
   namespace: mongodb
@@ -19,6 +19,7 @@ spec:
 
   project: my-project
   credentials: my-credentials
+  type: ShardedCluster
 
   persistent: true
   configSrvPodSpec:

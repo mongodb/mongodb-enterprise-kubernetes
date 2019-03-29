@@ -4,13 +4,12 @@
 #
 ---
 apiVersion: mongodb.com/v1
-kind: MongoDbStandalone
+kind: MongoDB
 metadata:
   name: my-standalone
-  namespace: mongodb
 spec:
   version: 4.0.0
-
+  type: Standalone
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our
   # documentation, here:

@@ -4,14 +4,13 @@
 #
 ---
 apiVersion: mongodb.com/v1
-kind: MongoDbReplicaSet
+kind: MongoDB
 metadata:
   name: my-replica-set
-  namespace: mongodb
 spec:
-  members: 3
+  members: 1
   version: 4.0.0
-
+  type: ReplicaSet
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our
   # documentation, here:
