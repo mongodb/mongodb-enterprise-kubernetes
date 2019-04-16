@@ -71,7 +71,7 @@ Check the end of the page for instructions on how to remove the Operator.
 If you have installed the Helm client locally then you can run (note that `helm install` is a less preferred way as makes upgrades more complicated. 
 `kubectl apply` is a much clearer way of installing/upgrading):
 
-    helm template public/helm_chart > operator.yaml
+    helm template helm_chart > operator.yaml
     kubectl apply -f operator.yaml
 
 You can customize installation by simple overriding of helm variables, for example use `--set operator.env="dev"` to run the Operator in development mode 
