@@ -4,17 +4,16 @@
 #
 ---
 apiVersion: mongodb.com/v1
-kind: MongoDbShardedCluster
+kind: MongoDB
 metadata:
   name: my-sharded-cluster
-  namespace: mongodb
 spec:
   shardCount: 2
   mongodsPerShardCount: 3
   mongosCount: 2
   configServerCount: 3
   version: 4.0.0
-
+  type: ShardedCluster
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our
   # documentation, here:

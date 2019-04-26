@@ -24,13 +24,24 @@ rules:
   - apps
   resources:
   - statefulsets
-  verbs: ["*"]
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - update
 - apiGroups:
   - mongodb.com
   resources:
-  - "*"
+  - mongodb
+  - mongodb/finalizers
   verbs:
-  - "*"
+  - get
+  - list
+  - watch
+  - delete
+  - update
 
 ---
 kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRoleBinding {{ else }} RoleBinding {{ end }} {{ else }} RoleBinding {{ end }}
@@ -49,4 +60,39 @@ subjects:
   name: {{ .Values.operator.name }}
 {{ if .Values.namespace }}
   namespace: {{ .Values.namespace }}
+{{ end }}
+
+# This ClusterRole is needed if the user wants to use the Kubernetes CA
+# infrastructure to generate certificates.
+{{ if .Values.needsCAInfrastructure }}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs
+rules:
+- apiGroups:
+  - certificates.k8s.io
+  resources:
+  - certificatesigningrequests
+  verbs:
+  - get
+  - create
+  - list
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs-binding
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.operator.name }}
+  namespace: {{ .Values.namespace }}
+
 {{ end }}

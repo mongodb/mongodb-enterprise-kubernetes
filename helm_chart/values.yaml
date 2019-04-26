@@ -16,10 +16,17 @@ operator:
   name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: '0.10'
+  version: '0.11'
+
+database:
+  name: mongodb-enterprise-database
 
 registry:
   # Specify if images are pulled from private repository
   imagePullSecrets:
   pullPolicy: Always
   repository: quay.io/mongodb
+
+# Set this to true if the operator will require Kubernetes CA
+# infrastructure to generate TLS certificates.
+needsCAInfrastructure: true

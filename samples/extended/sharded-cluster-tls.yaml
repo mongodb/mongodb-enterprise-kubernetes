@@ -1,0 +1,31 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster
+spec:
+  type: ShardedCluster
+
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+
+  version: 4.0.6
+
+  project: my-project
+  credentials: my-credentials
+
+  persistent: false
+
+  # This will create a TLS enabled Sharded Cluster, which means that
+  # all the traffic between Shards and clients will be encrypted using
+  # TLS certificates.  These certificates will be generated on the fly
+  # by the operator using the Kubernetes CA.  Please refer to
+  # Kubernetes TLS Documentation on how to approve these certs:
+  #
+  # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
+  #
+  security:
+    tls:
+      enabled: true

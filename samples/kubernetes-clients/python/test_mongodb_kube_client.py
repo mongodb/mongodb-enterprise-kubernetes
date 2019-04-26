@@ -45,11 +45,11 @@ def main():
     '''
     # Delete the created deployments
 
-    kube_client.delete_mongo_process(name="my-standalone", type_plural="mongodbstandalones")
+    kube_client.delete_mongo_process(name="my-standalone", type_plural="mongodb")
 
-    kube_client.delete_mongo_process(name="my-replica-set", type_plural="mongodbreplicasets")
+    kube_client.delete_mongo_process(name="my-replica-set", type_plural="mongodb")
 
-    kube_client.delete_mongo_process(name="my-sharded-cluster", type_plural="mongodbshardedclusters")
+    kube_client.delete_mongo_process(name="my-sharded-cluster", type_plural="mongodb")
     '''
 
 

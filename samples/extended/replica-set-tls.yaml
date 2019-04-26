@@ -1,0 +1,37 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-tls-enabled-rs
+spec:
+  type: ReplicaSet
+
+  members: 3
+  version: 4.0.4
+
+  project: my-project
+  credentials: my-credentials
+
+  # look into `replica-set-persistent-volumes.yaml` for an example on how to use
+  # Kubernetes Persistent Volumes in your MDB deployment.
+  persistent: false
+
+  # This will create a TLS enabled Replica Set, which means that all the traffic
+  # between members of the Replica Set and clients, will be encrypted using TLS
+  # certificates. These certificates will be generated on the fly by the operator
+  # using the Kubernetes CA.
+  # Please refer to Kubernetes TLS Documentation on how to approve these certs:
+  #
+  # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
+  #
+  security:
+    tls:
+      enabled: true
+
+  # The default TLS mode is 'requireTLS' but it can be customized using the
+  # the `additionalMongodConfig` structure. Please find more information here:
+  # https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.mode
+  additionalMongodConfig:
+    net:
+      ssl:
+        mode: "preferSSL"

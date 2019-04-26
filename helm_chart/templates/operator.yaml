@@ -19,7 +19,7 @@ spec:
       serviceAccountName: {{ .Values.operator.name }}
       containers:
       - name: {{ .Values.operator.name }}
-        image: {{ .Values.registry.repository }}/mongodb-enterprise-operator:{{ .Values.operator.version }}
+        image: {{ .Values.registry.repository }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
 {{ if .Values.registry.imagePullSecrets}}
         imagePullSecrets:
@@ -41,7 +41,7 @@ spec:
           value: 'true'
 {{ end }}
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: {{ .Values.registry.repository }}/mongodb-enterprise-database:{{ .Values.operator.version }}
+          value: {{ .Values.registry.repository }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
 {{ if .Values.registry.imagePullSecrets }}

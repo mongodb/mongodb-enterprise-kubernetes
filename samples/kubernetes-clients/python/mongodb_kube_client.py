@@ -101,12 +101,12 @@ class MongoDBEnterpriseKubeClient(object):
 
         group = 'mongodb.com'
         version = 'v1'
-        plural = 'mongodbstandalones'
+        plural = 'mongodb'
 
         body = {"spec":
                     {"persistent": False, "version": str(mongo_version), "credentials": "my-credentials",
                      "project": "my-project"},
-                "kind": "MongoDbStandalone", "apiVersion": "mongodb.com/v1",
+                "kind": "MongoDB", "apiVersion": "mongodb.com/v1",
                 "metadata": {"name": name, "namespace": self.namespace}}
 
         try:
@@ -122,12 +122,12 @@ class MongoDBEnterpriseKubeClient(object):
 
         group = 'mongodb.com'
         version = 'v1'
-        plural = 'mongodbreplicasets'
+        plural = 'mongodb'
 
         body = {"spec": {"members": members, "persistent": False, "version": str(mongo_version),
                          "credentials": "my-credentials",
                          "project": "my-project"},
-                "kind": "MongoDbReplicaSet", "apiVersion": "mongodb.com/v1",
+                "kind": "MongoDB", "apiVersion": "mongodb.com/v1",
                 "metadata": {"name": name, "namespace": self.namespace}}
 
         try:
@@ -145,14 +145,14 @@ class MongoDBEnterpriseKubeClient(object):
 
         group = 'mongodb.com'
         version = 'v1'
-        plural = 'mongodbshardedclusters'
+        plural = 'mongodb'
 
         body = {"spec": {"shardCount": num_shards, "mongodsPerShardCount": num_mongod_per_shard,
                          "mongosCount": num_mongos, "persistent": False, "version": mongo_version,
                          "configServerCount": num_cfg_rs_members,
                          "credentials": "my-credentials",
                          "project": "my-project"},
-                "kind": "MongoDbShardedCluster", "apiVersion": "mongodb.com/v1",
+                "kind": "MongoDB", "apiVersion": "mongodb.com/v1",
                 "metadata": {"name": name, "namespace": self.namespace}}
 
         try:
@@ -164,8 +164,6 @@ class MongoDBEnterpriseKubeClient(object):
     def delete_mongo_process(self, name, type_plural):
         '''
         Delete MongoDB deployments by name and type
-
-        type_plural can be: "mongodbstandalones", "mongodbreplicasets" or "mongodbshardedclusters"
         '''
 
         group = 'mongodb.com'

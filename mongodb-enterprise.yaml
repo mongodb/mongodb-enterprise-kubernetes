@@ -26,13 +26,24 @@ rules:
   - apps
   resources:
   - statefulsets
-  verbs: ["*"]
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - update
 - apiGroups:
   - mongodb.com
   resources:
-  - "*"
+  - mongodb
+  - mongodb/finalizers
   verbs:
-  - "*"
+  - get
+  - list
+  - watch
+  - delete
+  - update
 
 ---
 kind:  RoleBinding 
@@ -51,6 +62,41 @@ subjects:
   name: mongodb-enterprise-operator
 
   namespace: mongodb
+
+
+# This ClusterRole is needed if the user wants to use the Kubernetes CA
+# infrastructure to generate certificates.
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-certs
+rules:
+- apiGroups:
+  - certificates.k8s.io
+  resources:
+  - certificatesigningrequests
+  verbs:
+  - get
+  - create
+  - list
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-certs-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-certs
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
 
 ---
 # Source: mongodb-enterprise-operator/templates/serviceaccount.yaml
@@ -85,7 +131,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:0.10
+        image: quay.io/mongodb/mongodb-enterprise-operator:0.11
         imagePullPolicy: Always
 
         env:
@@ -99,7 +145,7 @@ spec:
 
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:0.10
+          value: quay.io/mongodb/mongodb-enterprise-database:0.11
         - name: IMAGE_PULL_POLICY
           value: Always
 

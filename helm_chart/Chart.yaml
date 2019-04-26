@@ -1,6 +1,6 @@
 name: mongodb-enterprise-operator
 description: MongoDB Kubernetes Enterprise Operator
-version: '0.10'
+version: '0.11'
 kubeVersion: '>=1.11'
 keywords:
 - mongodb
