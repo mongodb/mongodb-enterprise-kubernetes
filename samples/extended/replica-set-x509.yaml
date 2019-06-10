@@ -1,0 +1,35 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-x509-enabled-rs
+spec:
+  type: ReplicaSet
+
+  members: 3
+  version: 4.0.4
+
+  project: my-project
+  credentials: my-credentials
+
+  # look into `replica-set-persistent-volumes.yaml` for an example on how to use
+  # Kubernetes Persistent Volumes in your MDB deployment.
+  persistent: false
+
+  # This will create a TLS & x509 enabled Replica Set, which means that all the traffic
+  # between members of the Replica Set and clients, will be encrypted using TLS
+  # certificates. These certificates will be generated on the fly by the operator
+  # using the Kubernetes CA.
+  #
+  # More information about setting up x509 client authentication in Ops Manager:
+  #
+  # https://docs.opsmanager.mongodb.com/current/tutorial/enable-x509-authentication-for-group
+  #
+  # Please refer to Kubernetes TLS Documentation on how to approve these certs:
+  #
+  # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
+  #
+  security:
+    clusterAuthenticationMode: x509
+    tls:
+      enabled: true

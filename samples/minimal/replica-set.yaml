@@ -1,3 +1,7 @@
+#
+# This is a minimal config. To see all the options available, refer to the
+# "extended" directory
+#
 ---
 apiVersion: mongodb.com/v1
 kind: MongoDB

@@ -36,6 +36,7 @@ rules:
   resources:
   - mongodb
   - mongodb/finalizers
+  - mongodbusers
   verbs:
   - get
   - list
@@ -79,6 +80,7 @@ rules:
   - get
   - create
   - list
+  - watch
 
 ---
 kind: ClusterRoleBinding

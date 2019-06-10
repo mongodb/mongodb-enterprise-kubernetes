@@ -38,6 +38,7 @@ rules:
   resources:
   - mongodb
   - mongodb/finalizers
+  - mongodbusers
   verbs:
   - get
   - list
@@ -81,6 +82,7 @@ rules:
   - get
   - create
   - list
+  - watch
 
 ---
 kind: ClusterRoleBinding
@@ -131,7 +133,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:0.11
+        image: quay.io/mongodb/mongodb-enterprise-operator:0.12
         imagePullPolicy: Always
 
         env:
@@ -145,7 +147,7 @@ spec:
 
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:0.11
+          value: quay.io/mongodb/mongodb-enterprise-database:0.12
         - name: IMAGE_PULL_POLICY
           value: Always
 

@@ -1,0 +1,37 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-x509-enabled-sc
+spec:
+  type: ShardedCluster
+
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+
+  version: 4.0.6
+
+  project: my-project
+  credentials: my-credentials
+
+  persistent: false
+
+  # This will create a TLS & x509 enabled Sharded Cluster, which means that all the traffic
+  # between members of the Shards and clients, will be encrypted using TLS
+  # certificates. These certificates will be generated on the fly by the operator
+  # using the Kubernetes CA.
+  #
+  # More information about setting up x509 client authentication in Ops Manager:
+  #
+  # https://docs.opsmanager.mongodb.com/current/tutorial/enable-x509-authentication-for-group
+  #
+  # Please refer to Kubernetes TLS Documentation on how to approve these certs:
+  #
+  # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
+  #
+  security:
+    clusterAuthenticationMode: x509
+    tls:
+      enabled: true

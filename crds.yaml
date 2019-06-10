@@ -52,6 +52,14 @@ spec:
               type:
                 type: string
                 pattern: "^Standalone$"
+              security:
+                type: object
+                properties:
+                  tls:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
               additionalMongodConfig:
                 properties:
                   net:
@@ -88,6 +96,17 @@ spec:
               type:
                 type: string
                 pattern: "^ReplicaSet$"
+              security:
+                type: object
+                properties:
+                  tls:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                  clusterAuthenticationMode:
+                    type: string
+                    enum: ["x509"]
               additionalMongodConfig:
                 properties:
                   net:
@@ -135,6 +154,17 @@ spec:
               type:
                 type: string
                 pattern: "^ShardedCluster$"
+              security:
+                type: object
+                properties:
+                  tls:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                  clusterAuthenticationMode:
+                    type: string
+                    enum: ["x509"]
               additionalMongodConfig:
                 properties:
                   net:
@@ -155,4 +185,52 @@ spec:
             - mongodsPerShardCount
             - mongosCount
             - configServerCount
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: mongodbusers.mongodb.com
+spec:
+  group: mongodb.com
+  version: v1
+  scope: Namespaced
+  names:
+    kind: MongoDBUser
+    plural: mongodbusers
+    shortNames:
+    - mdbu
+    singular: mongodbuser
+  validation:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              username:
+                type: string
+                description: "The username of the user"
+              db:
+                type: string
+                enum: ["$external"]
+                description: "The database the user is stored in"
+              project:
+                type: string
+                description: "The project the user belongs to"
+              roles:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: "The name of the role"
+                    db:
+                      type: string
+                      description: "The db the role can act on"
+                  required:
+                    - name
+                    - db
+            required:
+              - username
+              - db
+              - project
 

@@ -1,3 +1,4 @@
+---
 apiVersion: mongodb.com/v1
 kind: MongoDB
 metadata:
@@ -5,6 +6,11 @@ metadata:
 spec:
   version: 4.0.0
   service: my-service
+
+  # Indicates featureCompatibilityVersion. This attribute will make the data
+  # format to persist in a particular version, maybe older, allowing for
+  # future downgrades if necessary.
+  featureCompatibilityVersion: 4.0
 
   ## Please Note: The default Kubernetes cluster name is `cluster.local`.
   ## If your cluster has been configured with another name, you can specify

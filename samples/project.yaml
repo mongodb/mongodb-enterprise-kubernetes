@@ -3,10 +3,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: my-project
-  namespace: mongodb
 data:
-  projectName: MyProject
-
-  # Optional parameter - if skipped a new organization with the same name as project will be created automatically.
-  orgId: my-org-id
+  projectName: My Ops/Cloud Manager Project
   baseUrl: http://my-ops-cloud-manager-url
+
+  # Optional parameters
+
+  # If orgId is omitted a new organization will be created, with the same name as the Project.
+  orgId: my-org-id
