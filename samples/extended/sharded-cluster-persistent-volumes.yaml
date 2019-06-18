@@ -28,6 +28,8 @@ spec:
   persistent: true
   configSrvPodSpec:
     cpu: '0.5'
+    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
+    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
     memory: 512M
 
     # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume

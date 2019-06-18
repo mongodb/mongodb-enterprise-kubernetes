@@ -17,6 +17,12 @@ spec:
         app: {{ .Values.operator.name }}
     spec:
       serviceAccountName: {{ .Values.operator.name }}
+{{ if not .Values.managedSecurityContext }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 2000
+{{ end }}
+
       containers:
       - name: {{ .Values.operator.name }}
         image: {{ .Values.registry.repository }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
@@ -36,7 +42,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
 {{ end }}
-{{ if eq .Values.managedSecurityContext true}}
+{{ if eq .Values.managedSecurityContext true }}
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
 {{ end }}

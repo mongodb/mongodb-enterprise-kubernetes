@@ -28,6 +28,8 @@ spec:
   persistent: true
   podSpec:
     cpu: '0.25'
+    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
+    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
     memory: 512M
     # "multiple" persistence allows to mount different directories to different Persistent Volumes
     persistence:

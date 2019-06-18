@@ -16,7 +16,7 @@ operator:
   name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: '0.12'
+  version: '1.0'
 
 database:
   name: mongodb-enterprise-database
