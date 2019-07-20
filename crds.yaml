@@ -60,6 +60,8 @@ spec:
                     properties:
                       enabled:
                         type: boolean
+                      ca:
+                        type: string
               additionalMongodConfig:
                 properties:
                   net:
@@ -104,6 +106,8 @@ spec:
                     properties:
                       enabled:
                         type: boolean
+                      ca:
+                        type: string
                   clusterAuthenticationMode:
                     type: string
                     enum: ["x509"]
@@ -162,6 +166,8 @@ spec:
                     properties:
                       enabled:
                         type: boolean
+                      ca:
+                        type: string
                   clusterAuthenticationMode:
                     type: string
                     enum: ["x509"]

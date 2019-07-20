@@ -11,7 +11,7 @@ spec:
   # Indicates featureCompatibilityVersion. This attribute will make the data
   # format to persist in a particular version, maybe older, allowing for
   # future downgrades if necessary.
-  featureCompatibilityVersion: 3.6
+  featureCompatibilityVersion: "3.6"
 
   ## Please Note: The default Kubernetes cluster name is `cluster.local`.
   ## If your cluster has been configured with another name, you can specify

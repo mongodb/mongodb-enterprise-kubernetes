@@ -62,3 +62,19 @@ spec:
         - name: POD_WAIT_RETRIES
           value: {{ quote .Values.operator.podSetWaitRetries }}
 {{ end }}
+
+{{ if .Values.debug }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debug-svc
+spec:
+  type: NodePort
+  ports:
+    - nodePort: {{ .Values.debugPort }}
+      port: 40000
+      protocol: TCP
+  selector:
+    app: {{ .Values.operator.name }}
+{{ end }}
