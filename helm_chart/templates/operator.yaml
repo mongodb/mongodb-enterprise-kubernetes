@@ -42,6 +42,10 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
 {{ end }}
+        - name: CURRENT_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
 {{ if eq .Values.managedSecurityContext true }}
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
@@ -50,6 +54,11 @@ spec:
           value: {{ .Values.registry.repository }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
+        - name: OPS_MANAGER_IMAGE_REPOSITORY
+          value: {{ .Values.registry.repository }}/{{ .Values.opsManager.name }}
+        - name: OPS_MANAGER_IMAGE_PULL_POLICY
+          value: {{ .Values.registry.pullPolicy }}
+
 {{ if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}

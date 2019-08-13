@@ -39,6 +39,8 @@ rules:
   - mongodb
   - mongodb/finalizers
   - mongodbusers
+  - opsmanagers
+  - opsmanagers/finalizers
   verbs:
   - get
   - list
@@ -139,7 +141,7 @@ spec:
 
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.1
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.2
         imagePullPolicy: Always
 
         env:
@@ -151,11 +153,20 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
 
+        - name: CURRENT_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.1
+          value: quay.io/mongodb/mongodb-enterprise-database:1.2
         - name: IMAGE_PULL_POLICY
           value: Always
+        - name: OPS_MANAGER_IMAGE_REPOSITORY
+          value: quay.io/mongodb/mongodb-enterprise-ops-manager
+        - name: OPS_MANAGER_IMAGE_PULL_POLICY
+          value: Always
+
 
 
 

@@ -2,6 +2,8 @@
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploys of MongoDB into Kubernetes clusters, using our management, monitoring and backup platforms, Ops Manager and Cloud Manager. By installing this integration, you will be able to deploy MongoDB instances with a single simple command.
 
+Also the Operator allows to deploy Ops Manager into Kubernetes. Note, that currently this feature is **alpha**. See more information below.
+
 You can discuss this integration in our [Slack](https://community-slack.mongodb.com) - join the [#enterprise-kubernetes](https://mongo-db.slack.com/messages/CB323LCG5/) channel.
 
 ## Documentation ##
@@ -77,7 +79,11 @@ You can customize installation by simple overriding of helm variables, for examp
 
 Check the end of the page for instructions on how to remove the Operator.
 
-## Adding Ops Manager Credentials ##
+## MongoDB object ##
+
+*This section describes how to create the MongoDB resource. Follow the next section on how to work with Ops Manager resource.* 
+
+### Adding Ops Manager Credentials ###
 
 For the Operator to work, you will need the following information:
 
@@ -131,7 +137,34 @@ If you have a correctly created Project with the name `my-project` and Credentia
 
     kubectl apply -f samples/minimal/replicaset.yaml
 
-### Correct order of Operator/Namespace removal
+## Ops Manager object (alpha) ##
+
+This section describes how to create the Ops Manager object in Kubernetes.
+
+*Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production *
+
+### Create Admin Credentials Secret ###
+
+Before creating the Ops Manager object you need to prepare the information about the admin user which will be created automatically. You can use the following command to do it:
+
+```bash
+$ kubectl create secret generic ops-manager-admin-secret  --from-literal=Username="jane.doe@example.com" --from-literal=Password="Passw0rd."  --from-literal=FirstName="Jane" --from-literal=LastName="Doe" -n <namespace>
+```
+
+Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or clean the password field after the Ops Manager object was created
+
+### Create Ops Manager object ###
+
+Use the file `samples/ops-manager/ops-manager.yaml`. Edit the fields and create the object in Kubernetes:
+
+```bash
+$ kubectl apply -f samples/ops-manager/ops-manager.yaml
+```
+
+Note, that it takes up to 10 minutes to initialize the Application Database and start Ops Manager.
+ 
+
+## Deleting the Operator ##
 
 It's important to keep correct order or removal operations. The simple rule is: **never remove Operator before mongodb resources**!
 The reason is that the Operator cleans state in Ops Manager on deletion of the MongoDB resource in Kubernetes.

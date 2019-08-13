@@ -9,7 +9,7 @@ metadata:
   name: my-replica-set
 spec:
   members: 3
-  version: 4.0.0
+  version: 4.0.10
   type: ReplicaSet
 
   project: my-project
