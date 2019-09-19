@@ -1,0 +1,28 @@
+dist: xenial
+language: python
+os: linux
+sudo: required
+
+python:
+- "3.6"
+
+env:
+- CHANGE_MINIKUBE_NONE_USER=true DISTRO_TYPE=upstream
+
+install:
+- ./scripts/ci/install-deps
+
+before_script:
+- sudo minikube start --memory=4096 --vm-driver=none --kubernetes-version="v1.14.0" --extra-config=apiserver.v=10
+- sudo chown -R $USER ${HOME}/.{mini,}kube
+- kubectl config use-context minikube
+
+jobs:
+  include:
+  - name: Install Operator
+    script:
+    - kubectl create namespace mongodb
+    - kubectl apply -f mongodb-enterprise.yaml
+    - sleep 10
+    - kubectl -n mongodb logs $(kubectl -n mongodb get pods -o name)
+    - echo "Enough for now"
