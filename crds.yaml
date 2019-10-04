@@ -109,6 +109,8 @@ spec:
                       ca:
                         type: string
                   clusterAuthenticationMode:
+                    # Warning: please refer to the documentation before enabling x509 in your MongoDB resource.
+                    # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
               additionalMongodConfig:
@@ -169,6 +171,8 @@ spec:
                       ca:
                         type: string
                   clusterAuthenticationMode:
+                    # Warning: please refer to the documentation before enabling x509 in your MongoDB resource.
+                    # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
               additionalMongodConfig:
