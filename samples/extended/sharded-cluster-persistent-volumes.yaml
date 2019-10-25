@@ -21,7 +21,9 @@ spec:
   ## it with the `clusterName` attribute.
   # clusterName: mycompany.net
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
   type: ShardedCluster
 

@@ -9,7 +9,9 @@ spec:
   members: 3
   version: 4.0.4
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
 
   # look into `replica-set-persistent-volumes.yaml` for an example on how to use

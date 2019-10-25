@@ -9,10 +9,22 @@ metadata:
   name: my-replica-set
 spec:
   members: 3
-  version: 4.0.10
+  version: 4.2.1
   type: ReplicaSet
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
 
   persistent: false
+
+  security:
+    tls:
+      enabled: true
+
+  connectivity:
+    replicaSetHorizons:
+      - "ben-localhost": "localhost:1337"
+      - "ben-localhost": "localhost:1338"
+      - "ben-localhost": "localhost:1339"

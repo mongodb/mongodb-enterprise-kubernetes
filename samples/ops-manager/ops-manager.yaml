@@ -1,10 +1,11 @@
+---
 apiVersion: mongodb.com/v1
 kind: MongoDBOpsManager
 metadata:
   name: ops-manager
 spec:
-  version: 4.2.0
-  adminCredentials: ops-manager-admin
+  version: 4.2.3
+  adminCredentials: ops-manager-admin-secret
   configuration:
     mms.fromEmailAddr: "admin@thecompany.com"
 

@@ -13,7 +13,9 @@ spec:
 
   version: 4.0.6
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
 
   persistent: false
@@ -32,6 +34,9 @@ spec:
   # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
   #
   security:
-    clusterAuthenticationMode: x509
+    authentication:
+      enabled: true
+      modes: ["X509"]
+      internalCluster: "X509"
     tls:
       enabled: true

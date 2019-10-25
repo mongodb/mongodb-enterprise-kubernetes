@@ -16,13 +16,16 @@ operator:
   name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.2.4
+  version: 1.3.0
 
 database:
   name: mongodb-enterprise-database
 
 opsManager:
   name: mongodb-enterprise-ops-manager
+
+appDb:
+  name: mongodb-enterprise-appdb
 
 registry:
   # Specify if images are pulled from private repository

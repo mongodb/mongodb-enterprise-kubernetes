@@ -12,10 +12,3 @@ metadata:
 data:
   projectName: My Ops/Cloud Manager Project
   baseUrl: http://my-ops-cloud-manager-url
-
-  # Enable x509 authentication at the Project level.
-  authenticationMode: x509
-
-  # If enabling x509 authentication, the `credentials` attribute need to be supplied as well.
-  # This is the same one used when creating a `MongoDB` resource.
-  credentials: my-credentials

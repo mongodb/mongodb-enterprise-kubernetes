@@ -100,3 +100,39 @@ subjects:
   namespace: {{ .Values.namespace }}
 
 {{ end }}
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-appdb
+{{ if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+{{ end }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-appdb
+{{ if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+{{ end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mongodb-enterprise-appdb
+subjects:
+  - kind: ServiceAccount
+    name: mongodb-enterprise-appdb
+{{ if .Values.namespace }}
+    namespace: {{ .Values.namespace }}
+{{ end }}
+

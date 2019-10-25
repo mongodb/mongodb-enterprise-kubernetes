@@ -26,7 +26,7 @@ You can discuss this integration in our [Slack](https://community-slack.mongodb.
 
 ## Requirements ##
 
-The MongoDB Enterprise Operator is compatible with Kubernetes v1.11 and above. It has been tested against Openshift 3.11.
+The MongoDB Enterprise Operator is compatible with Kubernetes v1.13 and above. It has been tested against Openshift 3.11.
 
 This Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) or [Cloud Manager](https://cloud.mongodb.com/user#/cloud/login). In this document, when we refer to "Ops Manager", you may substitute "Cloud Manager". The functionality is the same.
 > If this is your first time trying the Operator, Cloud Manager is easier to get started
@@ -139,19 +139,22 @@ If you have a correctly created Project with the name `my-project` and Credentia
 
 ## Ops Manager object (alpha) ##
 
-This section describes how to create the Ops Manager object in Kubernetes.
+This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all 
+the CRDs and the Operator application to be installed as described above.
 
-*Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production *
+*Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production*
 
 ### Create Admin Credentials Secret ###
 
-Before creating the Ops Manager object you need to prepare the information about the admin user which will be created automatically. You can use the following command to do it:
+Before creating the Ops Manager object you need to prepare the information about the admin user which will be 
+created automatically in Ops Manager. You can use the following command to do it:
 
 ```bash
 $ kubectl create secret generic ops-manager-admin-secret  --from-literal=Username="jane.doe@example.com" --from-literal=Password="Passw0rd."  --from-literal=FirstName="Jane" --from-literal=LastName="Doe" -n <namespace>
 ```
 
-Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or clean the password field after the Ops Manager object was created
+Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or 
+clean the password field after the Ops Manager object was created
 
 ### Create Ops Manager object ###
 
@@ -161,7 +164,22 @@ Use the file `samples/ops-manager/ops-manager.yaml`. Edit the fields and create 
 $ kubectl apply -f samples/ops-manager/ops-manager.yaml
 ```
 
-Note, that it takes up to 10 minutes to initialize the Application Database and start Ops Manager.
+Note, that it takes up to 8 minutes to initialize the Application Database and start Ops Manager.
+
+## (Optionally) Create a MongoDB object referencing the new Ops Manager
+
+Now you can use the Ops Manager application to create MongoDB objects. You need to follow the 
+[instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/install-k8s-operator/#onprem-prerequisites)
+to prepare keys and enable network access to Ops Manager.
+
+The Operator creates the NodePort service which can be used to access Ops Manager from external
+(and therefore access the UI from browser):
+
+```bash
+$ kubectl get svc | grep <om-name>-svc-external
+om-svc-external      NodePort    100.61.72.82    <none>        8080:30456/TCP    2m49s
+```
+Make sure that the firewall rules allow inbound traffic to the port on the host (`30456` in the example above)
  
 
 ## Deleting the Operator ##

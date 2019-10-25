@@ -18,7 +18,9 @@ spec:
   # credentials Secret. For instructions on how to do this, please refer to our
   # documentation, here:
   # https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
 
   # This flag allows the creation of pods without persistent volumes. This is for

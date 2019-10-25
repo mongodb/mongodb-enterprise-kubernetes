@@ -6,7 +6,9 @@ metadata:
 spec:
   version: 4.0.0
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
   type: Standalone
 

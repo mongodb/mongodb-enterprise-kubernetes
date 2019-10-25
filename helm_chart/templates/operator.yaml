@@ -58,18 +58,12 @@ spec:
           value: {{ .Values.registry.repository }}/{{ .Values.opsManager.name }}
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
+        - name: APP_DB_IMAGE_REPOSITORY
+          value: {{ .Values.registry.repository }}/{{ .Values.appDb.name }}
 
 {{ if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}
-{{ end }}
-{{ if .Values.operator.podWaitSeconds }}
-        - name: POD_WAIT_SEC
-          value: {{ quote .Values.operator.podWaitSeconds }}
-{{ end }}
-{{ if .Values.operator.podSetWaitRetries }}
-        - name: POD_WAIT_RETRIES
-          value: {{ quote .Values.operator.podSetWaitRetries }}
 {{ end }}
 
 {{ if .Values.debug }}

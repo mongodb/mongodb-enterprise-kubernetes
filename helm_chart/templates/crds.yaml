@@ -41,6 +41,19 @@ spec:
                 type: string
               project:
                 type: string
+                description: "DEPRECATED The name of a configMap in the same namespace"
+              opsManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
+              cloudManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
               version:
                 type: string
                 pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
@@ -53,6 +66,15 @@ spec:
               security:
                 type: object
                 properties:
+                  authentication:
+                    properties:
+                      enabled:
+                        type: boolean
+                      modes:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["X509"]
                   tls:
                     type: object
                     properties:
@@ -71,9 +93,12 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
+            anyOf:
+              - required: [project]
+              - required: [opsManager]
+              - required: [cloudManager]
             required:
             - credentials
-            - project
             - version
             - type
       - properties: # ReplicaSet schema
@@ -87,6 +112,19 @@ spec:
                 type: string
               project:
                 type: string
+                description: "DEPRECATED The name of a configMap in the same namespace"
+              opsManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
+              cloudManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
               version:
                 type: string
                 pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
@@ -99,6 +137,18 @@ spec:
               security:
                 type: object
                 properties:
+                  authentication:
+                    properties:
+                      enabled:
+                        type: boolean
+                      modes:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["X509"]
+                      internalCluster:
+                        type: string
+                        enum: ["X509"]
                   tls:
                     type: object
                     properties:
@@ -107,7 +157,7 @@ spec:
                       ca:
                         type: string
                   clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling x509 in your MongoDB resource.
+                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
                     # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
@@ -122,12 +172,16 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
+            anyOf:
+              - required: [project]
+              - required: [opsManager]
+              - required: [cloudManager]
             required:
             - credentials
-            - project
             - version
             - type
             - members
+            # TODO: add validation for OpsManager or Cloud Manager being required
       - properties:
           spec:
             properties: # ShardedCluster schema
@@ -149,6 +203,19 @@ spec:
                 type: string
               project:
                 type: string
+                description: "DEPRECATED The name of a configMap in the same namespace"
+              opsManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
+              cloudManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
               version:
                 type: string
                 pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
@@ -161,6 +228,18 @@ spec:
               security:
                 type: object
                 properties:
+                  authentication:
+                    properties:
+                      enabled:
+                        type: boolean
+                      modes:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["X509"]
+                      internalCluster:
+                        type: string
+                        enum: ["X509"]
                   tls:
                     type: object
                     properties:
@@ -169,7 +248,7 @@ spec:
                       ca:
                         type: string
                   clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling x509 in your MongoDB resource.
+                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
                     # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
@@ -184,9 +263,12 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
+            anyOf:
+              - required: [project]
+              - required: [opsManager]
+              - required: [cloudManager]
             required:
             - credentials
-            - project
             - version
             - type
             - shardCount
@@ -218,11 +300,16 @@ spec:
                 description: "The username of the user"
               db:
                 type: string
-                enum: ["$external"]
                 description: "The database the user is stored in"
+                enum: ["$external"]
               project:
                 type: string
-                description: "The project the user belongs to"
+                description: "DEPRECATED The project the user belongs to"
+              mongodbResourceRef:
+                properties:
+                  name:
+                    type: string
+                    description: "The name of a MongoDB resource in the same namespace"
               roles:
                 type: array
                 items:
@@ -240,7 +327,6 @@ spec:
             required:
               - username
               - db
-              - project
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -284,6 +370,20 @@ spec:
           properties:
             version:
               type: string
+            backup:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+
+                headDB:
+                  type: object
+                  properties:
+                    storage:
+                      type: string
+                    storageClass:
+                      type: string
+
             applicationDatabase:
               type: object
               properties:
@@ -297,9 +397,6 @@ spec:
                 logLevel:
                   type: string
                   enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-                type:
-                  type: string
-                  enum: ["ReplicaSet"]
                 exposedExternally:
                   type: boolean
               required:

@@ -2,14 +2,16 @@
 apiVersion: mongodb.com/v1
 kind: MongoDB
 metadata:
-  name: my-x509-enabled-rs
+  name: my-replica-set
 spec:
   type: ReplicaSet
 
   members: 3
   version: 4.0.4
 
-  project: my-project
+  opsManager:
+    configMapRef:
+      name: my-project
   credentials: my-credentials
 
   # look into `replica-set-persistent-volumes.yaml` for an example on how to use
@@ -30,6 +32,8 @@ spec:
   # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
   #
   security:
-    clusterAuthenticationMode: x509
     tls:
       enabled: true
+    authentication:
+      enabled: true
+      modes: ["X509"]
