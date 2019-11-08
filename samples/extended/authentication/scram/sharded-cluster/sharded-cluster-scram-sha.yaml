@@ -1,0 +1,34 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-scram-enabled-sharded-cluster
+spec:
+  type: ShardedCluster
+
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+
+  # Using a version >= 4.0 will enable SCRAM-SHA-256 authentication
+  # setting a version < 4.0 will enable SCRAM-SHA-1/MONGODB-CR authentication
+  version: 4.0.4
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+
+  security:
+    authentication:
+      enabled: true
+      modes: ["SCRAM"] # Valid authentication modes are "SCRAM' and "X509"
+
+      # Optional field - ignoreUnknownUsers
+      # A value of true means that any users not configured via the Operator or the Ops Manager or Cloud Manager UI
+      # will not be altered in any way
+
+      # If you need to manage MongoDB users directly via the mongods, set this value to true
+      ignoreUnknownUsers: true # default value false
+

@@ -18,13 +18,3 @@ spec:
   credentials: my-credentials
 
   persistent: false
-
-  security:
-    tls:
-      enabled: true
-
-  connectivity:
-    replicaSetHorizons:
-      - "ben-localhost": "localhost:1337"
-      - "ben-localhost": "localhost:1338"
-      - "ben-localhost": "localhost:1339"

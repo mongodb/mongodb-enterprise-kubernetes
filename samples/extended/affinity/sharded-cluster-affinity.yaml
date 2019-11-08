@@ -1,0 +1,45 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster
+spec:
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+  version: 4.2.1
+  service: my-service
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  type: ShardedCluster
+
+  persistent: true
+  configSrvPodSpec:
+    # For podAffinity and nodeAffinity see Kubernetes Docs
+    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    podAntiAffinityTopologyKey: kubernetes.io/hostname
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: failure-domain.beta.kubernetes.io/zone
+  mongosPodSpec:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
+  shardPodSpec:
+    podAntiAffinityTopologyKey: rackId

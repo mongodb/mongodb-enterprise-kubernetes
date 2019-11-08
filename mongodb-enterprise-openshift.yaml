@@ -4,7 +4,7 @@
 kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   namespace: mongodb
 
@@ -52,17 +52,17 @@ rules:
 kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   namespace: mongodb
 
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind:  Role 
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 subjects:
 - kind: ServiceAccount
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   namespace: mongodb
 
@@ -74,7 +74,7 @@ subjects:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: mongodb-enterprise-operator-mongodb-certs
+  name: enterprise-operator-mongodb-certs
 rules:
 - apiGroups:
   - certificates.k8s.io
@@ -90,15 +90,15 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: mongodb-enterprise-operator-mongodb-certs-binding
+  name: enterprise-operator-mongodb-certs-binding
   namespace: mongodb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: mongodb-enterprise-operator-mongodb-certs
+  name: enterprise-operator-mongodb-certs
 subjects:
 - kind: ServiceAccount
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
   namespace: mongodb
 
 
@@ -144,7 +144,7 @@ subjects:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   namespace: mongodb
 
@@ -163,7 +163,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   namespace: mongodb
 
@@ -171,22 +171,18 @@ spec:
   replicas: 1
   selector:
       matchLabels:
-        app: mongodb-enterprise-operator
+        app: enterprise-operator
   template:
     metadata:
       labels:
-        app: mongodb-enterprise-operator
+        app: enterprise-operator
     spec:
-      serviceAccountName: mongodb-enterprise-operator
-
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 2000
+      serviceAccountName: enterprise-operator
 
 
       containers:
-      - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.3.1
+      - name: enterprise-operator
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.3.1
         imagePullPolicy: Always
 
         env:
@@ -203,16 +199,19 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
 
+        - name: MANAGED_SECURITY_CONTEXT
+          value: 'true'
+
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.3.1
+          value: registry.connect.redhat.com/mongodb/enterprise-database:1.3.1
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-ops-manager
+          value: registry.connect.redhat.com/mongodb/mongodb-enterprise-ops-manager
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: APP_DB_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-appdb
+          value: registry.connect.redhat.com/mongodb/mongodb-enterprise-appdb
 
 
 

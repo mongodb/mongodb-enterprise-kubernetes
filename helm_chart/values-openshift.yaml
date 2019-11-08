@@ -4,22 +4,21 @@ createCrds: true
 # Name of the Namespace to use
 namespace: mongodb
 
-# Set this to true if your cluster is managing SecurityContext for you.
-# If running OpenShift (Cloud, Minishift, etc.), set this to true.
-managedSecurityContext: false
+# OpenShift manages security context on its own
+managedSecurityContext: true
 
 operator:
   # Execution environment for the operator, dev or prod. Use dev for more verbose logging
   env: prod
 
   # Name that will be assigned to most of internal Kubernetes objects like Deployment, ServiceAccount, Role etc.
-  name: mongodb-enterprise-operator
+  name: enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
   version: 1.3.1
 
 database:
-  name: mongodb-enterprise-database
+  name: enterprise-database
 
 opsManager:
   name: mongodb-enterprise-ops-manager
@@ -28,10 +27,10 @@ appDb:
   name: mongodb-enterprise-appdb
 
 registry:
-  # Specify if images are pulled from private repository
+  # The pull secret must be specified
   imagePullSecrets:
   pullPolicy: Always
-  repository: quay.io/mongodb
+  repository: registry.connect.redhat.com/mongodb
 
 # Set this to true if the operator will require Kubernetes CA
 # infrastructure to generate TLS certificates.

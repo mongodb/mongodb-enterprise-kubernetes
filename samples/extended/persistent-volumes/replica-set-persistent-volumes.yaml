@@ -5,7 +5,7 @@ metadata:
   name: my-replica-set
 spec:
   members: 3
-  version: 4.0.0
+  version: 4.2.1
   service: my-service
 
   # Indicates featureCompatibilityVersion. This attribute will make the data
@@ -46,25 +46,3 @@ spec:
         logs:
           storage: 500M
           storageClass: standard
-
-    # For podAffinity and nodeAffinity see Kubernetes Docs
-    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-    podAntiAffinityTopologyKey: nodeId
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: security
-            operator: In
-            values:
-            - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/e2e-az-name
-            operator: In
-            values:
-            - e2e-az1
-            - e2e-az2

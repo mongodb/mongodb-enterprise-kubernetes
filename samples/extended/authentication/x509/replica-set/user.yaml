@@ -1,0 +1,13 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBUser
+metadata:
+  name: my-replica-set-x509-user
+spec:
+  username: CN=my-replica-set-x509-user,OU=cloud,O=MongoDB,L=New York,ST=New York,C=US
+  db: $external
+  mongodbResourceRef:
+    name: my-replica-set
+  roles:
+    - db: admin
+      name: dbOwner

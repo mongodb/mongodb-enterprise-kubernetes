@@ -12,7 +12,7 @@ spec:
   mongodsPerShardCount: 3
   mongosCount: 2
   configServerCount: 3
-  version: 4.0.0
+  version: 4.2.1
   type: ShardedCluster
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our

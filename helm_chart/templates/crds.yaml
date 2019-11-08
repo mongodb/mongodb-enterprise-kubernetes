@@ -67,6 +67,7 @@ spec:
                 type: object
                 properties:
                   authentication:
+                    type: object
                     properties:
                       enabled:
                         type: boolean
@@ -74,7 +75,9 @@ spec:
                         type: array
                         items:
                           type: string
-                          enum: ["X509"]
+                          enum: ["SCRAM", "X509"]
+                      ignoreUnknownUsers:
+                        type: boolean
                   tls:
                     type: object
                     properties:
@@ -82,6 +85,9 @@ spec:
                         type: boolean
                       ca:
                         type: string
+              connectivity:
+                not:
+                  required: ["replicaSetHorizons"]
               additionalMongodConfig:
                 properties:
                   net:
@@ -138,6 +144,7 @@ spec:
                 type: object
                 properties:
                   authentication:
+                    type: object
                     properties:
                       enabled:
                         type: boolean
@@ -145,10 +152,12 @@ spec:
                         type: array
                         items:
                           type: string
-                          enum: ["X509"]
+                          enum: ["SCRAM", "X509"]
                       internalCluster:
                         type: string
                         enum: ["X509"]
+                      ignoreUnknownUsers:
+                        type: boolean
                   tls:
                     type: object
                     properties:
@@ -161,6 +170,14 @@ spec:
                     # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
+              connectivity:
+                properties:
+                  replicaSetHorizons:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        type: string
               additionalMongodConfig:
                 properties:
                   net:
@@ -229,6 +246,7 @@ spec:
                 type: object
                 properties:
                   authentication:
+                    type: object
                     properties:
                       enabled:
                         type: boolean
@@ -236,10 +254,12 @@ spec:
                         type: array
                         items:
                           type: string
-                          enum: ["X509"]
+                          enum: ["SCRAM", "X509"]
                       internalCluster:
                         type: string
                         enum: ["X509"]
+                      ignoreUnknownUsers:
+                        type: boolean
                   tls:
                     type: object
                     properties:
@@ -252,6 +272,9 @@ spec:
                     # https://docs.mongodb.com/kubernetes-operator/
                     type: string
                     enum: ["x509"]
+              connectivity:
+                not:
+                  required: ["replicaSetHorizons"]
               additionalMongodConfig:
                 properties:
                   net:
@@ -290,6 +313,15 @@ spec:
     shortNames:
     - mdbu
     singular: mongodbuser
+  additionalPrinterColumns:
+    - name: State
+      type: string
+      description: The current state of the MongoDB User
+      JSONPath: .status.phase
+    - name: Age
+      type: date
+      description: The time since the MongoDB User resource was created
+      JSONPath: .metadata.creationTimestamp
   validation:
       openAPIV3Schema:
         properties:
@@ -301,9 +333,16 @@ spec:
               db:
                 type: string
                 description: "The database the user is stored in"
-                enum: ["$external"]
               project:
                 type: string
+                description: "The project the user belongs to"
+              passwordSecretKeyRef:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  key:
+                    type: string
                 description: "DEPRECATED The project the user belongs to"
               mongodbResourceRef:
                 properties:
@@ -321,6 +360,12 @@ spec:
                     db:
                       type: string
                       description: "The db the role can act on"
+                    passwordSecretKeyRef:
+                      properties:
+                        name:
+                          type: string
+                        key:
+                          type: string
                   required:
                     - name
                     - db
@@ -343,6 +388,10 @@ spec:
     - om
     singular: opsmanager
   additionalPrinterColumns:
+    - name: Replicas
+      type: integer
+      description: The number of replicas of MongoDBOpsManager.
+      JSONPath: .spec.replicas
     - name: Version
       type: string
       description: The version of MongoDBOpsManager.
@@ -370,6 +419,9 @@ spec:
           properties:
             version:
               type: string
+            replicas:
+              minimum: 1
+              type: integer
             backup:
               type: object
               properties:
@@ -401,7 +453,6 @@ spec:
                   type: boolean
               required:
                 - version
-                - type
                 - members
           required:
             - version

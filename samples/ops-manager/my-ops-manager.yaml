@@ -1,0 +1,100 @@
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager
+spec:
+  version: 4.2.0
+  replicas: 3 #optional
+  clusterName: ourcompany.cluster.local #optional
+  adminCredentialsSecretRef: #optional
+    name: ops-manager-admin-secret
+
+  externalConnectivity: #optional, enabled by default
+    type: LoadBalancer # LoadBalancer|NodePort (default)
+    nodePort: 30100 #optional
+    loadBalancerIP: 123.456.789 #optional
+
+  tls: #optional
+    customCASecretRef: # optional
+      name: custom-ca-secret
+    customCertSecretRef: #optional
+      name: cert-secret
+
+  configuration: #optional
+    mms.fromEmailAddr: "admin@thecompany.com"
+
+  backup: # optional, enabled by default
+    enabled: true
+    replicas: 3 # optional
+
+  podSpec:
+    cpu: '0.1'
+    memory: 10G
+    memoryRequests: 8G
+    podAntiAffinityTopologyKey: nodeId
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: security
+                operator: In
+                values:
+                  - S1
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/e2e-az-name
+                operator: In
+                values:
+                  - e2e-az1
+                  - e2e-az2
+
+  applicationDatabase:
+    members: 3
+    version: 4.2.0
+    persistent: true #optional
+    type: ReplicaSet
+    adminPasswordSecretRef: # optional, Operator will generate it if omitted
+      name: admin-password-secret
+    podSpec: #optional
+      cpu: '0.25'
+    tls: #optional
+      customCASecretRef: # optional
+        name: custom-ca-secret
+      customCertSecretRef: #optional
+        name: cert-secret
+    # other fields supported by normal mongodb resource except for auth and tls.enabled
+
+  status:
+    applicationDatabase:
+      lastTransition: "2019-08-07T09:58:10Z"
+      members: 3
+      phase: Pending
+      type: ReplicaSet
+      version: 4.0.7
+      agents:
+        ops-manager-db-1.ops-manager-svc.ns.cluster.local:
+          inGoalState: true
+          lastStep:
+            name: "Wait for featureCompatibilityVersion to be right"
+            result: "success"
+            completed: "2019-09-02T17:40:57Z"
+        ops-manager-db-2.ops-manager-svc.ns.cluster.local:
+          inGoalState: false
+          errorString: "<foo> [17:40:57.638] Plan execution failed on step UpdateFeatureCompatibilityVersion as part of move UpdateFeatureCompatibilityVersion : .... Outcome=3"
+          lastStep:
+            name: "Update the featureCompatibilityVersion"
+            result: "error"
+        ops-manager-db-3.ops-manager-svc.ns.cluster.local:
+          inGoalState: false
+          lastStep:
+            name: "Initialize a replica set"
+    opsManager:
+      lastTransition: "2019-08-07T09:58:10Z"
+      phase: Running
+      version: 4.2.0
+      link: http://om-scale-svc.dev.svc.cluster.local:8080
+
+

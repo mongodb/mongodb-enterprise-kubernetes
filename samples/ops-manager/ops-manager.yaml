@@ -4,15 +4,24 @@ kind: MongoDBOpsManager
 metadata:
   name: ops-manager
 spec:
+  # the number of Ops Manager instances to run
+  replicas: 1
+
+  # the version of Ops Manager distro to use
   version: 4.2.3
+
+  # the name of the secret containing admin user credentials.
+  # Either remove the secret or change the password using Ops Manager UI after the Ops Manager resource is created!
   adminCredentials: ops-manager-admin-secret
+
+  # the Ops Manager configuration
   configuration:
     mms.fromEmailAddr: "admin@thecompany.com"
 
+  # the application database backing Ops Manager. Replica Set is the only supported type
   applicationDatabase:
     members: 3
     version: 4.2.0
     persistent: true
-    type: ReplicaSet
     podSpec:
       cpu: '0.25'

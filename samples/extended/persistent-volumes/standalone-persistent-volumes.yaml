@@ -4,7 +4,7 @@ kind: MongoDB
 metadata:
   name: my-standalone
 spec:
-  version: 4.0.0
+  version: 4.2.1
   service: my-service
 
   # Indicates featureCompatibilityVersion. This attribute will make the data
@@ -36,25 +36,4 @@ spec:
         storageClass: standard
         labelSelector:
           matchExpressions:
-          - {key: environment, operator: In, values: [dev]}
-
-    # For podAffinity and nodeAffinity see Kubernetes Docs
-    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: security
-            operator: In
-            values:
-            - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/e2e-az-name
-            operator: In
-            values:
-            - e2e-az1
-            - e2e-az2
+            - {key: environment, operator: In, values: [dev]}

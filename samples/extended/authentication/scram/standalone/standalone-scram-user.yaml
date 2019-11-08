@@ -1,0 +1,18 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBUser
+metadata:
+  name: my-scram-user
+spec:
+  passwordSecretKeyRef:
+    name: my-scram-secret # the name of the secret that stores this user's password
+    key: password # the key in the secret that stores the password
+  username: my-scram-user
+  db: admin
+  mongodbResourceRef:
+    name: my-scram-enabled-standalone # The name of the MongoDB resource this user will be added to
+  roles:
+    - db: admin
+      name: readWrite
+    - db: admin
+      name: userAdminAnyDatabase

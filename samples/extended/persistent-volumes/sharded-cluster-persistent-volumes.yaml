@@ -8,7 +8,7 @@ spec:
   mongodsPerShardCount: 3
   mongosCount: 2
   configServerCount: 3
-  version: 4.0.0
+  version: 4.2.1
   service: my-service
 
   # Indicates featureCompatibilityVersion. This attribute will make the data
@@ -36,34 +36,10 @@ spec:
 
     # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
     # for config server
-
-    # For podAffinity and nodeAffinity see Kubernetes Docs
-    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-    podAntiAffinityTopologyKey: kubernetes.io/hostname
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: security
-            operator: In
-            values:
-            - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
   mongosPodSpec:
     cpu: '0.8'
     memory: 1G
-    podAntiAffinityTopologyKey: rackId
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 1
-        preference:
-          matchExpressions:
-          - key: another-node-label-key
-            operator: In
-            values:
-            - another-node-label-value
   shardPodSpec:
-    cpu: '0.6'
     memory: 3G
     persistence:
       multiple:
@@ -74,4 +50,3 @@ spec:
         logs:
           storage: 4G
           storageClass: standard
-    podAntiAffinityTopologyKey: kubernetes.io/hostname
