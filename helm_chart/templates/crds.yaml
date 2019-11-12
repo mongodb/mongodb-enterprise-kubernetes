@@ -99,7 +99,7 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
-            anyOf:
+            oneOf:
               - required: [project]
               - required: [opsManager]
               - required: [cloudManager]
@@ -189,7 +189,7 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
-            anyOf:
+            oneOf:
               - required: [project]
               - required: [opsManager]
               - required: [cloudManager]
@@ -286,7 +286,7 @@ spec:
                             enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
               exposedExternally:
                 type: boolean
-            anyOf:
+            oneOf:
               - required: [project]
               - required: [opsManager]
               - required: [cloudManager]
