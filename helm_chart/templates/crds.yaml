@@ -435,6 +435,8 @@ spec:
                       type: string
                     storageClass:
                       type: string
+              required:
+                - enabled
 
             applicationDatabase:
               type: object

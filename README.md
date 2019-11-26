@@ -87,16 +87,16 @@ Check the end of the page for instructions on how to remove the Operator.
 
 ## MongoDB object ##
 
-*This section describes how to create the MongoDB resource. Follow the next section on how to work with Ops Manager resource.* 
+*This section describes how to create the MongoDB resource. Follow the next section on how to work with Ops Manager resource.*
 
 ### Adding Ops Manager Credentials ###
 
 For the Operator to work, you will need the following information:
 
-* Base Url - the url of an Ops Manager instance, for Cloud Manger use `https://cloud.mongodb.com`.
+* Base URL - the URL of an Ops Manager instance (for Cloud Manger use `https://cloud.mongodb.com`)
 * Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
  if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
-* (optionally) Organization Id - the id of organization to which Project belongs
+* (optionally) Organization ID - the ID of the organization to which the Project belongs
 * User - an Ops Manager username
 * Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
 
@@ -145,21 +145,21 @@ If you have a correctly created Project with the name `my-project` and Credentia
 
 ## Ops Manager object (alpha) ##
 
-This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all 
+This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all
 the CRDs and the Operator application to be installed as described above.
 
 *Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production*
 
 ### Create Admin Credentials Secret ###
 
-Before creating the Ops Manager object you need to prepare the information about the admin user which will be 
+Before creating the Ops Manager object you need to prepare the information about the admin user which will be
 created automatically in Ops Manager. You can use the following command to do it:
 
 ```bash
 $ kubectl create secret generic ops-manager-admin-secret  --from-literal=Username="jane.doe@example.com" --from-literal=Password="Passw0rd."  --from-literal=FirstName="Jane" --from-literal=LastName="Doe" -n <namespace>
 ```
 
-Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or 
+Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or
 clean the password field after the Ops Manager object was created
 
 ### Create Ops Manager object ###
@@ -174,7 +174,7 @@ Note, that it takes up to 8 minutes to initialize the Application Database and s
 
 ### (Optionally) Create a MongoDB object referencing the new Ops Manager
 
-Now you can use the Ops Manager application to create MongoDB objects. You need to follow the 
+Now you can use the Ops Manager application to create MongoDB objects. You need to follow the
 [instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/install-k8s-operator/#onprem-prerequisites)
 to prepare keys and enable network access to Ops Manager.
 
@@ -186,7 +186,7 @@ $ kubectl get svc | grep <om-name>-svc-external
 om-svc-external      NodePort    100.61.72.82    <none>        8080:30456/TCP    2m49s
 ```
 Make sure that the firewall rules allow inbound traffic to the port on the host (`30456` in the example above)
- 
+
 
 ## Deleting the Operator ##
 
