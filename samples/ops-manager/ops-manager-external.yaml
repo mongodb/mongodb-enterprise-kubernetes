@@ -5,7 +5,7 @@ metadata:
   name: ops-manager
 spec:
   replicas: 1
-  version: 4.2.3
+  version: 4.2.4
   adminCredentials: ops-manager-admin-secret
 
   # optional, disabled by default. Creates an additional service to make Ops Manager reachable from

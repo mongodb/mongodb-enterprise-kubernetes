@@ -1,0 +1,24 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager
+spec:
+  replicas: 1
+  version: 4.2.4
+  adminCredentials: ops-manager-admin-secret
+
+  # the application database backing Ops Manager. Replica Set is the only supported type
+  # Application database has the SCRAM-SHA authentication mode always enabled
+  applicationDatabase:
+    members: 3
+    version: 4.2.0
+    persistent: true
+    podSpec:
+      cpu: '0.25'
+    # optional. Specifies the secret which contains the password used to connect to the database
+    # If not specified - the Operator will generate a random password
+    passwordSecretKeyRef:
+      name: my-password-secret
+      # optional, default is "password"
+      key: password-key
