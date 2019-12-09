@@ -1,0 +1,50 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager-backup
+spec:
+  replicas: 1
+  version: 4.2.4
+  adminCredentials: ops-manager-admin-secret
+
+  # optional, enabled by default
+  # Allows to configure backup in Ops Manager
+  backup:
+    enabled: true
+    # optional, created by default if backup is enabled.
+    # Configures Head db storage parameters
+    headDB:
+      # optional. Default storage is 30G
+      storage: 50G
+      # optional
+      labelSelector:
+        matchLabels:
+          app: "my-app"
+    # Configures the list of Oplog Store Configs
+    opLogStores:
+      - name: oplog1
+        mongodbResourceRef:
+          name: om-mongodb-oplog
+        # optional, specify if oplog database has SCRAM-SHA authentication enabled
+        mongodbUserRef:
+          name: admin-user
+    # Configures the list of S3 Snapshot Configs
+    s3Stores:
+      - name: s3store1
+        # reference to MongoDB used for storing S3 Snapshot Metadata
+        mongodbResourceRef:
+          name: my-s3-metadata-db
+        # optional, specify if s3 metadata database has SCRAM-SHA authentication enabled
+        mongodbUserRef:
+          name: my-user
+        # the name of the secret which contains aws credentials (TODO field names)
+        s3SecretRef:
+          name: my-aws-creds
+        s3BucketEndpoint: s3.us-east-1.amazonaws.com
+        s3BucketName: my-bucket-name
+        pathStyleAccessEnabled: true
+
+  applicationDatabase:
+    members: 3
+    version: 4.2.0

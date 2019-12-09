@@ -4,24 +4,36 @@ kind: MongoDBOpsManager
 metadata:
   name: ops-manager
 spec:
-  # the number of Ops Manager instances to run
-  replicas: 1
+  # the number of Ops Manager instances to run. Set to value bigger
+  # than 1 to get high availability and upgrades without downtime
+  replicas: 3
 
   # the version of Ops Manager distro to use
   version: 4.2.3
 
   # the name of the secret containing admin user credentials.
-  # Either remove the secret or change the password using Ops Manager UI after the Ops Manager resource is created!
+  # Either remove the secret or change the password using Ops Manager UI after the Ops Manager
+  # resource is created!
   adminCredentials: ops-manager-admin-secret
 
-  # the Ops Manager configuration
+  # the Ops Manager configuration. All the values must be of type string
   configuration:
     mms.fromEmailAddr: "admin@thecompany.com"
+    # set this property to allow Ops Manager to manage deployments outside of
+    # Kubernetes cluster
+    mms.centralUrl: http://ac783a3d4b414-693915327.us-east-2.elb.amazonaws.com:8080
 
   # the application database backing Ops Manager. Replica Set is the only supported type
+  # Application database has the SCRAM-SHA authentication mode always enabled
   applicationDatabase:
     members: 3
     version: 4.2.0
     persistent: true
     podSpec:
       cpu: '0.25'
+    # optional. Specifies the secret which contains the password used to connect to the database
+    # If not specified - the Operator will generate a random password
+    passwordSecretKeyRef:
+      name: my-password-secret
+      # optional, default is "password"
+      key: password-key

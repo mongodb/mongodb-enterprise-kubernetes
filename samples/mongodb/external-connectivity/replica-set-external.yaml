@@ -1,0 +1,36 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-externally-connectible-rs
+spec:
+  type: ReplicaSet
+
+  members: 3
+  version: 4.2.0
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+
+  security:
+    tls:
+      # TLS must be enabled to allow external connectivity
+      enabled: true
+
+  connectivity:
+    # replicaSetHorizons consists of a list of maps where each map represents a node within
+    # the replica set and maps names of DNS horizons to externally connectable DNS names.
+    # In the following example, this would allow a client to make a replica set connection
+    # from outside the replica set using a connection string like
+    # mongodb://mdb0-test-website.com:1337,mdb1-test-website.com:1338,mdb2-test-website.com:1339.
+    # The length of the replicaSetHorizons list must be equal to the number of the members in the
+    # replica set and each member should have all of the same DNS horizon names specified.
+    replicaSetHorizons:
+      - "test-horizon-1": "mdb0-test-website.com:1337"
+        "test-horizon-2": "mdb0-test-internal-website.com:2337"
+      - "test-horizon-1": "mdb1-test-website.com:1338"
+        "test-horizon-2": "mdb1-test-internal-website.com:2338"
+      - "test-horizon-1": "mdb2-test-website.com:1339"
+        "test-horizon-2": "mdb2-test-internal-website.com:2339"

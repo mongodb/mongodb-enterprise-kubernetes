@@ -2,7 +2,7 @@
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploys of MongoDB into Kubernetes clusters, using our management, monitoring and backup platforms, Ops Manager and Cloud Manager. By installing this integration, you will be able to deploy MongoDB instances with a single simple command.
 
-Also the Operator allows to deploy Ops Manager into Kubernetes. Note, that currently this feature is **alpha**. See more information below.
+Also the Operator allows to deploy Ops Manager into Kubernetes. Note, that currently this feature is **beta**. See more information below.
 
 You can discuss this integration in our [Slack](https://community-slack.mongodb.com) - join the [#enterprise-kubernetes](https://mongo-db.slack.com/messages/CB323LCG5/) channel.
 
@@ -56,6 +56,8 @@ This will create a new `crd` in your cluster, `MongoDB`. This new object will be
 
 #### Operator Installation
 
+* In order to install the Operator in OpenShift, please follow [these](openshift-install.md) instructions instead.
+
 This operator can also be installed using yaml files, in case you are not using Helm. You may apply the config directly from github clone this repo, and apply the file
 
     kubectl apply -f https://raw.githubusercontent.com/mongodb/mongodb-enterprise-kubernetes/master/mongodb-enterprise.yaml
@@ -63,11 +65,6 @@ This operator can also be installed using yaml files, in case you are not using 
 or clone this repo, make any edits you need, and apply it from your machine.
 
     kubectl apply -f mongodb-enterprise.yaml
-
-Use `mongodb-enterprise-openshift.yaml` if you want to install the Operator to an OpenShift cluster. You need to specify
-the image pull secret name to use images from RedHad Catalog.
-
-Check the end of the page for instructions on how to remove the Operator.
 
 ### Installation using Helm Chart
 
@@ -87,16 +84,16 @@ Check the end of the page for instructions on how to remove the Operator.
 
 ## MongoDB object ##
 
-*This section describes how to create the MongoDB resource. Follow the next section on how to work with Ops Manager resource.* 
+*This section describes how to create the MongoDB resource. Follow the next section on how to work with Ops Manager resource.*
 
 ### Adding Ops Manager Credentials ###
 
 For the Operator to work, you will need the following information:
 
-* Base Url - the url of an Ops Manager instance, for Cloud Manger use `https://cloud.mongodb.com`.
+* Base URL - the URL of an Ops Manager instance (for Cloud Manger use `https://cloud.mongodb.com`)
 * Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
  if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
-* (optionally) Organization Id - the id of organization to which Project belongs
+* (optionally) Organization ID - the ID of the organization to which the Project belongs
 * User - an Ops Manager username
 * Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
 
@@ -143,26 +140,26 @@ If you have a correctly created Project with the name `my-project` and Credentia
 
     kubectl apply -f samples/mongodb/minimal/replicaset.yaml
 
-## Ops Manager object (alpha) ##
+## Ops Manager object (Beta) ##
 
-This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all 
+This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all
 the CRDs and the Operator application to be installed as described above.
 
 *Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production*
 
 ### Create Admin Credentials Secret ###
 
-Before creating the Ops Manager object you need to prepare the information about the admin user which will be 
+Before creating the Ops Manager object you need to prepare the information about the admin user which will be
 created automatically in Ops Manager. You can use the following command to do it:
 
 ```bash
 $ kubectl create secret generic ops-manager-admin-secret  --from-literal=Username="jane.doe@example.com" --from-literal=Password="Passw0rd."  --from-literal=FirstName="Jane" --from-literal=LastName="Doe" -n <namespace>
 ```
 
-Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or 
+Note, that the secret is needed only during the initialization of the Ops Manager object - you can remove it or
 clean the password field after the Ops Manager object was created
 
-### Create Ops Manager object ###
+### Create Ops Manager Object ###
 
 Use the file `samples/ops-manager/ops-manager.yaml`. Edit the fields and create the object in Kubernetes:
 
@@ -172,21 +169,16 @@ $ kubectl apply -f samples/ops-manager/ops-manager.yaml
 
 Note, that it takes up to 8 minutes to initialize the Application Database and start Ops Manager.
 
-### (Optionally) Create a MongoDB object referencing the new Ops Manager
+### (Optionally) Create a MongoDB Object Referencing the New Ops Manager
 
-Now you can use the Ops Manager application to create MongoDB objects. You need to follow the 
+Now you can use the Ops Manager application to create MongoDB objects. You need to follow the
 [instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/install-k8s-operator/#onprem-prerequisites)
 to prepare keys and enable network access to Ops Manager.
 
-The Operator creates the NodePort service which can be used to access Ops Manager from external
-(and therefore access the UI from browser):
+In order to access Ops Manager UI, from outside the Kubernetes cluster (from browser), make sure you enable
+`spec.externalConnectivity` in the Ops Manager resource definition.
 
-```bash
-$ kubectl get svc | grep <om-name>-svc-external
-om-svc-external      NodePort    100.61.72.82    <none>        8080:30456/TCP    2m49s
-```
-Make sure that the firewall rules allow inbound traffic to the port on the host (`30456` in the example above)
- 
+You will be able to fetch the URL to connect to Ops Manager UI from the `Service` created by the Operator.
 
 ## Deleting the Operator ##
 

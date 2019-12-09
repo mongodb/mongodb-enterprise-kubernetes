@@ -22,15 +22,15 @@ spec:
         runAsNonRoot: true
         runAsUser: 2000
 {{ end }}
+{{ if .Values.registry.imagePullSecrets}}
+      imagePullSecrets:
+      - name: {{ .Values.registry.imagePullSecrets }}
+{{ end }}
 
       containers:
       - name: {{ .Values.operator.name }}
         image: {{ .Values.registry.repository }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
-{{ if .Values.registry.imagePullSecrets}}
-        imagePullSecrets:
-        - name: {{ .Values.registry.imagePullSecrets }}
-{{ end }}
         env:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
