@@ -9,10 +9,29 @@ for your OpenShift installation to be able to fetch images from this registry.
 
 First, complete the instructions
 [here](https://access.redhat.com/terms-based-registry/#/token/openshift3-test-cluster/docker-config). Unfortunatelly,
-these instructions refer to a `registry.redhat.io` Registry which is not the one we need, but they accept the same
-credentials. First, click on "view its contents" to display the contents we need, and save these contents into a json
-file. This file includes 1 entry for `registry.redhat.io`; replicate that entry with a new name,
-"`registry.connect.redhat.com`", as in the following example:
+these instructions refer to a `registry.redhat.io` registry which is not the one we need, but they accept the same
+credentials. First, click on "Download xxxx-registry-serviceaccount.yaml" and save the yaml file to your disk. Open
+the file with your favorite text editor and extract the value corresponding to the key `.dockerconfigjson` into
+another file (e.g. `dockerconfig.b64`). Decode the contents of this file.
+
+```
+$ base64 -d < dockerconfig.b64 | jq . > dockerconfig.json
+```
+
+Edit the resulting file (here `dockerconfig.json`). It should look similar to
+
+```json
+{
+  "auths": {
+    "registry.redhat.io": {
+      "auth": "YOURBASE64USERNAMEANDPASSWORD"
+    }
+  }
+}
+```
+
+Duplicate the entry with `registry.redhat.io` and replace the registry name by `registry.connect.redhat.com`.
+(Dont't forget the comma between the two entries.) You should end up with something like
 
 ```json
 {
@@ -27,17 +46,38 @@ file. This file includes 1 entry for `registry.redhat.io`; replicate that entry 
 }
 ```
 
-Now save this file as `dockerconfig` and encode it as a base64 string.
+Now open the original file `xxxx-registry-serviceaccount.yaml` again and change the name of the secret to
+`openshift-pull-secrets`. Replace the `data:` section with `stringData:` and the line starting with
+`.dockerconfigjson:` with `.dockerconfigjson: |` followed by the contents of the file
+`dockerconfig.json`. You should end up with something like
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openshift-pull-secrets
+stringData:
+  .dockerconfigjson: |
+    {
+      "auths": {
+        "registry.redhat.io": {
+          "auth": "YOURBASE64USERNAMEANDPASSWORD"
+        },
+        "registry.connect.redhat.com": {
+          "auth": "YOURBASE64USERNAMEANDPASSWORD"
+        }
+      }
+    }
+type: kubernetes.io/dockerconfigjson
+```
+
+Finally, create a `Secret` object with this yaml file:
 
 ```
-$ cat dockerconfig | base64 -w0 > .dockerconfigjson
+$ oc create -f xxxx-registry-serviceaccount.yaml
 ```
 
-Finally, create a `Secret` object that contains this encoded string:
-
-```
-$ kubectl -n <your-namespace> create secret generic openshift-pull-secrets --from-file=.dockerconfigjson
-```
+The important part is the `type` line. You cannot create this type of secret with `oc create secret ...`.
 
 ## Use the new Secret to pull images
 
@@ -51,7 +91,8 @@ The `spec` section will look something like:
 # ...
 
 spec:
-  imagePullSecrets: openshift-pull-secrets  # this is where the name of the Secret goes
+  imagePullSecrets:
+  - name: openshift-pull-secrets  # this is where the name of the Secret goes
   ...
   containers:
   - name: enterprise-operator
@@ -81,7 +122,7 @@ Now that we have instructed our OpenShift cluster to be able to fetch images fro
 to install the operator using:
 
 ```bash
-$ kubectl -n <your-namespace> -f mongodb-enterprise-openshift.yaml
+$ kubectl -n <your-namespace> apply -f mongodb-enterprise-openshift.yaml
 ```
 
 From now on, the OpenShift cluster will be authenticated to pull images from the Red Hat registry. Now you should be
