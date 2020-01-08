@@ -15,7 +15,7 @@ operator:
   name: enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.4.0
+  version: 1.4.1
 
 database:
   name: enterprise-database
