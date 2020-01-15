@@ -83,4 +83,4 @@ The service accounts defined in the above `mongodb-enterprise-openshift.yaml` ar
 oc secret link default openshift-pull-secret --for=pull
 ```
 
-Now you should be able to return to the regular [instructions for Kubernetes](mongodb-enterprise-kubernetes#mongodb-object).
+Now you should be able to return to the regular [instructions for Kubernetes](README.md#mongodb-object).
