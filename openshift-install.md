@@ -6,7 +6,7 @@ The MongoDB Enterprise Operator requires two images to work: `operator` and `dat
 
 Prepare a secret with your credentials to be able to pull images from the registries `registry.redhat.io` and `registry.connect.redhat.com`. To achieve this visit [https://access.redhat.com/terms-based-registry/](https://access.redhat.com/terms-based-registry/), choose the appropriate account and download the OpenShift pull secret (to be found under the *OpenShift Secret* tab). This secret has one entry with key `.dockerconfigjson`. The value is base64 encoded. Use your favorite text editor to extract this value into a separate file. Let's call it `dockerconfig.b64`. Decode the value with
 
-```
+```bash
 base64 -d < dockerconfig.b64 | jq . > dockerconfig.json
 ```
 
@@ -63,7 +63,7 @@ type: kubernetes.io/dockerconfigjson
 
 We assume that you store this YAML file as `openshift-pull-secret.yaml`. Finally create this secret with
 
-```
+```bash
 oc create -f openshift-pull-secret.yaml
 ```
 
@@ -79,7 +79,7 @@ Make sure the pod starts properly. The MongoDB Enterprise Operator is now in pla
 
 The service accounts defined in the above `mongodb-enterprise-openshift.yaml` are linked to the pull secret we created earlier. The service account *default* (automatically created for every project) needs to be linked manually.
 
-```
+```bash
 oc secret link default openshift-pull-secret --for=pull
 ```
 
