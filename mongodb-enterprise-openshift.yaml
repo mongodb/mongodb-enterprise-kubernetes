@@ -6,8 +6,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: enterprise-operator
 
-  namespace: mongodb
-
 rules:
 - apiGroups:
   - ""
@@ -54,8 +52,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: enterprise-operator
 
-  namespace: mongodb
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind:  Role 
@@ -63,8 +59,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: enterprise-operator
-
-  namespace: mongodb
 
 
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
@@ -86,12 +80,12 @@ rules:
   - list
   - watch
 
+
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: enterprise-operator-mongodb-certs-binding
-  namespace: mongodb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -99,7 +93,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: enterprise-operator
-  namespace: mongodb
 
 
 
@@ -108,8 +101,6 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-appdb
-
-  namespace: mongodb
 
 rules:
   - apiGroups:
@@ -125,8 +116,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-appdb
 
-  namespace: mongodb
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -134,8 +123,6 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-appdb
-
-    namespace: mongodb
 
 
 ---
@@ -145,8 +132,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: enterprise-operator
-
-  namespace: mongodb
+imagePullSecrets:
+- name: openshift-pull-secret
 
 
 ---
@@ -154,8 +141,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-appdb
-
-  namespace: mongodb
+imagePullSecrets:
+- name: openshift-pull-secret
 
 ---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
@@ -164,8 +151,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: enterprise-operator
-
-  namespace: mongodb
 
 spec:
   replicas: 1
@@ -179,8 +164,6 @@ spec:
     spec:
       serviceAccountName: enterprise-operator
 
-
-
       containers:
       - name: enterprise-operator
         image: registry.connect.redhat.com/mongodb/enterprise-operator:1.4.1
@@ -189,19 +172,15 @@ spec:
         - name: OPERATOR_ENV
           value: prod
         - name: WATCH_NAMESPACE
-
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-
         - name: CURRENT_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
-
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
           value: registry.connect.redhat.com/mongodb/enterprise-database:1.4.1
         - name: IMAGE_PULL_POLICY
@@ -212,7 +191,3 @@ spec:
           value: Always
         - name: APP_DB_IMAGE_REPOSITORY
           value: registry.connect.redhat.com/mongodb/mongodb-enterprise-appdb
-
-
-
-
