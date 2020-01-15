@@ -4,7 +4,7 @@ The MongoDB Enterprise Operator requires two images to work: `operator` and `dat
 
 ## Create your OpenShift Secret
 
-Prepare a secret with your credentials to be able to pull images from the registries `registry.redhat.io` and `registry.connect.redhat.com`. To achieve this visit [https://access.redhat.com/terms-based-registry/](https://access.redhat.com/terms-based-registry/), choose the appropriate account and download the OpenShift pull secret (to be found under the *OpenShift Secret* tab). Let's assume its name is `7654321_mycompany-registry-credentials-secret.yaml`. This secret has one entry with key `.dockerconfigjson`. The value is base64 encoded. Use your favorite text editor to extract this value into a separate file. Let's call it `dockerconfig.b64`. Decode the value with
+Prepare a secret with your credentials to be able to pull images from the registries `registry.redhat.io` and `registry.connect.redhat.com`. To achieve this visit [https://access.redhat.com/terms-based-registry/](https://access.redhat.com/terms-based-registry/), choose the appropriate account and download the OpenShift pull secret (to be found under the *OpenShift Secret* tab). This secret has one entry with key `.dockerconfigjson`. The value is base64 encoded. Use your favorite text editor to extract this value into a separate file. Let's call it `dockerconfig.b64`. Decode the value with
 
 ```
 base64 -d < dockerconfig.b64 | jq . > dockerconfig.json
