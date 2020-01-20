@@ -90,7 +90,7 @@ Check the end of the page for instructions on how to remove the Operator.
 
 For the Operator to work, you will need the following information:
 
-* Base URL - the URL of an Ops Manager instance (for Cloud Manger use `https://cloud.mongodb.com`)
+* Base URL - the URL of an Ops Manager instance (for Cloud Manager use `https://cloud.mongodb.com`)
 * Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
  if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
 * (optionally) Organization ID - the ID of the organization to which the Project belongs
