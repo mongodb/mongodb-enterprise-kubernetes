@@ -12,10 +12,10 @@ spec:
   # future downgrades if necessary.
   featureCompatibilityVersion: "4.0"
 
-  ## Please Note: The default Kubernetes cluster name is `cluster.local`.
-  ## If your cluster has been configured with another name, you can specify
-  ## it with the `clusterName` attribute.
-  # clusterName: mycompany.net
+  # Please Note: The default Kubernetes cluster domain is `cluster.local`.
+  # If your cluster has been configured with another domain, you can specify it
+  # with the `clusterDomain` attribute.
+  # clusterDomain: mycompany.net
 
   opsManager:
     configMapRef:

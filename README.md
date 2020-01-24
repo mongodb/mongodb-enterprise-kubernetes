@@ -91,11 +91,20 @@ Check the end of the page for instructions on how to remove the Operator.
 For the Operator to work, you will need the following information:
 
 * Base URL - the URL of an Ops Manager instance (for Cloud Manager use `https://cloud.mongodb.com`)
-* Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
- if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
-* (optionally) Organization ID - the ID of the organization to which the Project belongs
-* User - an Ops Manager username
-* Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
+* (optionally) Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be 
+created by the Operator if it doesn't exist (and this is the recommended way instead of reusing the project created 
+in OpsManager directly). If omitted the name of the MongoDB resource will be used as a project name.
+* (optionally) Organization ID - the ID of the organization which the Project belongs to. The Operator will create
+an Organization with the same name as the Project if Organization ID is omitted.
+* API Credentials. This can be any pair of:
+** Public and Private Programmatic API keys. They correspond to `user` and `publicApiKey` fields in the Secret storing 
+credentials. More information about the way to create them using Ops Manager UI can be found 
+[here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#programmatic-api-keys)
+** Username and Public API key. More information about the way to create them using Ops Manager UI can be found
+ [here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#personal-api-keys-deprecated)
+
+Note that you must whitelist the IP 
+range of your Kubernetes cluster so that the Operator could make API requests to Ops Manager
 
 This is documented in greater detail in our [installation guide](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator)
 

@@ -37,6 +37,33 @@ spec:
       - properties: # Standalone schema
           spec:
             properties:
+              podSpec:
+                type: object
+                properties:
+                  podTemplate:
+                    type: object
+                    properties:
+                      spec:
+                        type: object
+                        properties:
+                          podAntiAffinityTopologyKey:
+                            type: string
+                          cpu:
+                            type: string
+                          cpuRequests:
+                            type: string
+                          memory:
+                            type: string
+                          memoryRequests:
+                            type: string
+                          podAffinity:
+                            type: object
+                          nodeAffinity:
+                            type: object
+                          securityContext:
+                            type: object
+                          persistence:
+                            type: object
               credentials:
                 type: string
               project:
@@ -63,6 +90,15 @@ spec:
               type:
                 type: string
                 pattern: "^Standalone$"
+              persistent:
+                type: boolean
+              clusterName:
+                type: string
+                format: hostname
+                description: "DEPRECATED Use clusterDomain instead"
+              clusterDomain:
+                type: string
+                format: hostname
               security:
                 type: object
                 properties:
@@ -114,6 +150,34 @@ spec:
       - properties: # ReplicaSet schema
           spec:
             properties:
+              podSpec:
+                type: object
+                properties:
+                  podTemplate:
+                    type: object
+                    properties:
+                      spec:
+                        type: object
+                        properties:
+                          podAntiAffinityTopologyKey:
+                            type: string
+                          cpu:
+                            type: string
+                          cpuRequests:
+                            type: string
+                          memory:
+                            type: string
+                          memoryRequests:
+                            type: string
+                          podAffinity:
+                            type: object
+                          nodeAffinity:
+                            type: object
+                          securityContext:
+                            type: object
+                          persistence:
+                            type: object
+
               members:
                 maximum: 50
                 minimum: 1
@@ -144,6 +208,15 @@ spec:
               type:
                 type: string
                 pattern: "^ReplicaSet$"
+              persistent:
+                type: boolean
+              clusterName:
+                type: string
+                format: hostname
+                description: "DEPRECATED Use clusterDomain instead"
+              clusterDomain:
+                type: string
+                format: hostname
               security:
                 type: object
                 properties:
@@ -210,6 +283,78 @@ spec:
       - properties:
           spec:
             properties: # ShardedCluster schema
+              shardPodSpec:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      podAntiAffinityTopologyKey:
+                        type: string
+                      cpu:
+                        type: string
+                      cpuRequests:
+                        type: string
+                      memory:
+                        type: string
+                      memoryRequests:
+                        type: string
+                      podAffinity:
+                        type: object
+                      nodeAffinity:
+                        type: object
+                      securityContext:
+                        type: object
+                      persistence:
+                        type: object
+              mongosPodSpec:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      podAntiAffinityTopologyKey:
+                        type: string
+                      cpu:
+                        type: string
+                      cpuRequests:
+                        type: string
+                      memory:
+                        type: string
+                      memoryRequests:
+                        type: string
+                      podAffinity:
+                        type: object
+                      nodeAffinity:
+                        type: object
+                      securityContext:
+                        type: object
+                      persistence:
+                        type: object
+              configSrvPodSpec:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      podAntiAffinityTopologyKey:
+                        type: string
+                      cpu:
+                        type: string
+                      cpuRequests:
+                        type: string
+                      memory:
+                        type: string
+                      memoryRequests:
+                        type: string
+                      podAffinity:
+                        type: object
+                      nodeAffinity:
+                        type: object
+                      securityContext:
+                        type: object
+                      persistence:
+                        type: object
               configServerCount:
                 maximum: 50
                 minimum: 1
@@ -250,6 +395,15 @@ spec:
               type:
                 type: string
                 pattern: "^ShardedCluster$"
+              persistent:
+                type: boolean
+              clusterName:
+                type: string
+                format: hostname
+                description: "DEPRECATED Use clusterDomain instead"
+              clusterDomain:
+                type: string
+                format: hostname
               security:
                 type: object
                 properties:
@@ -434,6 +588,13 @@ spec:
             replicas:
               minimum: 1
               type: integer
+            clusterName:
+              type: string
+              format: hostname
+              description: "DEPRECATED Use clusterDomain instead"
+            clusterDomain:
+              type: string
+              format: hostname
             externalConnectivity:
               type: object
               properties:
@@ -528,7 +689,6 @@ spec:
 
               required:
                 - enabled
-
             applicationDatabase:
               type: object
               properties:
@@ -547,14 +707,13 @@ spec:
                   type: integer
                 version:
                   type: string
-                  pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
+                  pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$|^$"
                 logLevel:
                   type: string
                   enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-                exposedExternally:
+                persistent:
                   type: boolean
               required:
-                - version
                 - members
           required:
             - version

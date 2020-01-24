@@ -157,6 +157,15 @@ metadata:
 
   namespace: mongodb
 
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-database-pods
+
+  namespace: mongodb
+
 ---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
@@ -187,7 +196,7 @@ spec:
 
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.1
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.2
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
@@ -204,7 +213,7 @@ spec:
               fieldPath: metadata.namespace
 
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.4.1
+          value: quay.io/mongodb/mongodb-enterprise-database:1.4.2
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY

@@ -1,0 +1,45 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster-pod-template
+spec:
+  shardCount: 1
+  mongodsPerShardCount: 1
+  mongosCount: 1
+  configServerCount: 1
+  version: 4.0.14
+  type: ShardedCluster
+  opsManager:
+    configMapName:
+      name: my-project
+  credentials: my-credentials
+  configSrvPodSpec:
+    podAntiAffinityTopologyKey: nodeId
+    podTemplate:
+      spec:
+        terminationGracePeriodSeconds: 120
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - podAffinityTerm:
+                  # Note, that this topology key will overwrite the antiAffinity topologyKey set by the Operator
+                  # from 'spec.configSrvPodSpec.podAntiAffinityTopologyKey'
+                  topologyKey: "failure-domain.beta.kubernetes.io/zone"
+                weight: 30
+  mongosPodSpec:
+    podTemplate:
+      spec:
+        restartPolicy: Never
+        serviceAccountName: the-custom-user
+  shardPodSpec:
+    cpu: '0.8'
+    memory: 1G
+    podTemplate:
+      metadata:
+        annotations:
+          key1: value1
+      spec:
+        tolerations:
+          - key: "key"
+            operator: "Exists"
+            effect: "NoSchedule"
