@@ -3,9 +3,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.operator.name }}
-{{ if .Values.namespace }}
+{{- if .Values.namespace }}
   namespace: {{ .Values.namespace }}
-{{ end }}
+{{- end }}
 spec:
   replicas: 1
   selector:
@@ -17,15 +17,15 @@ spec:
         app: {{ .Values.operator.name }}
     spec:
       serviceAccountName: {{ .Values.operator.name }}
-{{ if not .Values.managedSecurityContext }}
+{{- if not .Values.managedSecurityContext }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 2000
-{{ end }}
-{{ if .Values.registry.imagePullSecrets}}
+{{- end }}
+{{- if .Values.registry.imagePullSecrets}}
       imagePullSecrets:
       - name: {{ .Values.registry.imagePullSecrets }}
-{{ end }}
+{{- end }}
 
       containers:
       - name: {{ .Values.operator.name }}
@@ -35,21 +35,21 @@ spec:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
         - name: WATCH_NAMESPACE
-{{ if .Values.operator.watchNamespace}}
+{{- if .Values.operator.watchNamespace}}
           value: "{{ .Values.operator.watchNamespace }}"
-{{ else }}
+{{- else }}
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-{{ end }}
+{{- end }}
         - name: CURRENT_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-{{ if eq .Values.managedSecurityContext true }}
+{{- if eq .Values.managedSecurityContext true }}
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
-{{ end }}
+{{- end }}
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
           value: {{ .Values.registry.repository }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
@@ -61,12 +61,12 @@ spec:
         - name: APP_DB_IMAGE_REPOSITORY
           value: {{ .Values.registry.repository }}/{{ .Values.appDb.name }}
 
-{{ if .Values.registry.imagePullSecrets }}
+{{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}
-{{ end }}
+{{- end }}
 
-{{ if .Values.debug }}
+{{- if .Values.debug }}
 ---
 apiVersion: v1
 kind: Service
@@ -80,4 +80,4 @@ spec:
       protocol: TCP
   selector:
     app: {{ .Values.operator.name }}
-{{ end }}
+{{- end }}

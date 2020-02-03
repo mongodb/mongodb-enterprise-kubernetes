@@ -97,10 +97,10 @@ in OpsManager directly). If omitted the name of the MongoDB resource will be use
 * (optionally) Organization ID - the ID of the organization which the Project belongs to. The Operator will create
 an Organization with the same name as the Project if Organization ID is omitted.
 * API Credentials. This can be any pair of:
-** Public and Private Programmatic API keys. They correspond to `user` and `publicApiKey` fields in the Secret storing 
+  * Public and Private Programmatic API keys. They correspond to `user` and `publicApiKey` fields in the Secret storing 
 credentials. More information about the way to create them using Ops Manager UI can be found 
 [here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#programmatic-api-keys)
-** Username and Public API key. More information about the way to create them using Ops Manager UI can be found
+  * Username and Public API key. More information about the way to create them using Ops Manager UI can be found
  [here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#personal-api-keys-deprecated)
 
 Note that you must whitelist the IP 
@@ -122,12 +122,13 @@ metadata:
   name: my-project
   namespace: mongodb
 data:
-  projectName: myProjectName
+  projectName: myProjectName # this is an optional parameter
   orgId: 5b890e0feacf0b76ff3e7183 # this is an optional parameter
   baseUrl: https://my-ops-manager-or-cloud-manager-url
 ```
 > Note, that if `orgId` is skipped then the new organization named `projectName` will be automatically created and new
 project will be added there.
+> If `projectName` is skipped the project created in Ops Manager will get the same name as the MongoDB object
 
 Apply this file to create the new `Project`:
 
@@ -135,7 +136,8 @@ Apply this file to create the new `Project`:
 
 ### Credentials ###
 
-For a user to be able to create or update objects in this Ops Manager Project they need a Public API Key. These will be held by Kubernetes as a `Secret` object. You can create this Secret with the following command:
+For a user to be able to create or update objects in this Ops Manager Project they need either a Public API Key or a 
+Programmatic API Key. These will be held by Kubernetes as a `Secret` object. You can create this Secret with the following command:
 
 ``` bash
 $ kubectl -n mongodb create secret generic my-credentials --from-literal="user=some@example.com" --from-literal="publicApiKey=my-public-api-key"
@@ -154,7 +156,7 @@ If you have a correctly created Project with the name `my-project` and Credentia
 This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all
 the CRDs and the Operator application to be installed as described above.
 
-*Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production*
+*Disclaimer: this is a Beta release of Ops Manager - so it's not recommended to use it in production*
 
 ### Create Admin Credentials Secret ###
 
