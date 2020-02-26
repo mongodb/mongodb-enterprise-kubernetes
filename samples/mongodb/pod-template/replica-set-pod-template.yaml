@@ -4,7 +4,7 @@ metadata:
   name: my-replica-set-pod-template
 spec:
   members: 3
-  version: 4.2.2
+  version: 4.2.2-ent
   type: ReplicaSet
   opsManager:
     configMapName:
@@ -17,6 +17,15 @@ spec:
     # for the Database StatefulSet.
     podTemplate:
       spec:
-        hostAliases:
-          - ip: "1.2.3.4"
-            hostnames: ["hostname"]
+        # This container will be added to each pod as a sidecar
+        containers:
+          - name: standalone-sidecar
+            image: busybox
+            command: ["sleep"]
+            args: [ "infinity" ]
+            resources:
+              limits:
+                cpu: "1"
+              requests:
+                cpu: 500m
+

@@ -7,7 +7,7 @@ spec:
   mongodsPerShardCount: 1
   mongosCount: 1
   configServerCount: 1
-  version: 4.0.14
+  version: 4.0.14-ent
   type: ShardedCluster
   opsManager:
     configMapName:

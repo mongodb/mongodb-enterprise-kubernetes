@@ -58,6 +58,25 @@ rules:
   - delete
   - update
 
+# This ClusterRoleBinding is necessary in order to use validating
+# webhooks—these will prevent you from applying a variety of invalid resource
+# definitions. The validating webhooks are optional so this can be removed if
+# necessary.
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-webhook-binding
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.operator.name }}
+  namespace: {{ .Values.namespace }}
+
 ---
 kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRoleBinding {{ else }} RoleBinding {{ end }}
 apiVersion: rbac.authorization.k8s.io/v1

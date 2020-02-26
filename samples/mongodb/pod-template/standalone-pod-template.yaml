@@ -12,14 +12,6 @@ spec:
   podSpec:
     podTemplate:
       spec:
-        # This container will be added to each pod as a sidecar
-        containers:
-          - name: standalone-sidecar
-            image: busybox
-            command: ["sleep"]
-            args: [ "infinity" ]
-            resources:
-              limits:
-                cpu: "1"
-              requests:
-                cpu: 500m
+        hostAliases:
+          - ip: "1.2.3.4"
+            hostnames: ["hostname"]

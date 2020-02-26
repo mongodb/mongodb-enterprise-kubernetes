@@ -2,10 +2,13 @@
 apiVersion: mongodb.com/v1
 kind: MongoDB
 metadata:
-  name: my-replica-set
+  name: my-sharded-cluster
 spec:
-  members: 3
-  version: 4.0.0
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+  version: 4.0.0-ent
   service: my-service
 
   # Indicates featureCompatibilityVersion. This attribute will make the data
@@ -19,37 +22,24 @@ spec:
   # clusterDomain: mycompany.net
 
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
-  type: ReplicaSet
-
-  # log level affects the level of logging for the agent. Use DEBUG cautiously as log file size may grow very quickly
-  logLevel: WARN
+  type: ShardedCluster
 
   persistent: true
-  podSpec:
-    cpu: '0.25'
+  configSrvPodSpec:
+    cpu: '0.5'
     # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
     # monitoring tools will report the size of Kubernetes node instead of the real size of the container
     memory: 512M
-    # "multiple" persistence allows to mount different directories to different Persistent Volumes
-    persistence:
-      multiple:
-        data:
-          storage: 10Gi
-        journal:
-          storage: 1Gi
-          labelSelector:
-            matchLabels:
-              app: "my-app"
-        logs:
-          storage: 500M
-          storageClass: standard
+
+    # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
+    # for config server
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-    podAntiAffinityTopologyKey: nodeId
+    podAntiAffinityTopologyKey: kubernetes.io/hostname
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
@@ -59,12 +49,29 @@ spec:
             values:
             - S1
         topologyKey: failure-domain.beta.kubernetes.io/zone
+  mongosPodSpec:
+    cpu: '0.8'
+    memory: 1G
+    podAntiAffinityTopologyKey: rackId
     nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/e2e-az-name
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
             operator: In
             values:
-            - e2e-az1
-            - e2e-az2
+            - another-node-label-value
+  shardPodSpec:
+    cpu: '0.6'
+    memory: 3G
+    persistence:
+      multiple:
+        # if the child of "multiple" is omitted then the default size will be used.
+        # 16G for "data", 1G for "journal", 3Gb for "logs"
+        data:
+          storage: 20G
+        logs:
+          storage: 4G
+          storageClass: standard
+    podAntiAffinityTopologyKey: kubernetes.io/hostname

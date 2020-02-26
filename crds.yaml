@@ -33,439 +33,257 @@ spec:
       type: date
       description: The time since the MongoDB resource was created.
       JSONPath: .metadata.creationTimestamp
-  validation: # there are 3 possible schemas, ReplicaSet, ShardedCluster and Standalone
-    openAPIV3Schema:
-      oneOf:
-      - properties: # Standalone schema
-          spec:
-            properties:
-              podSpec:
-                type: object
-                properties:
-                  podTemplate:
-                    type: object
-                    properties:
-                      spec:
-                        type: object
-                        properties:
-                          podAntiAffinityTopologyKey:
-                            type: string
-                          cpu:
-                            type: string
-                          cpuRequests:
-                            type: string
-                          memory:
-                            type: string
-                          memoryRequests:
-                            type: string
-                          podAffinity:
-                            type: object
-                          nodeAffinity:
-                            type: object
-                          securityContext:
-                            type: object
-                          persistence:
-                            type: object
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-              type:
-                type: string
-                pattern: "^Standalone$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["SCRAM", "X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      ca:
-                        type: string
-                      additionalCertificateDomains:
-                        type: array
-                        items:
-                          type: string
-              connectivity:
-                not:
-                  required: ["replicaSetHorizons"]
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
-            required:
-            - credentials
-            - version
-            - type
-      - properties: # ReplicaSet schema
-          spec:
-            properties:
-              podSpec:
-                type: object
-                properties:
-                  podTemplate:
-                    type: object
-                    properties:
-                      spec:
-                        type: object
-                        properties:
-                          podAntiAffinityTopologyKey:
-                            type: string
-                          cpu:
-                            type: string
-                          cpuRequests:
-                            type: string
-                          memory:
-                            type: string
-                          memoryRequests:
-                            type: string
-                          podAffinity:
-                            type: object
-                          nodeAffinity:
-                            type: object
-                          securityContext:
-                            type: object
-                          persistence:
-                            type: object
+    - name: Warnings
+      type: string
+      description: Warnings
+      JSONPath: .status.warnings
 
-              members:
-                maximum: 50
-                minimum: 1
-                type: integer
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-              type:
-                type: string
-                pattern: "^ReplicaSet$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["SCRAM", "X509"]
-                      internalCluster:
-                        type: string
-                        enum: ["X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      ca:
-                        type: string
-                      additionalCertificateDomains:
-                        type: array
-                        items:
-                          type: string
-                  clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
-                    # https://docs.mongodb.com/kubernetes-operator/
-                    type: string
-                    enum: ["x509"]
-              connectivity:
-                properties:
-                  replicaSetHorizons:
-                    type: array
-                    items:
-                      type: object
-                      additionalProperties:
-                        type: string
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
-            required:
+  validation:
+    openAPIV3Schema:
+      type: object
+      properties:
+        spec:
+          type: object
+          required:
             - credentials
-            - version
             - type
-            - members
-            # TODO: add validation for OpsManager or Cloud Manager being required
+            - version
+          oneOf:
+            - required: [cloudManager]
+            - required: [opsManager]
+            - required: [project]
+          properties:
+            type:
+              type: string
+              enum: ["Standalone", "ReplicaSet", "ShardedCluster"]
+            credentials:
+              type: string
+            project:
+              type: string
+              description: "DEPRECATED The name of a configMap in the same namespace"
+            opsManager:
+              type: object
+              properties:
+                configMapRef:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+            cloudManager:
+              type: object
+              properties:
+                configMapRef:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+
+            version:
+              type: string
+              pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
+            logLevel:
+              type: string
+              enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
+            persistent:
+              type: boolean
+            clusterName:
+              type: string
+              format: hostname
+              description: "DEPRECATED Use clusterDomain instead"
+            clusterDomain:
+              type: string
+              format: hostname
+
+            additionalMongodConfig:
+              type: object
+              properties:
+                net:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
+                ssl:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
+
+            exposedExternally:
+              type: boolean
+
+            # Generic PodSpec configuration
+            podSpec:
+              type: object
+              properties:
+                podTemplate:
+                  type: object
+                  properties:
+                    spec:
+                      type: object
+                      properties:
+                        podAntiAffinityTopologyKey:
+                          type: string
+                        cpu:
+                          type: string
+                        cpuRequests:
+                          type: string
+                        memory:
+                          type: string
+                        memoryRequests:
+                          type: string
+                        podAffinity:
+                          type: object
+                        nodeAffinity:
+                          type: object
+                        securityContext:
+                          type: object
+                        persistence:
+                          type: object
+
+            # TLS & authentication properties
+            security:
+              type: object
+              properties:
+                authentication:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    modes:
+                      type: array
+                      items:
+                        type: string
+                        enum: ["SCRAM", "X509"]
+                    ignoreUnknownUsers:
+                      type: boolean
+                tls:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    ca:
+                      type: string
+                    additionalCertificateDomains:
+                      type: array
+                      items:
+                        type: string
+
+            # Sharded Cluster properties
+            shardPodSpec:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  properties:
+                    podAntiAffinityTopologyKey:
+                      type: string
+                    cpu:
+                      type: string
+                    cpuRequests:
+                      type: string
+                    memory:
+                      type: string
+                    memoryRequests:
+                      type: string
+                    podAffinity:
+                      type: object
+                    nodeAffinity:
+                      type: object
+                    securityContext:
+                      type: object
+                    persistence:
+                      type: object
+
+            mongosPodSpec:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  properties:
+                    podAntiAffinityTopologyKey:
+                      type: string
+                    cpu:
+                      type: string
+                    cpuRequests:
+                      type: string
+                    memory:
+                      type: string
+                    memoryRequests:
+                      type: string
+                    podAffinity:
+                      type: object
+                    nodeAffinity:
+                      type: object
+                    securityContext:
+                      type: object
+                    persistence:
+                      type: object
+            configSrvPodSpec:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  properties:
+                    podAntiAffinityTopologyKey:
+                      type: string
+                    cpu:
+                      type: string
+                    cpuRequests:
+                      type: string
+                    memory:
+                      type: string
+                    memoryRequests:
+                      type: string
+                    podAffinity:
+                      type: object
+                    nodeAffinity:
+                      type: object
+                    securityContext:
+                      type: object
+                    persistence:
+                      type: object
+            configServerCount:
+              type: integer
+            mongodsPerShardCount:
+              type: integer
+            mongosCount:
+              minimum: 1
+              type: integer
+            shardCount:
+              minimum: 1
+              type: integer
+
+      oneOf:
+      # Standalone
       - properties:
           spec:
-            properties: # ShardedCluster schema
-              shardPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              mongosPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              configSrvPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              configServerCount:
-                maximum: 50
-                minimum: 1
-                type: integer
-              mongodsPerShardCount:
-                maximum: 50
-                minimum: 1
-                type: integer
-              mongosCount:
-                minimum: 1
-                type: integer
-              shardCount:
-                minimum: 1
-                type: integer
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
+            properties:
               type:
-                type: string
-                pattern: "^ShardedCluster$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["SCRAM", "X509"]
-                      internalCluster:
-                        type: string
-                        enum: ["X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      ca:
-                        type: string
-                      additionalCertificateDomains:
-                        type: array
-                        items:
-                          type: string
-                  clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
-                    # https://docs.mongodb.com/kubernetes-operator/
-                    type: string
-                    enum: ["x509"]
-              connectivity:
-                not:
-                  required: ["replicaSetHorizons"]
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
+                pattern: '^Standalone$'
+
+      # ReplicaSet
+      - properties:
+          spec:
+            properties:
+              type:
+                pattern: '^ReplicaSet$'
             required:
-            - credentials
-            - version
-            - type
-            - shardCount
-            - mongodsPerShardCount
-            - mongosCount
-            - configServerCount
+              - members
+
+      # ShardedCluster
+      - properties:
+          spec:
+            properties:
+              type:
+                pattern: '^ShardedCluster$'
+            required:
+              - configServerCount
+              - mongodsPerShardCount
+              - mongosCount
+              - shardCount
+
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -492,8 +310,10 @@ spec:
       JSONPath: .metadata.creationTimestamp
   validation:
       openAPIV3Schema:
+        type: object
         properties:
           spec:
+            type: object
             properties:
               username:
                 type: string
@@ -513,6 +333,7 @@ spec:
                     type: string
                 description: "DEPRECATED The project the user belongs to"
               mongodbResourceRef:
+                type: object
                 properties:
                   name:
                     type: string
@@ -529,6 +350,7 @@ spec:
                       type: string
                       description: "The db the role can act on"
                     passwordSecretKeyRef:
+                      type: object
                       properties:
                         name:
                           type: string
@@ -582,8 +404,10 @@ spec:
       JSONPath: .metadata.creationTimestamp
   validation:
     openAPIV3Schema:
+      type: object
       properties:
         spec:
+          type: object
           properties:
             version:
               type: string
@@ -720,5 +544,23 @@ spec:
           required:
             - version
             - applicationDatabase
+
+# This ClusterRole is necessary in order to use validating webhooks—these will
+# prevent you from applying a variety of invalid resource definitions. The
+# validating webhooks are optional so this can be removed if necessary.
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook
+rules:
+- apiGroups:
+  - "admissionregistration.k8s.io"
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - create
+  - update
 
 
