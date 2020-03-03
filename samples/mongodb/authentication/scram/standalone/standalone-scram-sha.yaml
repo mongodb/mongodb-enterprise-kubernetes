@@ -8,7 +8,7 @@ spec:
 
   # Using a version >= 4.0 will enable SCRAM-SHA-256 authentication
   # setting a version < 4.0 will enable SCRAM-SHA-1/MONGODB-CR authentication
-  version: 3.6.0
+  version: 3.6.0-ent
 
   opsManager:
     configMapRef:

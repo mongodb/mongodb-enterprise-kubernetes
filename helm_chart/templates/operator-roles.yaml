@@ -1,11 +1,23 @@
 ---
-kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRole {{ else }} Role {{ end }} {{ else }} Role {{ end }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.operator.name }}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- end }}
+
+
+---
+kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRole {{ else }} Role {{ end }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.operator.name }}
-{{ if .Values.namespace }}
+  {{- if not (eq (.Values.operator.watchNamespace | default "*") "*") }}
+  namespace: {{ .Values.operator.watchNamespace }}
+  {{- else }}
   namespace: {{ .Values.namespace }}
-{{ end }}
+  {{- end }}
 rules:
 - apiGroups:
   - ""
@@ -46,28 +58,49 @@ rules:
   - delete
   - update
 
+# This ClusterRoleBinding is necessary in order to use validating
+# webhooks—these will prevent you from applying a variety of invalid resource
+# definitions. The validating webhooks are optional so this can be removed if
+# necessary.
 ---
-kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRoleBinding {{ else }} RoleBinding {{ end }} {{ else }} RoleBinding {{ end }}
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-webhook-binding
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.operator.name }}
+  namespace: {{ .Values.namespace }}
+
+---
+kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRoleBinding {{ else }} RoleBinding {{ end }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.operator.name }}
-{{ if .Values.namespace }}
+  {{- if not (eq (.Values.operator.watchNamespace | default "*") "*") }}
+  namespace: {{ .Values.operator.watchNamespace }}
+  {{- else }}
   namespace: {{ .Values.namespace }}
-{{ end }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: {{ if .Values.operator.watchNamespace }} {{ if (eq .Values.operator.watchNamespace "*") }} ClusterRole {{ else }} Role {{ end }} {{ else }} Role {{ end }}
+  kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRole {{ else }} Role {{ end }}
   name: {{ .Values.operator.name }}
 subjects:
 - kind: ServiceAccount
   name: {{ .Values.operator.name }}
-{{ if .Values.namespace }}
+  {{- if .Values.namespace }}
   namespace: {{ .Values.namespace }}
-{{ end }}
+  {{- end }}
 
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
 # infrastructure to generate certificates.
-{{ if .Values.needsCAInfrastructure }}
+{{- if .Values.needsCAInfrastructure }}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -99,40 +132,6 @@ subjects:
   name: {{ .Values.operator.name }}
   namespace: {{ .Values.namespace }}
 
-{{ end }}
+{{- end }}
 
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-appdb
-{{ if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
-{{ end }}
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - get
-
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-appdb
-{{ if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
-{{ end }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: mongodb-enterprise-appdb
-subjects:
-  - kind: ServiceAccount
-    name: mongodb-enterprise-appdb
-{{ if .Values.namespace }}
-    namespace: {{ .Values.namespace }}
-{{ end }}
 

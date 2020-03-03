@@ -2,9 +2,12 @@
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploys of MongoDB into Kubernetes clusters, using our management, monitoring and backup platforms, Ops Manager and Cloud Manager. By installing this integration, you will be able to deploy MongoDB instances with a single simple command.
 
-Also the Operator allows to deploy Ops Manager into Kubernetes. Note, that currently this feature is **beta**. See more information below.
+The Operator is currently Generally Available, supported by the [MongoDB Support Team](https://support.mongodb.com/). If you need urgent help, please file a support ticket.
+For non-urgent requests, you may file a Github Issue here in the repo.
 
-You can discuss this integration in our [Slack](https://community-slack.mongodb.com) - join the [#enterprise-kubernetes](https://mongo-db.slack.com/messages/CB323LCG5/) channel.
+As of recent releases, the Operator allows you to deploy Ops Manager into Kubernetes. This feature is in **beta**. For more information, see below.
+
+You can discuss this integration in our new [Community Forum](https://community.mongodb.com/) - please use the tag [enterprise-kubernetes-operator](https://community.mongodb.com/tags/enterprise-kubernetes-operator).
 
 ## Documentation ##
 
@@ -90,12 +93,21 @@ Check the end of the page for instructions on how to remove the Operator.
 
 For the Operator to work, you will need the following information:
 
-* Base URL - the URL of an Ops Manager instance (for Cloud Manger use `https://cloud.mongodb.com`)
-* Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be created by Operator
- if it doesn't exist (and this is the recommended way instead of reusing the project created in OpsManager directly)
-* (optionally) Organization ID - the ID of the organization to which the Project belongs
-* User - an Ops Manager username
-* Public API Key - an Ops Manager Public API Key. Note that you must whitelist the IP range of your Kubernetes cluster so that the Operator may make requests to Ops Manager using this API Key.
+* Base URL - the URL of an Ops Manager instance (for Cloud Manager use `https://cloud.mongodb.com`)
+* (optionally) Project Name - the name of an Ops Manager Project where MongoDBs will be deployed into. It will be
+created by the Operator if it doesn't exist (and this is the recommended way instead of reusing the project created
+in OpsManager directly). If omitted the name of the MongoDB resource will be used as a project name.
+* (optionally) Organization ID - the ID of the organization which the Project belongs to. The Operator will create
+an Organization with the same name as the Project if Organization ID is omitted.
+* API Credentials. This can be any pair of:
+  * Public and Private Programmatic API keys. They correspond to `user` and `publicApiKey` fields in the Secret storing
+credentials. More information about the way to create them using Ops Manager UI can be found
+[here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#programmatic-api-keys)
+  * Username and Public API key. More information about the way to create them using Ops Manager UI can be found
+ [here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#personal-api-keys-deprecated)
+
+Note that you must whitelist the IP
+range of your Kubernetes cluster so that the Operator could make API requests to Ops Manager
 
 This is documented in greater detail in our [installation guide](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator)
 
@@ -113,12 +125,13 @@ metadata:
   name: my-project
   namespace: mongodb
 data:
-  projectName: myProjectName
+  projectName: myProjectName # this is an optional parameter
   orgId: 5b890e0feacf0b76ff3e7183 # this is an optional parameter
   baseUrl: https://my-ops-manager-or-cloud-manager-url
 ```
 > Note, that if `orgId` is skipped then the new organization named `projectName` will be automatically created and new
 project will be added there.
+> If `projectName` is skipped the project created in Ops Manager will get the same name as the MongoDB object
 
 Apply this file to create the new `Project`:
 
@@ -126,7 +139,8 @@ Apply this file to create the new `Project`:
 
 ### Credentials ###
 
-For a user to be able to create or update objects in this Ops Manager Project they need a Public API Key. These will be held by Kubernetes as a `Secret` object. You can create this Secret with the following command:
+For a user to be able to create or update objects in this Ops Manager Project they need either a Public API Key or a
+Programmatic API Key. These will be held by Kubernetes as a `Secret` object. You can create this Secret with the following command:
 
 ``` bash
 $ kubectl -n mongodb create secret generic my-credentials --from-literal="user=some@example.com" --from-literal="publicApiKey=my-public-api-key"
@@ -145,7 +159,7 @@ If you have a correctly created Project with the name `my-project` and Credentia
 This section describes how to create the Ops Manager object in Kubernetes. Note, that this requires all
 the CRDs and the Operator application to be installed as described above.
 
-*Disclaimer: this is an early release of Ops Manager - so it's not recommended to use it in production*
+*Disclaimer: this is a Beta release of Ops Manager - so it's not recommended to use it in production*
 
 ### Create Admin Credentials Secret ###
 
@@ -196,3 +210,9 @@ kubectl delete namespace <namespace>
 kubectl delete deployment mongodb-enterprise-operator -n <namespace>
 kubectl delete crd/mongodb.mongodb.com
 ```
+
+## Contributing
+
+Please file issues before filing PRs. For PRs to be accepted, contributors must sign our [CLA](https://www.mongodb.com/legal/contributor-agreement).
+
+Reviewers, please ensure that the CLA has been signed by referring to [the contributors tool](https://contributors.corp.mongodb.com/) (internal link).

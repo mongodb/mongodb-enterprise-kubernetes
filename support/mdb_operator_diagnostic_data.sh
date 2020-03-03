@@ -58,6 +58,11 @@ if ! kubectl -n "${namespace}" get "deployment/${operator_name}" &> /dev/null; t
     exit 1
 fi
 
+if ! kubectl -n "${namespace}" get om -o wide &> /dev/null; then
+    echo "Error fetching the MongoDB OpsManager Resource."
+fi
+
+
 if [ ${private_mode} == 0 ]; then
     echo "+ Running on private mode. Make sure you don't share the results of this run outside your organization."
 fi
@@ -185,6 +190,11 @@ crdu_filename="crd_mdbu.yaml"
 echo "+ Saving MongoDBUser Customer Resource Definition into ${crdu_filename}"
 kubectl -n "${namespace}" get crd/mongodbusers.mongodb.com -o yaml > "${log_dir}/${crdu_filename}"
 
+ops_manager_filename="ops_manager.yaml"
+echo "+ Saving OpsManager Status"
+kubectl -n "${namespace}" get om -o wide
+echo "+ Saving OpsManager Status to ${ops_manager_filename}"
+kubectl -n "${namespace}" get om -o yaml > "${log_dir}/${ops_manager_filename}"
 
 echo "++ Compressing files"
 compressed_logs_filename="${namespace}__${mdb_resource}__${current_date}.tar.gz"

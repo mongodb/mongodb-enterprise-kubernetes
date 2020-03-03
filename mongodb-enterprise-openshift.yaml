@@ -1,5 +1,13 @@
 ---
-# Source: mongodb-enterprise-operator/templates/roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enterprise-operator
+  namespace: mongodb
+
+
 ---
 kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -46,12 +54,30 @@ rules:
   - delete
   - update
 
+# This ClusterRoleBinding is necessary in order to use validating
+# webhooks—these will prevent you from applying a variety of invalid resource
+# definitions. The validating webhooks are optional so this can be removed if
+# necessary.
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: enterprise-operator-mongodb-webhook-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: enterprise-operator
+
+
 ---
 kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: enterprise-operator
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind:  Role 
@@ -63,7 +89,6 @@ subjects:
 
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
 # infrastructure to generate certificates.
-
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -95,6 +120,15 @@ subjects:
   name: enterprise-operator
 
 
+---
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-appdb
+  namespace: mongodb
+
 
 ---
 kind: Role
@@ -109,6 +143,7 @@ rules:
       - configmaps
     verbs:
       - get
+
 
 ---
 kind: RoleBinding
@@ -144,6 +179,7 @@ metadata:
 imagePullSecrets:
 - name: openshift-pull-secret
 
+
 ---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
@@ -166,7 +202,7 @@ spec:
 
       containers:
       - name: enterprise-operator
-        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.4.1
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.4.3
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
@@ -182,7 +218,7 @@ spec:
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: registry.connect.redhat.com/mongodb/enterprise-database:1.4.1
+          value: registry.connect.redhat.com/mongodb/enterprise-database:1.4.3
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY

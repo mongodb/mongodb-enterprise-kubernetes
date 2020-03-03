@@ -1,0 +1,17 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-standalone-pod-template
+spec:
+  version: 4.2.2-ent
+  type: Standalone
+  opsManager:
+    configMapName:
+      name: my-project
+  credentials: my-credentials
+  podSpec:
+    podTemplate:
+      spec:
+        hostAliases:
+          - ip: "1.2.3.4"
+            hostnames: ["hostname"]

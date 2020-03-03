@@ -12,7 +12,9 @@ spec:
   # Application database has the SCRAM-SHA authentication mode always enabled
   applicationDatabase:
     members: 3
-    version: 4.2.0
+    # it's possible to omit 'version' completely - the bundled MongoDB binary will be used in this case
+    # and no MongoDB binary will be downloaded from the Internet in this case
+    # version: 4.2.2-ent
     persistent: true
     podSpec:
       cpu: '0.25'

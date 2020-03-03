@@ -1,13 +1,19 @@
 ---
-# Source: mongodb-enterprise-operator/templates/roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
+
 ---
 kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
-
   namespace: mongodb
-
 rules:
 - apiGroups:
   - ""
@@ -48,14 +54,31 @@ rules:
   - delete
   - update
 
+# This ClusterRoleBinding is necessary in order to use validating
+# webhooks—these will prevent you from applying a variety of invalid resource
+# definitions. The validating webhooks are optional so this can be removed if
+# necessary.
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+
 ---
 kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator
-
   namespace: mongodb
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind:  Role 
@@ -63,13 +86,10 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: mongodb-enterprise-operator
-
   namespace: mongodb
-
 
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
 # infrastructure to generate certificates.
-
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -102,15 +122,21 @@ subjects:
   namespace: mongodb
 
 
+---
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-appdb
+  namespace: mongodb
 
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-appdb
-
   namespace: mongodb
-
 rules:
   - apiGroups:
       - ""
@@ -124,9 +150,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-appdb
-
   namespace: mongodb
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -134,28 +158,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-appdb
-
     namespace: mongodb
-
-
----
-# Source: mongodb-enterprise-operator/templates/serviceaccount.yaml
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: mongodb-enterprise-operator
-
-  namespace: mongodb
-
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: mongodb-enterprise-appdb
-
-  namespace: mongodb
 
 ---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
@@ -164,9 +167,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb-enterprise-operator
-
   namespace: mongodb
-
 spec:
   replicas: 1
   selector:
@@ -178,33 +179,27 @@ spec:
         app: mongodb-enterprise-operator
     spec:
       serviceAccountName: mongodb-enterprise-operator
-
       securityContext:
         runAsNonRoot: true
         runAsUser: 2000
 
-
-
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.1
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.3
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
           value: prod
         - name: WATCH_NAMESPACE
-
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-
         - name: CURRENT_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.4.1
+          value: quay.io/mongodb/mongodb-enterprise-database:1.4.3
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
@@ -213,7 +208,3 @@ spec:
           value: Always
         - name: APP_DB_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-appdb
-
-
-
-
