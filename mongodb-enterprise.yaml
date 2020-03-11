@@ -1,4 +1,4 @@
----
+##---
 # Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 ---
 apiVersion: v1
@@ -122,7 +122,7 @@ subjects:
   namespace: mongodb
 
 
----
+##---
 # Source: mongodb-enterprise-operator/templates/database-roles.yaml
 ---
 apiVersion: v1
@@ -167,7 +167,7 @@ subjects:
     name: mongodb-enterprise-appdb
     namespace: mongodb
 
----
+##---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
 apiVersion: apps/v1
@@ -192,7 +192,7 @@ spec:
 
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.3
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.4
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
@@ -206,7 +206,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.4.3
+          value: quay.io/mongodb/mongodb-enterprise-database:1.4.4
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY

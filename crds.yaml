@@ -1,4 +1,4 @@
----
+##---
 # Source: mongodb-enterprise-operator/templates/crds.yaml
 
 ---
@@ -33,10 +33,6 @@ spec:
       type: date
       description: The time since the MongoDB resource was created.
       JSONPath: .metadata.creationTimestamp
-    - name: Warnings
-      type: string
-      description: Warnings
-      JSONPath: .status.warnings
 
   validation:
     openAPIV3Schema:
@@ -386,7 +382,7 @@ spec:
       type: string
       description: The version of MongoDBOpsManager.
       JSONPath: .spec.version
-    - name: Version (DB)
+    - name: Version (AppDB)
       type: string
       description: The version of Application Database  .
       JSONPath: .spec.applicationDatabase.version
@@ -394,7 +390,7 @@ spec:
       type: string
       description: The current state of the MongoDBOpsManager.
       JSONPath: .status.opsManager.phase
-    - name: State (DB)
+    - name: State (AppDB)
       type: string
       description: The current state of the MongoDBOpsManager Application Database.
       JSONPath: .status.applicationDatabase.phase
@@ -402,6 +398,10 @@ spec:
       type: date
       description: The time since the MongoDBOpsManager resource was created.
       JSONPath: .metadata.creationTimestamp
+    - name: Warnings
+      type: string
+      description: Warnings
+      JSONPath: .status.warnings
   validation:
     openAPIV3Schema:
       type: object
@@ -562,5 +562,6 @@ rules:
   - get
   - create
   - update
+  - delete
 
 
