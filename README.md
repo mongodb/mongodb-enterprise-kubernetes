@@ -148,11 +148,11 @@ $ kubectl -n mongodb create secret generic my-credentials --from-literal="user=s
 
 ### Creating a MongoDB Object ###
 
-A MongoDB object in Kubernetes is a MongoDB (short name `mdb`). We are going to create a replica set to test that everything is working as expected. There is a MongoDB replica set yaml file in `samples/mongodb/minimal/replicaset.yaml`.
+A MongoDB object in Kubernetes is a MongoDB (short name `mdb`). We are going to create a replica set to test that everything is working as expected. There is a MongoDB replica set yaml file in `samples/mongodb/minimal/replica-set.yaml`.
 
 If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
-    kubectl apply -f samples/mongodb/minimal/replicaset.yaml
+    kubectl apply -f samples/mongodb/minimal/replica-set.yaml
 
 ## Ops Manager object (Beta) ##
 
