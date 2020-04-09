@@ -192,7 +192,7 @@ spec:
 
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.4
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.5
         imagePullPolicy: Always
         env:
         - name: OPERATOR_ENV
@@ -206,7 +206,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.4.4
+          value: quay.io/mongodb/mongodb-enterprise-database:1.4.5
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
