@@ -7,7 +7,7 @@ spec:
   version: 4.2.2-ent
   type: ReplicaSet
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
 

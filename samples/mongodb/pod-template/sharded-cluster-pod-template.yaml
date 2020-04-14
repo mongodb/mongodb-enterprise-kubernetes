@@ -10,7 +10,7 @@ spec:
   version: 4.0.14-ent
   type: ShardedCluster
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
   configSrvPodSpec:
