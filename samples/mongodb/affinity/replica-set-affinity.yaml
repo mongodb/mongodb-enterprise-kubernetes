@@ -9,7 +9,7 @@ spec:
   service: my-service
 
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
   type: ReplicaSet

@@ -19,7 +19,7 @@ spec:
   # clusterDomain: mycompany.net
 
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
   type: ReplicaSet
