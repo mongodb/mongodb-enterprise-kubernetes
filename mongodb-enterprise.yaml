@@ -1,14 +1,58 @@
-##---
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 ---
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-operator
   namespace: mongodb
-
-
 ---
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-certs
+rules:
+- apiGroups:
+  - certificates.k8s.io
+  resources:
+  - certificatesigningrequests
+  verbs:
+  - get
+  - create
+  - list
+  - watch
+---
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-certs-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-certs
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -43,37 +87,22 @@ rules:
   - mongodb.com
   resources:
   - mongodb
+  - mongodb/status
   - mongodb/finalizers
   - mongodbusers
+  - mongodbusers/status
   - opsmanagers
   - opsmanagers/finalizers
+  - opsmanagers/status
   verbs:
-  - get
-  - list
-  - watch
-  - delete
-  - update
+  - "*"
 
 # This ClusterRoleBinding is necessary in order to use validating
 # webhooks—these will prevent you from applying a variety of invalid resource
 # definitions. The validating webhooks are optional so this can be removed if
 # necessary.
 ---
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator-mongodb-webhook-binding
-  namespace: mongodb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: mongodb-enterprise-operator-mongodb-webhook
-subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-operator
-  namespace: mongodb
-
----
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -91,54 +120,21 @@ subjects:
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
 # infrastructure to generate certificates.
 ---
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator-mongodb-certs
-rules:
-- apiGroups:
-  - certificates.k8s.io
-  resources:
-  - certificatesigningrequests
-  verbs:
-  - get
-  - create
-  - list
-  - watch
-
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator-mongodb-certs-binding
-  namespace: mongodb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: mongodb-enterprise-operator-mongodb-certs
-subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-operator
-  namespace: mongodb
-
-
-##---
 # Source: mongodb-enterprise-operator/templates/database-roles.yaml
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-appdb
   namespace: mongodb
-
 ---
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-database-pods
   namespace: mongodb
-
 ---
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -151,8 +147,8 @@ rules:
       - configmaps
     verbs:
       - get
-
 ---
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -166,10 +162,8 @@ subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-appdb
     namespace: mongodb
-
-##---
-# Source: mongodb-enterprise-operator/templates/operator.yaml
 ---
+# Source: mongodb-enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -192,8 +186,14 @@ spec:
 
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.4.5
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.5.0
         imagePullPolicy: Always
+        args:
+          - "-watch-resource=mongodb"
+          - "-watch-resource=opsmanagers"
+          - "-watch-resource=mongodbusers"
+        command:
+          - "/usr/local/bin/mongodb-enterprise-operator"
         env:
         - name: OPERATOR_ENV
           value: prod
@@ -206,12 +206,20 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.4.5
+          value: quay.io/mongodb/mongodb-enterprise-database:1.5.0
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-ops-manager
+          value: quay.io/mongodb
+        - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
+          value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
+        - name: INIT_OPS_MANAGER_VERSION
+          value: 1.0.0
+        - name: INIT_APPDB_IMAGE_REPOSITORY
+          value: quay.io/mongodb/mongodb-enterprise-init-appdb
+        - name: INIT_APPDB_VERSION
+          value: 1.0.0
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
-        - name: APP_DB_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-appdb
+        - name: APPDB_IMAGE_REPOSITORY
+          value: quay.io/mongodb

@@ -15,7 +15,7 @@ operator:
   name: enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.4.5
+  version: 1.5.0
 
 database:
   name: enterprise-database
@@ -23,14 +23,26 @@ database:
 opsManager:
   name: mongodb-enterprise-ops-manager
 
+initOpsManager:
+  name: mongodb-enterprise-init-ops-manager
+  version: 1.0.0
+
 appDb:
   name: mongodb-enterprise-appdb
+
+initAppDb:
+  name: mongodb-enterprise-init-appdb
+  version: 1.0.0
 
 registry:
   # The pull secret must be specified
   imagePullSecrets:
   pullPolicy: Always
-  repository: registry.connect.redhat.com/mongodb
+  operator: registry.connect.redhat.com/mongodb
+  initOpsManager: registry.connect.redhat.com/mongodb
+  opsManager: registry.connect.redhat.com/mongodb
+  initAppDb: registry.connect.redhat.com/mongodb
+  appDb: registry.connect.redhat.com/mongodb
 
 # Set this to true if the operator will require Kubernetes CA
 # infrastructure to generate TLS certificates.

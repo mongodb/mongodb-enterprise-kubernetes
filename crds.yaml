@@ -1,7 +1,5 @@
-##---
-# Source: mongodb-enterprise-operator/templates/crds.yaml
-
 ---
+# Source: mongodb-enterprise-operator/templates/crds.yaml
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -33,7 +31,8 @@ spec:
       type: date
       description: The time since the MongoDB resource was created.
       JSONPath: .metadata.creationTimestamp
-
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       type: object
@@ -96,15 +95,12 @@ spec:
                 net:
                   type: object
                   properties:
-                    mode:
-                      type: string
-                      enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-                ssl:
-                  type: object
-                  properties:
-                    mode:
-                      type: string
-                      enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
+                    ssl:
+                      type: object
+                      properties:
+                        mode:
+                          type: string
+                          enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
 
             exposedExternally:
               type: boolean
@@ -116,27 +112,66 @@ spec:
                 podTemplate:
                   type: object
                   properties:
+                    metadata:
+                      type: object
                     spec:
                       type: object
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
+                      type: object
                       properties:
-                        podAntiAffinityTopologyKey:
+                        storage:
                           type: string
-                        cpu:
+                        storageClass:
                           type: string
-                        cpuRequests:
-                          type: string
-                        memory:
-                          type: string
-                        memoryRequests:
-                          type: string
-                        podAffinity:
+                        labelSelector:
                           type: object
-                        nodeAffinity:
+                    multiple:
+                      type: object
+                      properties:
+                        data:
                           type: object
-                        securityContext:
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
                           type: object
-                        persistence:
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
                           type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
 
             # TLS & authentication properties
             security:
@@ -170,76 +205,201 @@ spec:
             shardPodSpec:
               type: object
               properties:
-                spec:
+                podTemplate:
                   type: object
                   properties:
-                    podAntiAffinityTopologyKey:
-                      type: string
-                    cpu:
-                      type: string
-                    cpuRequests:
-                      type: string
-                    memory:
-                      type: string
-                    memoryRequests:
-                      type: string
-                    podAffinity:
+                    metadata:
                       type: object
-                    nodeAffinity:
+                    spec:
                       type: object
-                    securityContext:
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
                       type: object
-                    persistence:
+                      properties:
+                        storage:
+                          type: string
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
                       type: object
-
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
             mongosPodSpec:
               type: object
               properties:
-                spec:
+                podTemplate:
                   type: object
                   properties:
-                    podAntiAffinityTopologyKey:
-                      type: string
-                    cpu:
-                      type: string
-                    cpuRequests:
-                      type: string
-                    memory:
-                      type: string
-                    memoryRequests:
-                      type: string
-                    podAffinity:
+                    metadata:
                       type: object
-                    nodeAffinity:
+                    spec:
                       type: object
-                    securityContext:
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
                       type: object
-                    persistence:
+                      properties:
+                        storage:
+                          type: string
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
                       type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
             configSrvPodSpec:
               type: object
               properties:
-                spec:
+                podTemplate:
                   type: object
                   properties:
-                    podAntiAffinityTopologyKey:
-                      type: string
-                    cpu:
-                      type: string
-                    cpuRequests:
-                      type: string
-                    memory:
-                      type: string
-                    memoryRequests:
-                      type: string
-                    podAffinity:
+                    metadata:
                       type: object
-                    nodeAffinity:
+                    spec:
                       type: object
-                    securityContext:
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
                       type: object
-                    persistence:
+                      properties:
+                        storage:
+                          type: string
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
                       type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
             configServerCount:
               type: integer
             mongodsPerShardCount:
@@ -250,37 +410,8 @@ spec:
             shardCount:
               minimum: 1
               type: integer
-
-      oneOf:
-      # Standalone
-      - properties:
-          spec:
-            properties:
-              type:
-                pattern: '^Standalone$'
-
-      # ReplicaSet
-      - properties:
-          spec:
-            properties:
-              type:
-                pattern: '^ReplicaSet$'
-            required:
-              - members
-
-      # ShardedCluster
-      - properties:
-          spec:
-            properties:
-              type:
-                pattern: '^ShardedCluster$'
-            required:
-              - configServerCount
-              - mongodsPerShardCount
-              - mongosCount
-              - shardCount
-
 ---
+# Source: mongodb-enterprise-operator/templates/crds.yaml
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -304,6 +435,8 @@ spec:
       type: date
       description: The time since the MongoDB User resource was created
       JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
   validation:
       openAPIV3Schema:
         type: object
@@ -359,6 +492,7 @@ spec:
               - username
               - db
 ---
+# Source: mongodb-enterprise-operator/templates/crds.yaml
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -382,11 +516,7 @@ spec:
       type: string
       description: The version of MongoDBOpsManager.
       JSONPath: .spec.version
-    - name: Version (AppDB)
-      type: string
-      description: The version of Application Database  .
-      JSONPath: .spec.applicationDatabase.version
-    - name: State
+    - name: State (OpsManager)
       type: string
       description: The current state of the MongoDBOpsManager.
       JSONPath: .status.opsManager.phase
@@ -394,6 +524,10 @@ spec:
       type: string
       description: The current state of the MongoDBOpsManager Application Database.
       JSONPath: .status.applicationDatabase.phase
+    - name: State (Backup)
+      type: string
+      description: The current state of the MongoDBOpsManager Backup Daemon.
+      JSONPath: .status.backup.phase
     - name: Age
       type: date
       description: The time since the MongoDBOpsManager resource was created.
@@ -402,6 +536,8 @@ spec:
       type: string
       description: Warnings
       JSONPath: .status.warnings
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       type: object
@@ -421,6 +557,23 @@ spec:
             clusterDomain:
               type: string
               format: hostname
+
+            security:
+              type: object
+              properties:
+                tls:
+                  type: object
+                  properties:
+                    secretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                      required:
+                        - name
+
+            adminCredentials:
+              type: string
             externalConnectivity:
               type: object
               properties:
@@ -438,11 +591,26 @@ spec:
                   type: object
               required:
                 - type
+            configuration:
+              type: object
+            jvmParameters:
+              type: array
+              items:
+                type: string
+            statefulSet:
+              type: object
+              properties:
+                spec:
+                  type: object
             backup:
               type: object
               properties:
                 enabled:
                   type: boolean
+                jvmParameters:
+                  type: array
+                  items:
+                    type: string
                 headDB:
                   type: object
                   properties:
@@ -451,6 +619,30 @@ spec:
                     storageClass:
                       type: string
                 opLogStores:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      mongodbResourceRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      mongodbUserRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                            - name
+                    required:
+                      - name
+                      - mongodbResourceRef
+                blockStores:
                   type: array
                   items:
                     type: object
@@ -507,12 +699,15 @@ spec:
                         name: string
                     required:
                       - name
-                      - mongodbResourceRef
                       - pathStyleAccessEnabled
                       - s3BucketEndpoint
                       - s3BucketName
                       - s3SecretRef
-
+                statefulSet:
+                  type: object
+                  properties:
+                    spec:
+                      type: object
               required:
                 - enabled
             applicationDatabase:
@@ -527,6 +722,23 @@ spec:
                       type: string
                   required:
                     - name
+                security:
+                  type: object
+                  properties:
+                    tls:
+                      type: object
+                      properties:
+                        ca:
+                          type: string
+                        secretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                          required:
+                            - name
+                      required:
+                        - secretRef
                 members:
                   maximum: 50
                   minimum: 3
@@ -539,6 +751,77 @@ spec:
                   enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
                 persistent:
                   type: boolean
+                statefulSet:
+                  type: object
+                  properties:
+                    spec:
+                      type: object
+                podSpec:
+                  type: object
+                  properties:
+                    podTemplate:
+                      type: object
+                      properties:
+                        metadata:
+                          type: object
+                        spec:
+                          type: object
+                    podAntiAffinityTopologyKey:
+                      type: string
+                    cpu:
+                      type: string
+                    cpuRequests:
+                      type: string
+                    memory:
+                      type: string
+                    memoryRequests:
+                      type: string
+                    podAffinity:
+                      type: object
+                    nodeAffinity:
+                      type: object
+                    persistence:
+                      type: object
+                      properties:
+                        single:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        multiple:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
+                            journal:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
+                            logs:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
               required:
                 - members
           required:
@@ -549,6 +832,7 @@ spec:
 # prevent you from applying a variety of invalid resource definitions. The
 # validating webhooks are optional so this can be removed if necessary.
 ---
+# Source: mongodb-enterprise-operator/templates/crds.yaml
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -563,5 +847,3 @@ rules:
   - create
   - update
   - delete
-
-

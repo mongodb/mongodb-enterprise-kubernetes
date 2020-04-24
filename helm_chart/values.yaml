@@ -16,7 +16,7 @@ operator:
   name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.4.5
+  version: 1.5.0
 
 database:
   name: mongodb-enterprise-database
@@ -24,14 +24,28 @@ database:
 opsManager:
   name: mongodb-enterprise-ops-manager
 
+initOpsManager:
+  name: mongodb-enterprise-init-ops-manager
+  version: 1.0.0
+
 appDb:
   name: mongodb-enterprise-appdb
 
+initAppDb:
+  name: mongodb-enterprise-init-appdb
+  version: 1.0.0
+
 registry:
-  # Specify if images are pulled from private repository
   imagePullSecrets:
+  # TODO: specify for each image and move there?
   pullPolicy: Always
-  repository: quay.io/mongodb
+  # Specify if images are pulled from private registry
+  operator: quay.io/mongodb
+  initOpsManager: quay.io/mongodb
+  opsManager: quay.io/mongodb
+  initAppDb: quay.io/mongodb
+  appDb: quay.io/mongodb
+
 
 # Set this to true if the operator will require Kubernetes CA
 # infrastructure to generate TLS certificates.

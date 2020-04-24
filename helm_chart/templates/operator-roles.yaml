@@ -47,16 +47,15 @@ rules:
   - mongodb.com
   resources:
   - mongodb
+  - mongodb/status
   - mongodb/finalizers
   - mongodbusers
+  - mongodbusers/status
   - opsmanagers
   - opsmanagers/finalizers
+  - opsmanagers/status
   verbs:
-  - get
-  - list
-  - watch
-  - delete
-  - update
+  - "*"
 
 # This ClusterRoleBinding is necessary in order to use validating
 # webhooks—these will prevent you from applying a variety of invalid resource

@@ -29,8 +29,14 @@ spec:
 
       containers:
       - name: {{ .Values.operator.name }}
-        image: {{ .Values.registry.repository }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
+        image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
+        args:
+          - "-watch-resource=mongodb"
+          - "-watch-resource=opsmanagers"
+          - "-watch-resource=mongodbusers"
+        command:
+          - "/usr/local/bin/mongodb-enterprise-operator"
         env:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
@@ -51,15 +57,23 @@ spec:
           value: 'true'
 {{- end }}
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: {{ .Values.registry.repository }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
+          value: {{ .Values.registry.operator }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
         - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: {{ .Values.registry.repository }}/{{ .Values.opsManager.name }}
+          value: {{ .Values.registry.opsManager }}
+        - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
+          value: {{ .Values.registry.initOpsManager }}/{{ .Values.initOpsManager.name }}
+        - name: INIT_OPS_MANAGER_VERSION
+          value: {{ .Values.initOpsManager.version }}
+        - name: INIT_APPDB_IMAGE_REPOSITORY
+          value: {{ .Values.registry.initAppDb }}/{{ .Values.initAppDb.name }}
+        - name: INIT_APPDB_VERSION
+          value: {{ .Values.initAppDb.version }}
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
-        - name: APP_DB_IMAGE_REPOSITORY
-          value: {{ .Values.registry.repository }}/{{ .Values.appDb.name }}
+        - name: APPDB_IMAGE_REPOSITORY
+          value: {{ .Values.registry.appDb }}
 
 {{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
