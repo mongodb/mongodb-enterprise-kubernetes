@@ -210,7 +210,7 @@ spec:
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: quay.io/mongodb
+          value: quay.io/mongodb/mongodb-enterprise-ops-manager
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
         - name: INIT_OPS_MANAGER_VERSION
