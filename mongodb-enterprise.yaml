@@ -222,4 +222,4 @@ spec:
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: APPDB_IMAGE_REPOSITORY
-          value: quay.io/mongodb
+          value: quay.io/mongodb/mongodb-enterprise-appdb
