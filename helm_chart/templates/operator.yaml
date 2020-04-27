@@ -61,7 +61,7 @@ spec:
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
         - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: {{ .Values.registry.opsManager }}
+          value: {{ .Values.registry.opsManager }}/{{ .Values.opsManager.name }}
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: {{ .Values.registry.initOpsManager }}/{{ .Values.initOpsManager.name }}
         - name: INIT_OPS_MANAGER_VERSION
@@ -73,7 +73,7 @@ spec:
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
         - name: APPDB_IMAGE_REPOSITORY
-          value: {{ .Values.registry.appDb }}
+          value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
 
 {{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
