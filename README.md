@@ -26,7 +26,7 @@ You can discuss this integration in our new [Community Forum](https://community.
 
 [Troubleshooting Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/reference/troubleshooting/k8s/)
 
-[Known Issues for Kubernetes Operator](https://docs.opsmanager.mongodb.com/current/reference/known-issues-k8s-beta)
+[Known Issues for Kubernetes Operator](https://docs.mongodb.com/kubernetes-operator/stable/reference/known-issues/)
 
 ## Requirements ##
 

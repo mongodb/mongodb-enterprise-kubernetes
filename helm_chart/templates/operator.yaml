@@ -26,17 +26,18 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.registry.imagePullSecrets }}
 {{- end }}
-
       containers:
       - name: {{ .Values.operator.name }}
         image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
+        {{- if .Values.operator.watchedResources }}
         args:
-          - "-watch-resource=mongodb"
-          - "-watch-resource=opsmanagers"
-          - "-watch-resource=mongodbusers"
+          {{- range .Values.operator.watchedResources }}
+          - "-watch-resource={{ . }}"
+          {{- end }}
         command:
           - "/usr/local/bin/mongodb-enterprise-operator"
+        {{- end }}
         env:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
@@ -74,7 +75,6 @@ spec:
           value: {{ .Values.registry.pullPolicy }}
         - name: APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
-
 {{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}

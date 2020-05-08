@@ -15,7 +15,13 @@ operator:
   name: enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.5.1
+  version: 1.5.2
+
+  # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
+  watchedResources:
+  - mongodb
+  - opsmanagers
+  - mongodbusers
 
 database:
   name: enterprise-database
@@ -47,3 +53,7 @@ registry:
 # Set this to true if the operator will require Kubernetes CA
 # infrastructure to generate TLS certificates.
 needsCAInfrastructure: true
+
+# Set this to false to disable subresource utilization
+# It might be required on some versions of Openshift
+subresourceEnabled: true

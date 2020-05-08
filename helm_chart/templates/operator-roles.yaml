@@ -47,16 +47,17 @@ rules:
   - mongodb.com
   resources:
   - mongodb
-  - mongodb/status
   - mongodb/finalizers
   - mongodbusers
-  - mongodbusers/status
   - opsmanagers
   - opsmanagers/finalizers
+{{- if .Values.subresourceEnabled }}
+  - mongodb/status
+  - mongodbusers/status
   - opsmanagers/status
+{{- end }}
   verbs:
   - "*"
-
 # This ClusterRoleBinding is necessary in order to use validating
 # webhooks—these will prevent you from applying a variety of invalid resource
 # definitions. The validating webhooks are optional so this can be removed if
