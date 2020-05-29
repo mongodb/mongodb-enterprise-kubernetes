@@ -27,7 +27,7 @@ spec:
       - name: {{ .Values.registry.imagePullSecrets }}
 {{- end }}
       containers:
-      - name: {{ .Values.operator.name }}
+      - name: {{ .Values.operator.deployment_name }}
         image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
         {{- if .Values.operator.watchedResources }}

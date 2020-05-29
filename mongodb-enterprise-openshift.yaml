@@ -1,58 +1,14 @@
 ---
 # Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: enterprise-operator
   namespace: mongodb
+
+
 ---
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: enterprise-operator-mongodb-certs
-rules:
-- apiGroups:
-  - certificates.k8s.io
-  resources:
-  - certificatesigningrequests
-  verbs:
-  - get
-  - create
-  - list
-  - watch
----
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: enterprise-operator-mongodb-webhook-binding
-  namespace: mongodb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: mongodb-enterprise-operator-mongodb-webhook
-subjects:
-- kind: ServiceAccount
-  name: enterprise-operator
-  namespace: mongodb
----
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: enterprise-operator-mongodb-certs-binding
-  namespace: mongodb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: enterprise-operator-mongodb-certs
-subjects:
-- kind: ServiceAccount
-  name: enterprise-operator
-  namespace: mongodb
----
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind:  Role 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -101,7 +57,21 @@ rules:
 # definitions. The validating webhooks are optional so this can be removed if
 # necessary.
 ---
-# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: enterprise-operator-mongodb-webhook-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+- kind: ServiceAccount
+  name: enterprise-operator
+  namespace: mongodb
+
+---
 kind:  RoleBinding 
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -119,28 +89,61 @@ subjects:
 # This ClusterRole is needed if the user wants to use the Kubernetes CA
 # infrastructure to generate certificates.
 ---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: enterprise-operator-mongodb-certs
+rules:
+- apiGroups:
+  - certificates.k8s.io
+  resources:
+  - certificatesigningrequests
+  verbs:
+  - get
+  - create
+  - list
+  - watch
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: enterprise-operator-mongodb-certs-binding
+  namespace: mongodb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: enterprise-operator-mongodb-certs
+subjects:
+- kind: ServiceAccount
+  name: enterprise-operator
+  namespace: mongodb
+
+
+---
 # Source: mongodb-enterprise-operator/templates/database-roles.yaml
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-appdb
   namespace: mongodb
+
 ---
-# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-database-pods
   namespace: mongodb
+
 ---
-# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-ops-manager
   namespace: mongodb
+
 ---
-# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -153,8 +156,8 @@ rules:
       - configmaps
     verbs:
       - get
+
 ---
-# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -168,8 +171,10 @@ subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-appdb
     namespace: mongodb
+
 ---
 # Source: mongodb-enterprise-operator/templates/operator.yaml
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -187,8 +192,8 @@ spec:
     spec:
       serviceAccountName: enterprise-operator
       containers:
-      - name: enterprise-operator
-        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.5.2
+      - name: mongodb-enterprise-operator
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.5.3
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"
@@ -210,7 +215,7 @@ spec:
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: registry.connect.redhat.com/mongodb/enterprise-database:1.5.2
+          value: registry.connect.redhat.com/mongodb/enterprise-database:1.5.3
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY

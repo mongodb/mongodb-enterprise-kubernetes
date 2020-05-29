@@ -15,8 +15,11 @@ operator:
   # Name that will be assigned to most of internal Kubernetes objects like Deployment, ServiceAccount, Role etc.
   name: mongodb-enterprise-operator
 
+  # Name of the deployment of the operator pod
+  deployment_name: mongodb-enterprise-operator
+
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.5.2
+  version: 1.5.3
 
   # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
   watchedResources:
