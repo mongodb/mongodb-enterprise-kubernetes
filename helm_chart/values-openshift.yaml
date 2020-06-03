@@ -34,14 +34,14 @@ opsManager:
 
 initOpsManager:
   name: mongodb-enterprise-init-ops-manager
-  version: 1.0.0
+  version: 1.0.1
 
 appDb:
   name: mongodb-enterprise-appdb
 
 initAppDb:
   name: mongodb-enterprise-init-appdb
-  version: 1.0.0
+  version: 1.0.1
 
 registry:
   # The pull secret must be specified
