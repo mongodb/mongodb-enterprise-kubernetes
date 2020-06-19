@@ -43,6 +43,15 @@ rules:
   - watch
   - delete
   - update
+  {{- if eq (.Values.operator.watchNamespace | default "") "*" }}
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - list
+  - watch
+  {{- end}}
 - apiGroups:
   - mongodb.com
   resources:

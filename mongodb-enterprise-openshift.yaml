@@ -188,7 +188,7 @@ spec:
       serviceAccountName: enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.5.3
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.5.4
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"
@@ -210,7 +210,7 @@ spec:
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: registry.connect.redhat.com/mongodb/enterprise-database:1.5.3
+          value: registry.connect.redhat.com/mongodb/enterprise-database:1.5.4
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
