@@ -1,6 +1,3 @@
-# Create the CustomerResourceDefinition for MongoDB custom types.
-createCrds: true
-
 # Name of the Namespace to use
 namespace: mongodb
 
@@ -18,7 +15,7 @@ operator:
   deployment_name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.5.4
+  version: 1.5.5
 
   # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
   watchedResources:

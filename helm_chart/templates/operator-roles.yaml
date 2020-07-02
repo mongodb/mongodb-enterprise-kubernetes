@@ -6,6 +6,10 @@ metadata:
   {{- if .Values.namespace }}
   namespace: {{ .Values.namespace }}
   {{- end }}
+{{- if .Values.registry.imagePullSecrets}}
+imagePullSecrets:
+  - name: {{ .Values.registry.imagePullSecrets }}
+{{- end }}
 
 
 ---

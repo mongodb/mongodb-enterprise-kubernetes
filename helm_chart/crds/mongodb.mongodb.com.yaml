@@ -1,3 +1,4 @@
+---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -89,16 +90,6 @@ spec:
 
             additionalMongodConfig:
               type: object
-              properties:
-                net:
-                  type: object
-                  properties:
-                    ssl:
-                      type: object
-                      properties:
-                        mode:
-                          type: string
-                          enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
 
             exposedExternally:
               type: boolean
@@ -407,8 +398,10 @@ spec:
                             labelSelector:
                               type: object
             configServerCount:
+              minimum: 1
               type: integer
             mongodsPerShardCount:
+              minimum: 1
               type: integer
             mongosCount:
               minimum: 1
@@ -416,3 +409,19 @@ spec:
             shardCount:
               minimum: 1
               type: integer
+            mongos:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+            configSrv:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+            shard:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+

@@ -8,6 +8,10 @@ metadata:
   {{- else }}
   namespace: {{ .Values.namespace }}
   {{- end }}
+{{- if .Values.registry.imagePullSecrets}}
+imagePullSecrets:
+  - name: {{ .Values.registry.imagePullSecrets }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -19,6 +23,10 @@ metadata:
   {{- else }}
   namespace: {{ .Values.namespace }}
   {{- end }}
+{{- if .Values.registry.imagePullSecrets}}
+imagePullSecrets:
+  - name: {{ .Values.registry.imagePullSecrets }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -30,6 +38,10 @@ metadata:
   {{- else }}
   namespace: {{ .Values.namespace }}
   {{- end }}
+{{- if .Values.registry.imagePullSecrets}}
+imagePullSecrets:
+  - name: {{ .Values.registry.imagePullSecrets }}
+{{- end }}
 
 ---
 kind: Role
