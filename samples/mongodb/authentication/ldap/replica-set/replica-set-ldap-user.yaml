@@ -1,0 +1,19 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBUser
+metadata:
+  name: my-ldap-user
+spec:
+  username: my-ldap-user
+  db: $external
+  mongodbResourceRef:
+    name: my-ldap-enabled-replica-set # The name of the MongoDB resource this user will be added to
+  roles:
+    - db: admin
+      name: clusterAdmin
+    - db: admin
+      name: userAdminAnyDatabase
+    - db: admin
+      name: readWrite
+    - db: admin
+      name: userAdminAnyDatabase

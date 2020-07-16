@@ -183,7 +183,7 @@ spec:
                       type: array
                       items:
                         type: string
-                        enum: ["SCRAM", "X509"]
+                        enum: ["SCRAM", "X509", "LDAP"]
                     ignoreUnknownUsers:
                       type: boolean
                 tls:
@@ -193,10 +193,33 @@ spec:
                       type: boolean
                     ca:
                       type: string
+                    secretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
                     additionalCertificateDomains:
                       type: array
                       items:
                         type: string
+
+                ldap:
+                  type: object
+                  properties:
+                    bindQueryUser:
+                      type: string
+                    servers:
+                      type: string
+                    transportSecurity:
+                      type: string
+                      enum: ["none", "tls"]
+                    bindQueryPasswordSecretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                    caConfigMapRef:
+                      type: object
 
             # Sharded Cluster properties
             shardPodSpec:
