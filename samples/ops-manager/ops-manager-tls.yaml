@@ -4,7 +4,7 @@ metadata:
   name: ops-manager-tls
 spec:
   replicas: 1
-  version: 4.4.0
+  version: 4.2.12
   adminCredentials: ops-manager-admin-secret
 
   configuration:
