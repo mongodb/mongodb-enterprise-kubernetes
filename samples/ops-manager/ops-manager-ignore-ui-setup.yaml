@@ -4,7 +4,7 @@ metadata:
   name: ops-manager-ignore-ui
 spec:
   replicas: 1
-  version: 4.2.12
+  version: 4.4.0
   adminCredentials: ops-manager-admin-secret
 
   configuration:
