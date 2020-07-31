@@ -220,6 +220,10 @@ spec:
                           type: string
                     caConfigMapRef:
                       type: object
+                    authzQueryTemplate:
+                      type: string
+                    userToDNMapping:
+                      type: string
 
             # Sharded Cluster properties
             shardPodSpec:
