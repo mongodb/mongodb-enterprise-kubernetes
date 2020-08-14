@@ -10,11 +10,11 @@ spec:
   replicas: 1
   selector:
       matchLabels:
-        app: {{ .Values.operator.name }}
+        controller: {{ .Values.operator.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.operator.name }}
+        controller: {{ .Values.operator.name }}
     spec:
       serviceAccountName: {{ .Values.operator.name }}
 {{- if not .Values.managedSecurityContext }}

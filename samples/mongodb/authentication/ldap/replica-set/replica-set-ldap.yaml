@@ -26,7 +26,9 @@ spec:
       ldap:
         # Specify the hostname:port combination of one or
         # more LDAP servers
-        servers: "<ldap-servers>"
+        servers:
+        - "<ldap-server0>"
+        - "<ldap-server1>"
 
         # Set to "tls" to use LDAP over TLS. Leave blank if
         # LDAP server does not accept TLS.

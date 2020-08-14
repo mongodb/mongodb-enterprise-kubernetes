@@ -90,7 +90,6 @@ spec:
 
             additionalMongodConfig:
               type: object
-
             exposedExternally:
               type: boolean
 
@@ -174,7 +173,16 @@ spec:
                       properties:
                         mode:
                           type: string
-                          enum: ["SCRAM", "X509"]
+                          enum: ["SCRAM", "X509", "LDAP"]
+                        automationUsername:
+                          type: string
+                        automationPasswordSecretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            key:
+                              type: string
                       required:
                         - mode
                     enabled:
@@ -209,7 +217,9 @@ spec:
                     bindQueryUser:
                       type: string
                     servers:
-                      type: string
+                      type: array
+                      items:
+                        type: string
                     transportSecurity:
                       type: string
                       enum: ["none", "tls"]
@@ -224,6 +234,70 @@ spec:
                       type: string
                     userToDNMapping:
                       type: string
+                roles:
+                  type: array
+                  description: "List of roles not bounded to specific users"
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        description: "The name of the role"
+                      db:
+                        type: string
+                        description: "The db the role belongs to"
+                      roles:
+                        type: array
+                        description: "List of roles this role inherits from"
+                        items:
+                          type: object
+                          properties:
+                            db:
+                              type: string
+                              description: "The db the role belongs to"
+                            role:
+                              type: string
+                              description: "The name of the role"
+                      authenticationRestrictions:
+                        type: array
+                        description: "List of restriction for users authenticating to this role"
+                        items:
+                          type: object
+                          properties:
+                            clientSource:
+                              type: array
+                              description: "List of IP addresses or CIDR ranges allowed the user can connect from"
+                              items:
+                                type: string
+                            serverAddress:
+                              type: array
+                              description: "List of IP addresses or CIDR ranges allowed the user can connect to"
+                              items:
+                                type: string
+                      privileges:
+                        type: array
+                        description: "List of privileges granted to this role"
+                        items:
+                          type: object
+                          properties:
+                            actions:
+                              type: array
+                              description: "List of actions allowed to this role"
+                              items:
+                                type: string
+                            resource:
+                              type: object
+                              description: "Resource on which the privileges are granted"
+                              properties:
+                                db:
+                                  type: string
+                                  description: "Name of the database"
+                                collection:
+                                  type: string
+                                  description: "Name of the collection"
+                                cluster:
+                                  type: boolean
+                                  description: "True for cluster-wide privileges"
 
             # Sharded Cluster properties
             shardPodSpec:
@@ -451,4 +525,3 @@ spec:
               properties:
                 additionalMongodConfig:
                   type: object
-

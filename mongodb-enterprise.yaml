@@ -179,11 +179,11 @@ spec:
   replicas: 1
   selector:
       matchLabels:
-        app: mongodb-enterprise-operator
+        controller: mongodb-enterprise-operator
   template:
     metadata:
       labels:
-        app: mongodb-enterprise-operator
+        controller: mongodb-enterprise-operator
     spec:
       serviceAccountName: mongodb-enterprise-operator
       securityContext:
@@ -191,7 +191,7 @@ spec:
         runAsUser: 2000
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.6.1
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.7.0
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"
@@ -211,7 +211,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database:1.6.1
+          value: quay.io/mongodb/mongodb-enterprise-database:1.7.0
         - name: IMAGE_PULL_POLICY
           value: Always
         - name: OPS_MANAGER_IMAGE_REPOSITORY
