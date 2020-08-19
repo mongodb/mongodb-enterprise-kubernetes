@@ -222,7 +222,7 @@ spec:
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: registry.connect.redhat.com/mongodb/mongodb-enterprise-init-appdb
         - name: INIT_APPDB_VERSION
-          value: 1.0.1
+          value: 1.0.2
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: APPDB_IMAGE_REPOSITORY
