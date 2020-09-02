@@ -93,6 +93,12 @@ spec:
             exposedExternally:
               type: boolean
 
+            agent:
+              type: object
+              properties:
+                startupOptions:
+                  type: object
+
             # Generic PodSpec configuration
             podSpec:
               type: object
@@ -183,6 +189,8 @@ spec:
                               type: string
                             key:
                               type: string
+                        automationLdapGroupDN:
+                          type: string
                       required:
                         - mode
                     enabled:
@@ -515,16 +523,31 @@ spec:
               properties:
                 additionalMongodConfig:
                   type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
             configSrv:
               type: object
               properties:
                 additionalMongodConfig:
                   type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
             shard:
               type: object
               properties:
                 additionalMongodConfig:
                   type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -682,6 +705,8 @@ spec:
                       properties:
                         name:
                           type: string
+                        ca:
+                          type: string
                       required:
                         - name
 
@@ -786,30 +811,31 @@ spec:
                     properties:
                       name:
                         type: string
-                    mongodbResourceRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    mongodbUserRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    pathStyleAccessEnabled:
-                      type: boolean
-                    s3BucketEndpoint:
-                      type: string
-                    s3BucketName:
-                      type: string
-                    s3SecretRef:
-                      type: object
-                      properties:
-                        name: string
+                      mongodbResourceRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      mongodbUserRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      pathStyleAccessEnabled:
+                        type: boolean
+                      s3BucketEndpoint:
+                        type: string
+                      s3BucketName:
+                        type: string
+                      s3SecretRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
                     required:
                       - name
                       - pathStyleAccessEnabled
@@ -869,6 +895,13 @@ spec:
                   properties:
                     spec:
                       type: object
+
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
+
                 podSpec:
                   type: object
                   properties:

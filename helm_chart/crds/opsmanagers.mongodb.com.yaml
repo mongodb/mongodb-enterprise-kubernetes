@@ -75,6 +75,8 @@ spec:
                       properties:
                         name:
                           type: string
+                        ca:
+                          type: string
                       required:
                         - name
 
@@ -179,30 +181,31 @@ spec:
                     properties:
                       name:
                         type: string
-                    mongodbResourceRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    mongodbUserRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    pathStyleAccessEnabled:
-                      type: boolean
-                    s3BucketEndpoint:
-                      type: string
-                    s3BucketName:
-                      type: string
-                    s3SecretRef:
-                      type: object
-                      properties:
-                        name: string
+                      mongodbResourceRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      mongodbUserRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      pathStyleAccessEnabled:
+                        type: boolean
+                      s3BucketEndpoint:
+                        type: string
+                      s3BucketName:
+                        type: string
+                      s3SecretRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
                     required:
                       - name
                       - pathStyleAccessEnabled
@@ -262,6 +265,13 @@ spec:
                   properties:
                     spec:
                       type: object
+
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
+
                 podSpec:
                   type: object
                   properties:

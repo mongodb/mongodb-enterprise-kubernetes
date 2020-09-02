@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -Eeou pipefail
+
 #
 # mdb_operator_diagnostic_data.sh
 #
@@ -68,7 +70,7 @@ if [ ${private_mode} == 0 ]; then
 fi
 
 echo "++ Versions"
-mdb_operator_pod=$(kubectl -n "${namespace}" get pods -l "app=${operator_name}" -o name | cut -d'/' -f 2)
+mdb_operator_pod=$(kubectl -n "${namespace}" get pods -l "controller=${operator_name}" -o name | cut -d'/' -f 2)
 echo "+ Operator Pod: pod/${mdb_operator_pod}"
 
 mdb_operator_filename="operator.yaml"
@@ -178,7 +180,7 @@ echo "+ Certificates (no private keys are captured)"
 csr_filename="csr.text"
 kubectl get csr | grep "${namespace}"
 echo "+ Saving Certificate state into ${csr_filename}"
-kubectl describe "$(kubectl get csr -o name | grep ${namespace})"
+kubectl describe "$(kubectl get csr -o name | grep "${namespace}")"
 
 echo "++ MongoDBUser Resource Status"
 mdbusers_filename="mdbu.yaml"
