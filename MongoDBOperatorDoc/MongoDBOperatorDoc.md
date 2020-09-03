@@ -1,4 +1,5 @@
 Step 1: Create a namespace to install Mongo DB
+
 oc create ns mongodb
 
 
