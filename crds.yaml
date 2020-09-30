@@ -191,6 +191,11 @@ spec:
                               type: string
                         automationLdapGroupDN:
                           type: string
+                        clientCertificateSecretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
                       required:
                         - mode
                     enabled:
@@ -201,6 +206,8 @@ spec:
                         type: string
                         enum: ["SCRAM", "X509", "LDAP"]
                     ignoreUnknownUsers:
+                      type: boolean
+                    requireClientTLSAuthentication:
                       type: boolean
                 tls:
                   type: object
@@ -700,12 +707,12 @@ spec:
                 tls:
                   type: object
                   properties:
+                    ca:
+                      type: string
                     secretRef:
                       type: object
                       properties:
                         name:
-                          type: string
-                        ca:
                           type: string
                       required:
                         - name

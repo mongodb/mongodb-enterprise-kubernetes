@@ -70,12 +70,12 @@ spec:
                 tls:
                   type: object
                   properties:
+                    ca:
+                      type: string
                     secretRef:
                       type: object
                       properties:
                         name:
-                          type: string
-                        ca:
                           type: string
                       required:
                         - name

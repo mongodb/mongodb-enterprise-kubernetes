@@ -1,0 +1,45 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster-options
+spec:
+  version: 4.4.0-ent
+  type: ShardedCluster
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  persistent: true
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 1
+
+  mongos:
+    # optional. Allows to pass custom flags that will be used
+    # when launching the mongodb agent for mongos processes.
+    # All values must be string
+    # The full list of available settings is at:
+    # https://docs.opsmanager.mongodb.com/current/reference/mongodb-agent-settings/
+    agent:
+      startupOptions:
+        maxLogFiles: "30"
+
+  configSrv:
+     # optional. Allows to pass custom flags that will be used
+     # when launching the mongodb agent for Config Server mongod processes.
+     # All values must be string
+     # The full list of available settings is at:
+     # https://docs.opsmanager.mongodb.com/current/reference/mongodb-agent-settings/
+     agent:
+       startupOptions:
+         dialTimeoutSeconds: "40"
+  shard:
+     # optional. Allows to pass custom flags that will be used
+     # when launching the mongodb agent for Shards mongod processes.
+     # All values must be string
+     # The full list of available settings is at:
+     # https://docs.opsmanager.mongodb.com/current/reference/mongodb-agent-settings/
+     agent:
+       startupOptions:
+         serverSelectionTimeoutSeconds: "20"

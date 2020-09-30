@@ -15,7 +15,7 @@ operator:
   deployment_name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.7.1
+  version: 1.8.0
 
   # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
   watchedResources:
@@ -23,16 +23,24 @@ operator:
   - opsmanagers
   - mongodbusers
 
+## Database
 database:
   name: enterprise-database
+  version: 2.0.0
 
+initDatabase:
+  name: mongodb-enterprise-init-database
+  version: 1.0.0
+
+## Ops Manager
 opsManager:
   name: mongodb-enterprise-ops-manager
 
 initOpsManager:
   name: mongodb-enterprise-init-ops-manager
-  version: 1.0.1
+  version: 1.0.2
 
+## Application Database
 appDb:
   name: mongodb-enterprise-appdb
 
@@ -40,11 +48,14 @@ initAppDb:
   name: mongodb-enterprise-init-appdb
   version: 1.0.3
 
+## Registry
 registry:
   # The pull secret must be specified
   imagePullSecrets:
   pullPolicy: Always
+  database: registry.connect.redhat.com/mongodb
   operator: registry.connect.redhat.com/mongodb
+  initDatabase: registry.connect.redhat.com/mongodb
   initOpsManager: registry.connect.redhat.com/mongodb
   opsManager: registry.connect.redhat.com/mongodb
   initAppDb: registry.connect.redhat.com/mongodb

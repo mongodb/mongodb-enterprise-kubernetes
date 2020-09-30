@@ -12,7 +12,7 @@ spec:
   mongodsPerShardCount: 3
   mongosCount: 2
   configServerCount: 3
-  version: 4.2.1-ent
+  version: 4.4.0-ent
   type: ShardedCluster
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our
@@ -27,3 +27,40 @@ spec:
   # testing only, and must not be used in production. 'false' will disable
   # Persistent Volume Claims. The default is 'true'
   persistent: false
+
+  configSrvPodSpec:
+    podTemplate:
+      spec:        
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "2"
+                memory: 700m
+              requests:
+                cpu: "1"
+                memory: 500m
+  shardPodSpec:
+    podTemplate:
+      spec:        
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "2"
+                memory: 700m
+              requests:
+                cpu: "1"
+                memory: 500m
+  mongosPodSpec:
+    podTemplate:
+      spec:        
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "1"
+                memory: 200m
+              requests:
+                cpu: "0.5"
+                memory: 100m

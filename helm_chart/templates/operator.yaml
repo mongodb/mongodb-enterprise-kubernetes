@@ -10,11 +10,15 @@ spec:
   replicas: 1
   selector:
       matchLabels:
-        controller: {{ .Values.operator.name }}
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/name: {{ .Values.operator.name }}
+        app.kubernetes.io/instance: {{ .Values.operator.name }}
   template:
     metadata:
       labels:
-        controller: {{ .Values.operator.name }}
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/name: {{ .Values.operator.name }}
+        app.kubernetes.io/instance: {{ .Values.operator.name }}
     spec:
       serviceAccountName: {{ .Values.operator.name }}
 {{- if not .Values.managedSecurityContext }}
@@ -57,24 +61,33 @@ spec:
         - name: MANAGED_SECURITY_CONTEXT
           value: 'true'
 {{- end }}
-        - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: {{ .Values.registry.operator }}/{{ .Values.database.name }}:{{ .Values.operator.version }}
         - name: IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
+        # Database
+        - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
+          value: {{ .Values.registry.database }}/{{ .Values.database.name }}
+        - name: INIT_DATABASE_IMAGE_REPOSITORY
+          value: {{ .Values.registry.initDatabase }}/{{ .Values.initDatabase.name }}
+        - name: INIT_DATABASE_VERSION
+          value: {{ .Values.initDatabase.version }}
+        - name: DATABASE_VERSION
+          value: {{ .Values.database.version }}
+        # Ops Manager
         - name: OPS_MANAGER_IMAGE_REPOSITORY
           value: {{ .Values.registry.opsManager }}/{{ .Values.opsManager.name }}
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: {{ .Values.registry.initOpsManager }}/{{ .Values.initOpsManager.name }}
         - name: INIT_OPS_MANAGER_VERSION
           value: {{ .Values.initOpsManager.version }}
+        # AppDB
+        - name: APPDB_IMAGE_REPOSITORY
+          value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.initAppDb }}/{{ .Values.initAppDb.name }}
         - name: INIT_APPDB_VERSION
           value: {{ .Values.initAppDb.version }}
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
-        - name: APPDB_IMAGE_REPOSITORY
-          value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
 {{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}
