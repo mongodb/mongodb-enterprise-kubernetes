@@ -238,6 +238,6 @@ spec:
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-appdb
         - name: INIT_APPDB_VERSION
-          value: 1.0.3
+          value: 1.0.4
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
