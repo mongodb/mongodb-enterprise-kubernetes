@@ -7,6 +7,7 @@ apiVersion: mongodb.com/v1
 kind: MongoDB
 metadata:
   name: my-replica-set
+  namespace: mongodb
 spec:
   members: 3
   version: 4.4.0-ent
@@ -29,7 +30,7 @@ spec:
             resources:
               limits:
                 cpu: "2"
-                memory: 700m
+                memory: 700M
               requests:
                 cpu: "1"
-                memory: 500m
+                memory: 500M
