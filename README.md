@@ -5,7 +5,7 @@ Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy
 * Ops Manager - our enterprise management, monitoring and backup platform for MongoDB. The Operator can install and manage Ops Manager in Kubernetes for you.
 
 The Operator requires access to one of our database management tools - Ops Manager or Cloud Manager - to deploy MongoDB instances. 
-You may run Ops Manager either inside or outside Kubernetes, or may use Cloud Manager (cloud.mongodb.com) instead.
+You may run Ops Manager either inside or outside Kubernetes, or may use Cloud Manager (Ops Manager-based organization on cloud.mongodb.com, Atlas-based organization will not work) instead.
 
 The Operator is currently Generally Available, supported by the [MongoDB Support Team](https://support.mongodb.com/). If you need urgent help, please file a support ticket.
 For non-urgent requests, you may file a Github Issue here in the repo.
@@ -36,7 +36,7 @@ to see which Kubernetes and Openshift versions the Operator is compatible with
 To work with MongoDB resource this Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) (Ops Manager can 
 be installed into the same Kubernetes cluster by the Operator or installed outside of the cluster manually) 
 or [Cloud Manager](https://cloud.mongodb.com/user#/cloud/login).
-> If this is your first time trying the Operator, Cloud Manager is easier to get started
+> If this is your first time trying the Operator, Cloud Manager is easier to get started.  Use or create a Ops Manager based organization.  Atlas-based organizations will not work. 
 
 
 ## Installation
