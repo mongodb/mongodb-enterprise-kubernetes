@@ -36,7 +36,7 @@ to see which Kubernetes and Openshift versions the Operator is compatible with
 To work with MongoDB resource this Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) (Ops Manager can 
 be installed into the same Kubernetes cluster by the Operator or installed outside of the cluster manually) 
 or [Cloud Manager](https://cloud.mongodb.com/user#/cloud/login).
-> If this is your first time trying the Operator, Cloud Manager is easier to get started.  Use or create a Ops Manager based organization.  Atlas-based organizations will not work. 
+> If this is your first time trying the Operator, Cloud Manager is easier to get started.  Use or create a Cloud Manager based organization.  Atlas-based organizations will not work. 
 
 
 ## Installation
