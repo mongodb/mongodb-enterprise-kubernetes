@@ -1,0 +1,21 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-replica-set-agent-parameters
+spec:
+  members: 3
+  version: 4.4.0-ent
+  type: ReplicaSet
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  persistent: true
+  # optional. Allows to pass custom flags that will be used
+  # when launching the mongodb agent. All values must be strings
+  # The full list of available settings is at:
+  # https://docs.opsmanager.mongodb.com/current/reference/mongodb-agent-settings/
+  agent:
+    startupOptions:
+      maxLogFiles: "30"
+      dialTimeoutSeconds: "40"

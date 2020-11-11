@@ -1,0 +1,37 @@
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager-tls
+spec:
+  replicas: 1
+  version: 4.4.1
+  adminCredentials: ops-manager-admin-secret
+
+  configuration:
+    # Local/hybrid mode is necessary when Ops Manager has TLS with custom CA enabled as Agents running in MongoDB
+    # containers cannot download from the Internet in this case and need to download directly from Ops Manager
+    automation.versions.source: local
+
+  security:
+    # enables TLS for Ops Manager allowing it to serve traffic over HTTPS
+    tls:
+      # secret containing the TLS certificate signed by known or custom CA. The secret must have a key "server.pem"
+      # and value of .pem file containing private key and TLS certificate
+      secretRef: certs-for-ops-manager
+
+  backup:
+    enabled: false
+
+  applicationDatabase:
+    members: 3
+    version: 4.2.6-ent
+    security:
+      # enables TLS mode for application database Replica Set
+      tls:
+        # optional, ConfigMap containing custom CA certificate
+        # Will be used by Ops Manager to establish secure connection to application database
+        ca: issuer-ca-config-map
+        # secret containing the TLS certificate signed by known or custom CA. The secret must have a key "server.pem"
+        # and value of .pem file containing private key and TLS certificate
+        secretRef: certs-for-appdb
+

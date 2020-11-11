@@ -9,7 +9,7 @@ metadata:
   name: my-replica-set
 spec:
   members: 3
-  version: 4.2.1
+  version: 4.4.0-ent
   type: ReplicaSet
 
   opsManager:
@@ -18,3 +18,18 @@ spec:
   credentials: my-credentials
 
   persistent: false
+
+  podSpec:
+    # 'podTemplate' allows to set custom fields in PodTemplateSpec (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#podtemplatespec-v1-core)
+    # for the Database StatefulSet.
+    podTemplate:
+      spec:        
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "2"
+                memory: 700m
+              requests:
+                cpu: "1"
+                memory: 500m

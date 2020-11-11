@@ -8,7 +8,7 @@ spec:
   mongodsPerShardCount: 3
   mongosCount: 2
   configServerCount: 3
-  version: 4.2.1
+  version: 4.2.1-ent
   service: my-service
 
   opsManager:

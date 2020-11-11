@@ -1,0 +1,25 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-replica-set
+  namespace: mongodb
+spec:
+  members: 3
+  version: 4.2.2
+  type: ReplicaSet
+
+  cloudManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+
+  persistent: false
+  podSpec:
+    podTemplate:
+      spec:
+        initContainers:
+        - name: "apply-sysctl-test"
+          image: "busybox:latest"
+          securityContext:
+            privileged: true
+          command: ["sysctl", "-w", "net.ipv4.tcp_keepalive_time=120"]

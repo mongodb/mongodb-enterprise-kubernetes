@@ -2,10 +2,10 @@
 apiVersion: mongodb.com/v1
 kind: MongoDBOpsManager
 metadata:
-  name: ops-manager
+  name: ops-manager-scram
 spec:
   replicas: 1
-  version: 4.2.4
+  version: 4.4.1
   adminCredentials: ops-manager-admin-secret
 
   # the application database backing Ops Manager. Replica Set is the only supported type
@@ -13,7 +13,7 @@ spec:
   applicationDatabase:
     members: 3
     # it's possible to omit 'version' completely - the bundled MongoDB binary will be used in this case
-    # and no MongoDB binary will be downloaded from the Internet in this case
+    # and no MongoDB binary will be downloaded from the Internet
     # version: 4.2.2-ent
     persistent: true
     podSpec:

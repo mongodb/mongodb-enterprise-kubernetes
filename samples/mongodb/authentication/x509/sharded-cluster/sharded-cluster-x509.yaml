@@ -11,7 +11,7 @@ spec:
   mongosCount: 2
   configServerCount: 3
 
-  version: 4.0.6
+  version: 4.0.6-ent
 
   opsManager:
     configMapRef:

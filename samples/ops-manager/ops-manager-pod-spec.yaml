@@ -1,0 +1,73 @@
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager-pod-spec
+spec:
+  replicas: 1
+  version: 4.4.1
+  adminCredentials: ops-manager-admin-secret
+  configuration:
+    mms.testUtil.enabled: "true"
+  backup:
+    enabled: true
+    statefulSet:
+      spec:
+        template:
+          spec:
+            hostAliases:
+              - ip: "1.2.3.4"
+                hostnames: ["hostname"]
+            containers:
+              - name: mongodb-backup-daemon
+                resources:
+                  requests:
+                    cpu: '0.50'
+                    memory: 4500M
+
+  statefulSet:
+    spec:
+      template:
+        metadata:
+          annotations:
+            key1: value1
+        spec:
+          volumes:
+            - name: mongod-binaries-volume
+              # replace this with a real persistent volume
+              emptyDir: {}
+          containers:
+            - name: mongodb-ops-manager
+              volumeMounts:
+                - mountPath: /mongodb-ops-manager/mongodb-releases/
+                  name: mongod-binaries-volume
+              resources:
+                limits:
+                  cpu: '0.70'
+                  memory: 6G
+          tolerations:
+            - key: "key"
+              operator: "Exists"
+              effect: "NoSchedule"
+
+  applicationDatabase:
+    members: 3
+    version: 4.2.6-ent
+    podSpec:
+      cpu: '0.25'
+      memory: 350M
+      persistence:
+        single:
+          storage: 1G
+      podTemplate:
+        spec:
+          # This container will be added to each pod as a sidecar
+          containers:
+            - name: appdb-sidecar
+              image: busybox
+              command: ["sleep"]
+              args: [ "infinity" ]
+              resources:
+                limits:
+                  cpu: "1"
+                requests:
+                  cpu: 500m

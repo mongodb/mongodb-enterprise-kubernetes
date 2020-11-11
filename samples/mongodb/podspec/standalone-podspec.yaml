@@ -1,0 +1,60 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-standalone
+spec:
+  version: 4.0.0-ent
+  service: my-service
+
+  # Indicates featureCompatibilityVersion. This attribute will make the data
+  # format to persist in a particular version, maybe older, allowing for
+  # future downgrades if necessary.
+  featureCompatibilityVersion: "4.0"
+
+  # Please Note: The default Kubernetes cluster domain is `cluster.local`.
+  # If your cluster has been configured with another domain, you can specify it
+  # with the `clusterDomain` attribute.
+  # clusterDomain: mycompany.net
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  type: Standalone
+
+  persistent: true
+  podSpec:
+    cpu: '0.25'
+    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
+    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
+    memory: 512M
+    # "single" persistence allows to mount different directories to single Persistent Volume
+    persistence:
+      single:
+        storage: 12G
+        storageClass: standard
+        labelSelector:
+          matchExpressions:
+          - {key: environment, operator: In, values: [dev]}
+
+    # For podAffinity and nodeAffinity see Kubernetes Docs
+    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: failure-domain.beta.kubernetes.io/zone
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/e2e-az-name
+            operator: In
+            values:
+            - e2e-az1
+            - e2e-az2

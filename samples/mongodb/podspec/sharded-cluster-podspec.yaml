@@ -1,0 +1,77 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster
+spec:
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+  version: 4.0.0-ent
+  service: my-service
+
+  # Indicates featureCompatibilityVersion. This attribute will make the data
+  # format to persist in a particular version, maybe older, allowing for
+  # future downgrades if necessary.
+  featureCompatibilityVersion: "3.6"
+
+  # Please Note: The default Kubernetes cluster domain is `cluster.local`.
+  # If your cluster has been configured with another domain, you can specify it
+  # with the `clusterDomain` attribute.
+  # clusterDomain: mycompany.net
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  type: ShardedCluster
+
+  persistent: true
+  configSrvPodSpec:
+    cpu: '0.5'
+    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
+    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
+    memory: 512M
+
+    # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
+    # for config server
+
+    # For podAffinity and nodeAffinity see Kubernetes Docs
+    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    podAntiAffinityTopologyKey: kubernetes.io/hostname
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: failure-domain.beta.kubernetes.io/zone
+  mongosPodSpec:
+    cpu: '0.8'
+    memory: 1G
+    podAntiAffinityTopologyKey: rackId
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
+  shardPodSpec:
+    cpu: '0.6'
+    memory: 3G
+    persistence:
+      multiple:
+        # if the child of "multiple" is omitted then the default size will be used.
+        # 16G for "data", 1G for "journal", 3Gb for "logs"
+        data:
+          storage: 20G
+        logs:
+          storage: 4G
+          storageClass: standard
+    podAntiAffinityTopologyKey: kubernetes.io/hostname

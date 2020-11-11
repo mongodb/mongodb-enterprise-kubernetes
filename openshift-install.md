@@ -1,6 +1,6 @@
 # OpenShift Install
 
-The MongoDB Enterprise Operator requires two images to work: `operator` and `database` images. The Openshift
+The MongoDB Enterprise Operator requires a set of images including `operator`, `database` and others. The Openshift
 installation requires images to be based on Red Hat Enterprise Linux, and these images are published to [Red Hat
 Container Catalog](https://catalog.redhat.com/software/containers/explore/). You will have to create special credentials
 for your OpenShift installation to be able to fetch images from this registry.
@@ -8,8 +8,8 @@ for your OpenShift installation to be able to fetch images from this registry.
 ## Create your OpenShift Secret
 
 First, complete the instructions
-[here](https://access.redhat.com/terms-based-registry/#/accounts). Unfortunatelly,
-these instructions refer to a `registry.redhat.io` Registry which is not the one we need, but they accept the same
+[here](https://access.redhat.com/terms-based-registry/#/accounts). Unfortunately,
+these instructions refer to a `registry.redhat.io` registry which is not the one we need, but they accept the same
 credentials. First, click on "view its contents" to display the contents we need, and save these contents into a json
 file. This file includes 1 entry for `registry.redhat.io`; replicate that entry with a new name,
 "`registry.connect.redhat.com`", as in the following example:
@@ -27,19 +27,15 @@ file. This file includes 1 entry for `registry.redhat.io`; replicate that entry 
 }
 ```
 
-Now save this file as `dockerconfig` and encode it as a base64 string.
-
+Now save this file and create a `Secret` object from it:
 ```
-$ cat dockerconfig | base64 -w0 > .dockerconfigjson
-```
-
-Finally, create a `Secret` object that contains this encoded string:
-
-```
-$ kubectl -n <your-namespace> create secret generic openshift-pull-secrets --from-file=.dockerconfigjson
+$ kubectl -n <your-namespace> create secret generic openshift-pull-secrets --from-file=.dockerconfigjson=<path-to-your-file> \
+        --type=kubernetes.io/dockerconfigjson
 ```
 
-## Use the new Secret to pull images
+## Install the Operator using the new Secret to pull images
+
+### Installation using .yaml config file
 
 Now that the `Secret` has been created, you need to reference it from the `mongodb-enterprise-openshift.yaml` file.
 When you edit this file, you'll realize that there's a `Deployment` object at the end (the one with name
@@ -51,7 +47,8 @@ The `spec` section will look something like:
 # ...
 
 spec:
-  imagePullSecrets: openshift-pull-secrets  # this is where the name of the Secret goes
+  imagePullSecrets: 
+  - name: openshift-pull-secrets  # this is where the name of the Secret goes
   ...
   containers:
   - name: enterprise-operator
@@ -75,8 +72,6 @@ containers:
   ...
 ```
 
-## Finish the Operator Installation
-
 Now that we have instructed our OpenShift cluster to be able to fetch images from the Red Hat registry we will be able
 to install the operator using:
 
@@ -86,3 +81,11 @@ $ kubectl -n <your-namespace> -f mongodb-enterprise-openshift.yaml
 
 From now on, the OpenShift cluster will be authenticated to pull images from the Red Hat registry. Now you should be
 able to return to the regular instructions for Kubernetes.
+
+### Installation using Helm
+
+As an alternative to manual editing the config files you can use the following command to install the Operator using `Helm`:
+
+```bash
+helm install --set registry.imagePullSecrets=openshift-pull-secrets --values helm_chart/values-openshift.yaml <chart-name> helm_chart
+``` 

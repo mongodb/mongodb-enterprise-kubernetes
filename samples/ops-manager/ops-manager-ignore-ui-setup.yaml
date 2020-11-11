@@ -1,0 +1,27 @@
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager-ignore-ui
+spec:
+  replicas: 1
+  version: 4.4.1
+  adminCredentials: ops-manager-admin-secret
+
+  configuration:
+    # passing mms.ignoreInitialUiSetup=true allows to avoid the setup wizard in Ops Manager. Note, that
+    # this requires to set some mandatory configuration properties, see
+    # https://docs.opsmanager.mongodb.com/current/reference/configuration/index.html#mms.ignoreInitialUiSetup
+    mms.ignoreInitialUiSetup: "true"
+    automation.versions.source: mongodb
+    mms.adminEmailAddr: support@example.com
+    mms.fromEmailAddr: support@example.com
+    mms.replyToEmailAddr: support@example.com
+    mms.mail.hostname: email-smtp.us-east-1.amazonaws.com
+    mms.mail.port: "465"
+    mms.mail.ssl: "true"
+    mms.mail.transport: smtp
+    mms.minimumTLSVersion: TLSv1.2
+
+  applicationDatabase:
+    members: 3
+

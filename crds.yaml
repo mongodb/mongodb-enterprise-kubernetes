@@ -1,7 +1,4 @@
 ---
-# Source: mongodb-enterprise-operator/templates/crds.yaml
-
----
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -14,7 +11,7 @@ spec:
     kind: MongoDB
     plural: mongodb
     shortNames:
-    - mdb
+      - mdb
     singular: mongodb
   additionalPrinterColumns:
     - name: Type
@@ -33,439 +30,531 @@ spec:
       type: date
       description: The time since the MongoDB resource was created.
       JSONPath: .metadata.creationTimestamp
-  validation: # there are 3 possible schemas, ReplicaSet, ShardedCluster and Standalone
+  subresources:
+    status: {}
+  validation:
     openAPIV3Schema:
-      oneOf:
-      - properties: # Standalone schema
-          spec:
-            properties:
-              podSpec:
-                type: object
-                properties:
-                  podTemplate:
-                    type: object
-                    properties:
-                      spec:
-                        type: object
-                        properties:
-                          podAntiAffinityTopologyKey:
-                            type: string
-                          cpu:
-                            type: string
-                          cpuRequests:
-                            type: string
-                          memory:
-                            type: string
-                          memoryRequests:
-                            type: string
-                          podAffinity:
-                            type: object
-                          nodeAffinity:
-                            type: object
-                          securityContext:
-                            type: object
-                          persistence:
-                            type: object
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-              type:
-                type: string
-                pattern: "^Standalone$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["SCRAM", "X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      ca:
-                        type: string
-                      additionalCertificateDomains:
-                        type: array
-                        items:
-                          type: string
-              connectivity:
-                not:
-                  required: ["replicaSetHorizons"]
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
-            required:
+      type: object
+      properties:
+        spec:
+          type: object
+          required:
             - credentials
-            - version
             - type
-      - properties: # ReplicaSet schema
-          spec:
-            properties:
-              podSpec:
-                type: object
-                properties:
-                  podTemplate:
-                    type: object
-                    properties:
-                      spec:
-                        type: object
-                        properties:
-                          podAntiAffinityTopologyKey:
-                            type: string
-                          cpu:
-                            type: string
-                          cpuRequests:
-                            type: string
-                          memory:
-                            type: string
-                          memoryRequests:
-                            type: string
-                          podAffinity:
-                            type: object
-                          nodeAffinity:
-                            type: object
-                          securityContext:
-                            type: object
-                          persistence:
-                            type: object
+            - version
+          oneOf:
+            - required: [cloudManager]
+            - required: [opsManager]
+            - required: [project]
+          properties:
+            type:
+              type: string
+              enum: ["Standalone", "ReplicaSet", "ShardedCluster"]
+            credentials:
+              type: string
+            project:
+              type: string
+              description: "DEPRECATED The name of a configMap in the same namespace"
+            opsManager:
+              type: object
+              properties:
+                configMapRef:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+            cloudManager:
+              type: object
+              properties:
+                configMapRef:
+                  type: object
+                  properties:
+                    name:
+                      type: string
 
-              members:
-                maximum: 50
-                minimum: 1
-                type: integer
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-              type:
-                type: string
-                pattern: "^ReplicaSet$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["SCRAM", "X509"]
-                      internalCluster:
-                        type: string
-                        enum: ["X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      ca:
-                        type: string
-                      additionalCertificateDomains:
-                        type: array
-                        items:
-                          type: string
-                  clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
-                    # https://docs.mongodb.com/kubernetes-operator/
-                    type: string
-                    enum: ["x509"]
-              connectivity:
-                properties:
-                  replicaSetHorizons:
-                    type: array
-                    items:
+            version:
+              type: string
+              pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
+            logLevel:
+              type: string
+              enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
+            persistent:
+              type: boolean
+            clusterName:
+              type: string
+              format: hostname
+              description: "DEPRECATED Use clusterDomain instead"
+            clusterDomain:
+              type: string
+              format: hostname
+
+            additionalMongodConfig:
+              type: object
+            exposedExternally:
+              type: boolean
+
+            agent:
+              type: object
+              properties:
+                startupOptions:
+                  type: object
+
+            # Generic PodSpec configuration
+            podSpec:
+              type: object
+              properties:
+                podTemplate:
+                  type: object
+                  properties:
+                    metadata:
                       type: object
-                      additionalProperties:
-                        type: string
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
-            required:
-            - credentials
-            - version
-            - type
-            - members
-            # TODO: add validation for OpsManager or Cloud Manager being required
-      - properties:
-          spec:
-            properties: # ShardedCluster schema
-              shardPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              mongosPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              configSrvPodSpec:
-                type: object
-                properties:
-                  spec:
-                    type: object
-                    properties:
-                      podAntiAffinityTopologyKey:
-                        type: string
-                      cpu:
-                        type: string
-                      cpuRequests:
-                        type: string
-                      memory:
-                        type: string
-                      memoryRequests:
-                        type: string
-                      podAffinity:
-                        type: object
-                      nodeAffinity:
-                        type: object
-                      securityContext:
-                        type: object
-                      persistence:
-                        type: object
-              configServerCount:
-                maximum: 50
-                minimum: 1
-                type: integer
-              mongodsPerShardCount:
-                maximum: 50
-                minimum: 1
-                type: integer
-              mongosCount:
-                minimum: 1
-                type: integer
-              shardCount:
-                minimum: 1
-                type: integer
-              credentials:
-                type: string
-              project:
-                type: string
-                description: "DEPRECATED The name of a configMap in the same namespace"
-              opsManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              cloudManager:
-                properties:
-                  configMapRef:
-                    properties:
-                      name:
-                        type: string
-              version:
-                type: string
-                pattern: "^[0-9]+.[0-9]+.[0-9]+(-.+)?$"
-              logLevel:
-                type: string
-                enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
-              type:
-                type: string
-                pattern: "^ShardedCluster$"
-              persistent:
-                type: boolean
-              clusterName:
-                type: string
-                format: hostname
-                description: "DEPRECATED Use clusterDomain instead"
-              clusterDomain:
-                type: string
-                format: hostname
-              security:
-                type: object
-                properties:
-                  authentication:
-                    type: object
-                    properties:
-                      enabled:
-                        type: boolean
-                      modes:
-                        type: array
-                        items:
+                    spec:
+                      type: object
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
+                      type: object
+                      properties:
+                        storage:
                           type: string
-                          enum: ["SCRAM", "X509"]
-                      internalCluster:
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
+                      type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+
+            # TLS & authentication properties
+            security:
+              type: object
+              properties:
+                authentication:
+                  type: object
+                  properties:
+                    agents:
+                      type: object
+                      properties:
+                        mode:
+                          type: string
+                          enum: ["SCRAM", "X509", "LDAP"]
+                        automationUsername:
+                          type: string
+                        automationPasswordSecretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            key:
+                              type: string
+                        automationLdapGroupDN:
+                          type: string
+                        clientCertificateSecretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                      required:
+                        - mode
+                    enabled:
+                      type: boolean
+                    modes:
+                      type: array
+                      items:
                         type: string
-                        enum: ["X509"]
-                      ignoreUnknownUsers:
-                        type: boolean
-                  tls:
+                        enum: ["SCRAM", "X509", "LDAP"]
+                    ignoreUnknownUsers:
+                      type: boolean
+                    requireClientTLSAuthentication:
+                      type: boolean
+                tls:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    ca:
+                      type: string
+                    secretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                    additionalCertificateDomains:
+                      type: array
+                      items:
+                        type: string
+
+                ldap:
+                  type: object
+                  properties:
+                    bindQueryUser:
+                      type: string
+                    servers:
+                      type: array
+                      items:
+                        type: string
+                    transportSecurity:
+                      type: string
+                      enum: ["none", "tls"]
+                    bindQueryPasswordSecretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                    caConfigMapRef:
+                      type: object
+                    authzQueryTemplate:
+                      type: string
+                    userToDNMapping:
+                      type: string
+                roles:
+                  type: array
+                  description: "List of roles not bounded to specific users"
+                  items:
                     type: object
                     properties:
-                      enabled:
-                        type: boolean
-                      ca:
+                      role:
                         type: string
-                      additionalCertificateDomains:
+                        description: "The name of the role"
+                      db:
+                        type: string
+                        description: "The db the role belongs to"
+                      roles:
                         type: array
+                        description: "List of roles this role inherits from"
                         items:
+                          type: object
+                          properties:
+                            db:
+                              type: string
+                              description: "The db the role belongs to"
+                            role:
+                              type: string
+                              description: "The name of the role"
+                      authenticationRestrictions:
+                        type: array
+                        description: "List of restriction for users authenticating to this role"
+                        items:
+                          type: object
+                          properties:
+                            clientSource:
+                              type: array
+                              description: "List of IP addresses or CIDR ranges allowed the user can connect from"
+                              items:
+                                type: string
+                            serverAddress:
+                              type: array
+                              description: "List of IP addresses or CIDR ranges allowed the user can connect to"
+                              items:
+                                type: string
+                      privileges:
+                        type: array
+                        description: "List of privileges granted to this role"
+                        items:
+                          type: object
+                          properties:
+                            actions:
+                              type: array
+                              description: "List of actions allowed to this role"
+                              items:
+                                type: string
+                            resource:
+                              type: object
+                              description: "Resource on which the privileges are granted"
+                              properties:
+                                db:
+                                  type: string
+                                  description: "Name of the database"
+                                collection:
+                                  type: string
+                                  description: "Name of the collection"
+                                cluster:
+                                  type: boolean
+                                  description: "True for cluster-wide privileges"
+
+            # Sharded Cluster properties
+            shardPodSpec:
+              type: object
+              properties:
+                podTemplate:
+                  type: object
+                  properties:
+                    metadata:
+                      type: object
+                    spec:
+                      type: object
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
+                      type: object
+                      properties:
+                        storage:
                           type: string
-                  clusterAuthenticationMode:
-                    # Warning: please refer to the documentation before enabling X509 in your MongoDB resource.
-                    # https://docs.mongodb.com/kubernetes-operator/
-                    type: string
-                    enum: ["x509"]
-              connectivity:
-                not:
-                  required: ["replicaSetHorizons"]
-              additionalMongodConfig:
-                properties:
-                  net:
-                    properties:
-                      ssl:
-                        properties:
-                          mode:
-                            type: string
-                            enum: ["disabled", "allowSSL", "preferSSL", "requireSSL", "allowTLS", "preferTLS", "requireTLS"]
-              exposedExternally:
-                type: boolean
-            oneOf:
-              - required: [project]
-              - required: [opsManager]
-              - required: [cloudManager]
-            required:
-            - credentials
-            - version
-            - type
-            - shardCount
-            - mongodsPerShardCount
-            - mongosCount
-            - configServerCount
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
+                      type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+            mongosPodSpec:
+              type: object
+              properties:
+                podTemplate:
+                  type: object
+                  properties:
+                    metadata:
+                      type: object
+                    spec:
+                      type: object
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
+                      type: object
+                      properties:
+                        storage:
+                          type: string
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
+                      type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+            configSrvPodSpec:
+              type: object
+              properties:
+                podTemplate:
+                  type: object
+                  properties:
+                    metadata:
+                      type: object
+                    spec:
+                      type: object
+                podAntiAffinityTopologyKey:
+                  type: string
+                cpu:
+                  type: string
+                cpuRequests:
+                  type: string
+                memory:
+                  type: string
+                memoryRequests:
+                  type: string
+                podAffinity:
+                  type: object
+                nodeAffinity:
+                  type: object
+                persistence:
+                  type: object
+                  properties:
+                    single:
+                      type: object
+                      properties:
+                        storage:
+                          type: string
+                        storageClass:
+                          type: string
+                        labelSelector:
+                          type: object
+                    multiple:
+                      type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        journal:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        logs:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+            configServerCount:
+              minimum: 1
+              type: integer
+            mongodsPerShardCount:
+              minimum: 1
+              type: integer
+            mongosCount:
+              minimum: 1
+              type: integer
+            shardCount:
+              minimum: 1
+              type: integer
+            mongos:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
+            configSrv:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
+            shard:
+              type: object
+              properties:
+                additionalMongodConfig:
+                  type: object
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -479,7 +568,7 @@ spec:
     kind: MongoDBUser
     plural: mongodbusers
     shortNames:
-    - mdbu
+      - mdbu
     singular: mongodbuser
   additionalPrinterColumns:
     - name: State
@@ -490,56 +579,62 @@ spec:
       type: date
       description: The time since the MongoDB User resource was created
       JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
   validation:
-      openAPIV3Schema:
-        properties:
-          spec:
-            properties:
-              username:
-                type: string
-                description: "The username of the user"
-              db:
-                type: string
-                description: "The database the user is stored in"
-              project:
-                type: string
-                description: "The project the user belongs to"
-              passwordSecretKeyRef:
+    openAPIV3Schema:
+      type: object
+      properties:
+        spec:
+          type: object
+          properties:
+            username:
+              type: string
+              description: "The username of the user"
+            db:
+              type: string
+              description: "The database the user is stored in"
+            project:
+              type: string
+              description: "The project the user belongs to"
+            passwordSecretKeyRef:
+              type: object
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+              description: "DEPRECATED The project the user belongs to"
+            mongodbResourceRef:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The name of a MongoDB resource in the same namespace"
+            roles:
+              type: array
+              items:
                 type: object
                 properties:
                   name:
                     type: string
-                  key:
+                    description: "The name of the role"
+                  db:
                     type: string
-                description: "DEPRECATED The project the user belongs to"
-              mongodbResourceRef:
-                properties:
-                  name:
-                    type: string
-                    description: "The name of a MongoDB resource in the same namespace"
-              roles:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: "The name of the role"
-                    db:
-                      type: string
-                      description: "The db the role can act on"
-                    passwordSecretKeyRef:
-                      properties:
-                        name:
-                          type: string
-                        key:
-                          type: string
-                  required:
-                    - name
-                    - db
-            required:
-              - username
-              - db
+                    description: "The db the role can act on"
+                  passwordSecretKeyRef:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      key:
+                        type: string
+                required:
+                  - name
+                  - db
+          required:
+            - username
+            - db
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -553,7 +648,7 @@ spec:
     kind: MongoDBOpsManager
     plural: opsmanagers
     shortNames:
-    - om
+      - om
     singular: opsmanager
   additionalPrinterColumns:
     - name: Replicas
@@ -564,26 +659,34 @@ spec:
       type: string
       description: The version of MongoDBOpsManager.
       JSONPath: .spec.version
-    - name: Version (DB)
-      type: string
-      description: The version of Application Database  .
-      JSONPath: .spec.applicationDatabase.version
-    - name: State
+    - name: State (OpsManager)
       type: string
       description: The current state of the MongoDBOpsManager.
       JSONPath: .status.opsManager.phase
-    - name: State (DB)
+    - name: State (AppDB)
       type: string
       description: The current state of the MongoDBOpsManager Application Database.
       JSONPath: .status.applicationDatabase.phase
+    - name: State (Backup)
+      type: string
+      description: The current state of the MongoDBOpsManager Backup Daemon.
+      JSONPath: .status.backup.phase
     - name: Age
       type: date
       description: The time since the MongoDBOpsManager resource was created.
       JSONPath: .metadata.creationTimestamp
+    - name: Warnings
+      type: string
+      description: Warnings
+      JSONPath: .status.warnings
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
+      type: object
       properties:
         spec:
+          type: object
           properties:
             version:
               type: string
@@ -597,6 +700,25 @@ spec:
             clusterDomain:
               type: string
               format: hostname
+
+            security:
+              type: object
+              properties:
+                tls:
+                  type: object
+                  properties:
+                    ca:
+                      type: string
+                    secretRef:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                      required:
+                        - name
+
+            adminCredentials:
+              type: string
             externalConnectivity:
               type: object
               properties:
@@ -614,11 +736,26 @@ spec:
                   type: object
               required:
                 - type
+            configuration:
+              type: object
+            jvmParameters:
+              type: array
+              items:
+                type: string
+            statefulSet:
+              type: object
+              properties:
+                spec:
+                  type: object
             backup:
               type: object
               properties:
                 enabled:
                   type: boolean
+                jvmParameters:
+                  type: array
+                  items:
+                    type: string
                 headDB:
                   type: object
                   properties:
@@ -646,7 +783,31 @@ spec:
                           name:
                             type: string
                         required:
-                            - name
+                          - name
+                    required:
+                      - name
+                      - mongodbResourceRef
+                blockStores:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      mongodbResourceRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      mongodbUserRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
                     required:
                       - name
                       - mongodbResourceRef
@@ -657,38 +818,42 @@ spec:
                     properties:
                       name:
                         type: string
-                    mongodbResourceRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    mongodbUserRef:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                      required:
-                        - name
-                    pathStyleAccessEnabled:
-                      type: boolean
-                    s3BucketEndpoint:
-                      type: string
-                    s3BucketName:
-                      type: string
-                    s3SecretRef:
-                      type: object
-                      properties:
-                        name: string
+                      mongodbResourceRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      mongodbUserRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                      pathStyleAccessEnabled:
+                        type: boolean
+                      s3BucketEndpoint:
+                        type: string
+                      s3BucketName:
+                        type: string
+                      s3SecretRef:
+                        type: object
+                        properties:
+                          name:
+                            type: string
                     required:
                       - name
-                      - mongodbResourceRef
                       - pathStyleAccessEnabled
                       - s3BucketEndpoint
                       - s3BucketName
                       - s3SecretRef
-
+                statefulSet:
+                  type: object
+                  properties:
+                    spec:
+                      type: object
               required:
                 - enabled
             applicationDatabase:
@@ -703,6 +868,23 @@ spec:
                       type: string
                   required:
                     - name
+                security:
+                  type: object
+                  properties:
+                    tls:
+                      type: object
+                      properties:
+                        ca:
+                          type: string
+                        secretRef:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                          required:
+                            - name
+                      required:
+                        - secretRef
                 members:
                   maximum: 50
                   minimum: 3
@@ -715,10 +897,101 @@ spec:
                   enum: ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
                 persistent:
                   type: boolean
+                statefulSet:
+                  type: object
+                  properties:
+                    spec:
+                      type: object
+
+                agent:
+                  type: object
+                  properties:
+                    startupOptions:
+                      type: object
+
+                podSpec:
+                  type: object
+                  properties:
+                    podTemplate:
+                      type: object
+                      properties:
+                        metadata:
+                          type: object
+                        spec:
+                          type: object
+                    podAntiAffinityTopologyKey:
+                      type: string
+                    cpu:
+                      type: string
+                    cpuRequests:
+                      type: string
+                    memory:
+                      type: string
+                    memoryRequests:
+                      type: string
+                    podAffinity:
+                      type: object
+                    nodeAffinity:
+                      type: object
+                    persistence:
+                      type: object
+                      properties:
+                        single:
+                          type: object
+                          properties:
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                            labelSelector:
+                              type: object
+                        multiple:
+                          type: object
+                          properties:
+                            data:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
+                            journal:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
+                            logs:
+                              type: object
+                              properties:
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                                labelSelector:
+                                  type: object
               required:
                 - members
           required:
             - version
             - applicationDatabase
-
-
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook
+rules:
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - validatingwebhookconfigurations
+    verbs:
+      - get
+      - create
+      - update
+      - delete

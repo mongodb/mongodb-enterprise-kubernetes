@@ -5,11 +5,11 @@ metadata:
   name: my-replica-set
 spec:
   members: 3
-  version: 4.2.1
+  version: 4.2.1-ent
   service: my-service
 
   opsManager:
-    configMapName:
+    configMapRef:
       name: my-project
   credentials: my-credentials
   type: ReplicaSet
