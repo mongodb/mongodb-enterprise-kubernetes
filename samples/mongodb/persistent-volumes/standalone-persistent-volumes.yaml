@@ -24,12 +24,24 @@ spec:
   type: Standalone
 
   persistent: true
+
+
   podSpec:
-    cpu: '0.25'
-    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
-    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
-    memory: 512M
-    # "single" persistence allows to mount different directories to single Persistent Volume
+    # `podTemplate.spec.containers[].resources` should be specified, otherwise WiredTiger
+    # cache won't be calculated properly by MongoDB daemon.
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            # For more information about Pod and container resource management, see:
+            # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            resources:
+              limits:
+                cpu: "0.25"
+                memory: 512M
+
+    # "single" persistence allows to mount different directories to single
+    # Persistent Volume.
     persistence:
       single:
         storage: 12G

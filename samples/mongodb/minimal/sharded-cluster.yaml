@@ -14,6 +14,7 @@ spec:
   configServerCount: 3
   version: 4.4.0-ent
   type: ShardedCluster
+
   # Before you create this object, you'll need to create a project ConfigMap and a
   # credentials Secret. For instructions on how to do this, please refer to our
   # documentation, here:
@@ -36,10 +37,10 @@ spec:
             resources:
               limits:
                 cpu: "2"
-                memory: 700m
+                memory: 700M
               requests:
                 cpu: "1"
-                memory: 500m
+                memory: 500M
   shardPodSpec:
     podTemplate:
       spec:        
@@ -48,10 +49,11 @@ spec:
             resources:
               limits:
                 cpu: "2"
-                memory: 700m
+                memory: 700M
               requests:
                 cpu: "1"
-                memory: 500m
+                memory: 500M
+
   mongosPodSpec:
     podTemplate:
       spec:        
@@ -60,7 +62,7 @@ spec:
             resources:
               limits:
                 cpu: "1"
-                memory: 200m
+                memory: 200M
               requests:
                 cpu: "0.5"
-                memory: 100m
+                memory: 100M

@@ -21,19 +21,31 @@ spec:
   opsManager:
     configMapRef:
       name: my-project
+
   credentials: my-credentials
   type: ReplicaSet
 
-  # log level affects the level of logging for the agent. Use DEBUG cautiously as log file size may grow very quickly
+  # log level affects the level of logging for the agent. Use DEBUG cautiously
+  # as log file size may grow very quickly.
   logLevel: WARN
 
   persistent: true
   podSpec:
-    cpu: '0.25'
-    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
-    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
-    memory: 512M
-    # "multiple" persistence allows to mount different directories to different Persistent Volumes
+    # `podTemplate.spec.containers[].resources` should be specified otherwise, WiredTiger
+    # cache won't be calculated properly by MongoDB daemon.
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            # For more information about Pod and container resource management, see:
+            # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            resources:
+              limits:
+                cpu: "0.25"
+                memory: 512M
+
+    # "multiple" persistence allows to mount different directories to different
+    # Persistent Volumes.
     persistence:
       multiple:
         data:
@@ -50,6 +62,7 @@ spec:
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     podAntiAffinityTopologyKey: nodeId
+
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
@@ -59,6 +72,7 @@ spec:
             values:
             - S1
         topologyKey: failure-domain.beta.kubernetes.io/zone
+
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:

@@ -19,6 +19,10 @@ spec:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: {{ .Values.operator.name }}
         app.kubernetes.io/instance: {{ .Values.operator.name }}
+      annotations:
+        # lets promethues know to scrape the operator pod and where to scrape them
+        loadtest.io/scrape_port: "8080"
+        loadtest.io/should_be_scraped: "true"
     spec:
       serviceAccountName: {{ .Values.operator.name }}
 {{- if not .Values.managedSecurityContext }}
@@ -42,6 +46,13 @@ spec:
         command:
           - "/usr/local/bin/mongodb-enterprise-operator"
         {{- end }}
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1Gi
+          requests:
+            cpu: 200m
+            memory: 200Mi
         env:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}

@@ -29,17 +29,26 @@ spec:
 
   persistent: true
   configSrvPodSpec:
-    cpu: '0.5'
-    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
-    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
-    memory: 512M
+    # `podTemplate.spec.containers[].resources` should be specified otherwise, WiredTiger
+    # cache won't be calculated properly by MongoDB daemon.
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            # For more information about Pod and container resource management, see:
+            # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            resources:
+              limits:
+                cpu: "0.8"
+                memory: 1G
 
-    # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
-    # for config server
+    # If "persistence" element is omitted then Operator uses the default size
+    # (5G) for mounting single Persistent Volume for config server.
 
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     podAntiAffinityTopologyKey: kubernetes.io/hostname
+
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
@@ -49,9 +58,17 @@ spec:
             values:
             - S1
         topologyKey: failure-domain.beta.kubernetes.io/zone
+
   mongosPodSpec:
-    cpu: '0.8'
-    memory: 1G
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "0.8"
+                memory: 1G
+
     podAntiAffinityTopologyKey: rackId
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -62,9 +79,17 @@ spec:
             operator: In
             values:
             - another-node-label-value
+
   shardPodSpec:
-    cpu: '0.6'
-    memory: 3G
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "0.6"
+                memory: 3G
+
     persistence:
       multiple:
         # if the child of "multiple" is omitted then the default size will be used.
@@ -74,4 +99,5 @@ spec:
         logs:
           storage: 4G
           storageClass: standard
+
     podAntiAffinityTopologyKey: kubernetes.io/hostname

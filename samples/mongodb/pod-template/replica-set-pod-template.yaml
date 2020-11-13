@@ -6,26 +6,37 @@ spec:
   members: 3
   version: 4.2.2-ent
   type: ReplicaSet
+
   opsManager:
     configMapRef:
       name: my-project
+
   credentials: my-credentials
 
   podSpec:
-    memory: 512M
-    # 'podTemplate' allows to set custom fields in PodTemplateSpec (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#podtemplatespec-v1-core)
-    # for the Database StatefulSet.
+    # `podTemplate` allows to set custom fields in PodTemplateSpec for the
+    # Database Pods.
+    # For more information see:
+    # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#podtemplatespec-v1-core
     podTemplate:
       spec:
-        # This container will be added to each pod as a sidecar
         containers:
-          - name: standalone-sidecar
-            image: busybox
-            command: ["sleep"]
-            args: [ "infinity" ]
-            resources:
-              limits:
-                cpu: "1"
-              requests:
-                cpu: 500m
+        - name: mongodb-enterprise-database
+          # For more information about Pod and container resource management, see:
+          # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+          resources:
+            limits:
+              cpu: "0.8"
+              memory: 1G
 
+        # Another container will be added to each pod as a sidecar.
+        - name: standalone-sidecar
+          image: busybox
+          command: ["sleep"]
+          args: [ "infinity" ]
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512M
+            requests:
+              cpu: 500m

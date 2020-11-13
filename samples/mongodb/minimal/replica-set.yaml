@@ -1,7 +1,3 @@
-#
-# This is a minimal config. To see all the options available, refer to the
-# "extended" directory
-#
 ---
 apiVersion: mongodb.com/v1
 kind: MongoDB
@@ -20,16 +16,17 @@ spec:
   persistent: false
 
   podSpec:
-    # 'podTemplate' allows to set custom fields in PodTemplateSpec (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#podtemplatespec-v1-core)
+    # 'podTemplate' allows to set custom fields in PodTemplateSpec.
+    # (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#podtemplatespec-v1-core)
     # for the Database StatefulSet.
     podTemplate:
-      spec:        
+      spec:
         containers:
           - name: mongodb-enterprise-database
             resources:
               limits:
                 cpu: "2"
-                memory: 700m
+                memory: 700M
               requests:
                 cpu: "1"
-                memory: 500m
+                memory: 500M

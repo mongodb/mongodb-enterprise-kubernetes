@@ -110,8 +110,9 @@ credentials. More information about the way to create them using Ops Manager UI 
   * Username and Public API key. More information about the way to create them using Ops Manager UI can be found
  [here](https://docs.opsmanager.mongodb.com/current/tutorial/configure-public-api-access/#personal-api-keys-deprecated)
 
-Note that you must whitelist the IP
-range of your Kubernetes cluster so that the Operator could make API requests to Ops Manager
+Note: that you must whitelist the Pod IP range of your Kubernetes cluster so that the Operator could make API requests to Ops Manager.
+You can get the Pod IP range of your kubernetes cluster by executing the command: ```kubectl cluster-info dump | grep -m 1 cluster-cidr```
+
 
 This is documented in greater detail in our [installation guide](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator)
 
@@ -147,7 +148,7 @@ For a user to be able to create or update objects in this Ops Manager Project th
 Programmatic API Key. These will be held by Kubernetes as a `Secret` object. You can create this Secret with the following command:
 
 ``` bash
-$ kubectl -n mongodb create secret generic my-credentials --from-literal="user=some@example.com" --from-literal="publicApiKey=my-public-api-key"
+$ kubectl -n mongodb create secret generic my-credentials --from-literal="user=my-public-api-key" --from-literal="publicApiKey=my-private-api-key"
 ```
 
 ### Creating a MongoDB Resource ###
@@ -156,7 +157,7 @@ A MongoDB resource in Kubernetes is a MongoDB (short name `mdb`). We are going t
 
 If you have a correctly created Project with the name `my-project` and Credentials stored in a secret called `my-credentials` then, after applying this file then everything should be running and a new Replica Set with 3 members should soon appear in Ops Manager UI.
 
-    kubectl apply -f samples/mongodb/minimal/replica-set.yaml
+    kubectl apply -f samples/mongodb/minimal/replica-set.yaml -n mongodb
 
 ## MongoDBOpsManager Resource ##
 
@@ -180,7 +181,7 @@ change the password using Ops Manager UI after the Ops Manager object was create
 Use the file `samples/ops-manager/ops-manager.yaml`. Edit the fields and create the object in Kubernetes:
 
 ```bash
-$ kubectl apply -f samples/ops-manager/ops-manager.yaml
+$ kubectl apply -f samples/ops-manager/ops-manager.yaml -n <namespace>
 ```
 
 Note, that it takes up to 8 minutes to initialize the Application Database and start Ops Manager.

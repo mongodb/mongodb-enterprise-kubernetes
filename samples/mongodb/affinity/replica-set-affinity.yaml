@@ -16,7 +16,14 @@ spec:
 
   persistent: true
   podSpec:
-    memory: 512M
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                memory: 512M
+
     # For podAffinity and nodeAffinity see Kubernetes Docs
     # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     podAntiAffinityTopologyKey: nodeId
@@ -29,6 +36,7 @@ spec:
             values:
             - S1
         topologyKey: failure-domain.beta.kubernetes.io/zone
+
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:

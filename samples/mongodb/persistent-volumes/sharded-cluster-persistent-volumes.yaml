@@ -27,24 +27,47 @@ spec:
   credentials: my-credentials
   type: ShardedCluster
 
+  # if "persistence" element is omitted then Operator uses the default size (5G) for
+  # mounting single Persistent Volume for config server.
   persistent: true
-  configSrvPodSpec:
-    cpu: '0.5'
-    # note: it's important to always specify memory otherwise wired tiger cache will be calculated incorrectly and
-    # monitoring tools will report the size of Kubernetes node instead of the real size of the container
-    memory: 512M
 
-    # if "persistence" element is omitted then Operator uses the default size (5G) for mounting single Persistent Volume
-    # for config server
+  configSrvPodSpec:
+    # `podTemplate.spec.containers[].resources` should be specified, otherwise WiredTiger
+    # cache won't be calculated properly by MongoDB daemon.
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            # For more information about Pod and container resource management, see:
+            # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            resources:
+              limits:
+                cpu: "0.8"
+                memory: 512M
+
   mongosPodSpec:
-    cpu: '0.8'
-    memory: 1G
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "0.8"
+                memory: 1G
+
   shardPodSpec:
-    memory: 3G
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                memory: 3G
+
     persistence:
       multiple:
         # if the child of "multiple" is omitted then the default size will be used.
-        # 16G for "data", 1G for "journal", 3Gb for "logs"
+        # 16G for "data", 1G for "journal", 3Gb for "logs".
         data:
           storage: 20G
         logs:

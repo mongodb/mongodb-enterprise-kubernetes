@@ -38,8 +38,9 @@ mdb_resource="${2}"
 operator_name="${3:-mongodb-enterprise-operator}"
 current_date="$(date +%Y-%m-%d_%H_%M)"
 
-contains "--private" "$@"
-private_mode=$?
+
+private_mode=1
+contains "--private" "$@" && private_mode=0
 
 log_dir="logs_${current_date}"
 mkdir -p "${log_dir}" &> /dev/null
@@ -70,7 +71,7 @@ if [ ${private_mode} == 0 ]; then
 fi
 
 echo "++ Versions"
-mdb_operator_pod=$(kubectl -n "${namespace}" get pods -l "controller=${operator_name}" -o name | cut -d'/' -f 2)
+mdb_operator_pod=$(kubectl -n "${namespace}" get pods -l "app.kubernetes.io/component=controller" -o name | cut -d'/' -f 2)
 echo "+ Operator Pod: pod/${mdb_operator_pod}"
 
 mdb_operator_filename="operator.yaml"
@@ -89,8 +90,8 @@ operator_logs_filename="${operator_name}_${current_date}.logs"
 echo "+ Saving Operator logs to file ${operator_logs_filename}"
 kubectl -n "${namespace}" logs "deployment/${operator_name}" > "${log_dir}/${operator_logs_filename}"
 
-database_container_pretty_name=$(kubectl -n "${namespace}" exec -it "${mdb_resource}-0" -- cat /etc/*release | grep "PRETTY_NAME" | cut -d'=' -f 2)
-operator_container_pretty_name=$(kubectl -n "${namespace}" exec -it "${mdb_operator_pod}" -- cat /etc/*release | grep "PRETTY_NAME" | cut -d'=' -f 2)
+database_container_pretty_name=$(kubectl -n "${namespace}" exec -it "${mdb_resource}-0" -- sh -c "cat /etc/*release" | grep "PRETTY_NAME" | cut -d'=' -f 2)
+operator_container_pretty_name=$(kubectl -n "${namespace}" exec -it "${mdb_operator_pod}" -- sh -c "cat /etc/*release" | grep "PRETTY_NAME" | cut -d'=' -f 2)
 echo "+ Operator is running on: ${operator_container_pretty_name}"
 echo "+ Database is running on: ${database_container_pretty_name}"
 
@@ -119,7 +120,7 @@ kubectl get nodes -o yaml > "${log_dir}/${nodes_filename}"
 echo "++ MongoDB Resource Running Environment"
 crd_filename="crd_mdb.yaml"
 echo "+ Saving MDB Customer Resource Definition into ${crd_filename}"
-kubectl -n "${namespace}" get crd/mongodb.mongodb.com -o yaml > "${crd_filename}"
+kubectl -n "${namespace}" get crd/mongodb.mongodb.com -o yaml > "${log_dir}/${crd_filename}"
 
 project_filename="project.yaml"
 mdb_resource_name="mdb/${mdb_resource}"
@@ -178,9 +179,9 @@ kubectl -n "${namespace}" get events > "${log_dir}/events.log"
 
 echo "+ Certificates (no private keys are captured)"
 csr_filename="csr.text"
-kubectl get csr | grep "${namespace}"
+kubectl get csr | grep "${namespace}" || true
 echo "+ Saving Certificate state into ${csr_filename}"
-kubectl describe "$(kubectl get csr -o name | grep "${namespace}")"
+kubectl describe "$(kubectl get csr -o name | grep "${namespace}")" > "${log_dir}/${csr_filename}" || true
 
 echo "++ MongoDBUser Resource Status"
 mdbusers_filename="mdbu.yaml"

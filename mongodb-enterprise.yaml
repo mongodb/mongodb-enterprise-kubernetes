@@ -153,6 +153,12 @@ rules:
       - secrets
     verbs:
       - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
 ---
 # Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
@@ -188,6 +194,10 @@ spec:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: mongodb-enterprise-operator
         app.kubernetes.io/instance: mongodb-enterprise-operator
+      annotations:
+        # lets promethues know to scrape the operator pod and where to scrape them
+        loadtest.io/scrape_port: "8080"
+        loadtest.io/should_be_scraped: "true"
     spec:
       serviceAccountName: mongodb-enterprise-operator
       securityContext:
@@ -195,7 +205,7 @@ spec:
         runAsUser: 2000
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.8.0
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.8.1
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"
@@ -203,6 +213,13 @@ spec:
           - "-watch-resource=mongodbusers"
         command:
           - "/usr/local/bin/mongodb-enterprise-operator"
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1Gi
+          requests:
+            cpu: 200m
+            memory: 200Mi
         env:
         - name: OPERATOR_ENV
           value: prod
@@ -222,7 +239,7 @@ spec:
         - name: INIT_DATABASE_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-database
         - name: INIT_DATABASE_VERSION
-          value: 1.0.0
+          value: 1.0.1
         - name: DATABASE_VERSION
           value: 2.0.0
         # Ops Manager
@@ -231,13 +248,13 @@ spec:
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
         - name: INIT_OPS_MANAGER_VERSION
-          value: 1.0.2
+          value: 1.0.3
         # AppDB
         - name: APPDB_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-appdb
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-appdb
         - name: INIT_APPDB_VERSION
-          value: 1.0.4
+          value: 1.0.5
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always

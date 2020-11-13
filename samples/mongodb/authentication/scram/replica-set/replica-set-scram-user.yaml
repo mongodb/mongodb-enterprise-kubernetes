@@ -15,8 +15,8 @@ spec:
     - db: admin
       name: clusterAdmin
     - db: admin
-      name: userAdminAnyDatabase
+      name: readWriteAnyDatabase
     - db: admin
-      name: readWrite
+      name: dbAdminAnyDatabase
     - db: admin
       name: userAdminAnyDatabase
