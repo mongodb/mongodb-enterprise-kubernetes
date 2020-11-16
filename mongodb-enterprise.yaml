@@ -205,7 +205,7 @@ spec:
         runAsUser: 2000
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.8.1
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.8.2
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"

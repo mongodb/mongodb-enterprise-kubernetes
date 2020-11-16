@@ -202,7 +202,7 @@ spec:
       serviceAccountName: enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.8.1
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.8.2
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"

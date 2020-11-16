@@ -8,8 +8,8 @@ for your OpenShift installation to be able to fetch images from this registry.
 ## Create your OpenShift Secret
 
 First, complete the instructions
-[here](https://access.redhat.com/terms-based-registry/#/accounts). Unfortunately,
-these instructions refer to a `registry.redhat.io` registry which is not the one we need, but they accept the same
+[here](https://access.redhat.com/terms-based-registry/#/token/openshift3-test-cluster/docker-config). Unfortunately,
+these instructions refer to a `registry.redhat.io` Registry which is not the one we need, but they accept the same
 credentials. First, click on "view its contents" to display the contents we need, and save these contents into a json
 file. This file includes 1 entry for `registry.redhat.io`; replicate that entry with a new name,
 "`registry.connect.redhat.com`", as in the following example:
