@@ -202,10 +202,6 @@ spec:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: enterprise-operator
         app.kubernetes.io/instance: enterprise-operator
-      annotations:
-        # lets promethues know to scrape the operator pod and where to scrape them
-        loadtest.io/scrape_port: "8080"
-        loadtest.io/should_be_scraped: "true"
     spec:
       serviceAccountName: enterprise-operator
       containers:
