@@ -47,6 +47,14 @@ rules:
   - watch
   - delete
   - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
   {{- if eq (.Values.operator.watchNamespace | default "") "*" }}
 - apiGroups:
   - ""

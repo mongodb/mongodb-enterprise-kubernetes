@@ -99,6 +99,12 @@ spec:
                 startupOptions:
                   type: object
 
+            backup:
+              type: object
+              properties:
+                mode:
+                  type: string
+                  enum: ["enabled", "disabled", "terminated"]
             # Generic PodSpec configuration
             podSpec:
               type: object

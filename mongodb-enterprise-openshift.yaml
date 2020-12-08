@@ -84,6 +84,14 @@ rules:
   - delete
   - update
 - apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - mongodb.com
   resources:
   - mongodb

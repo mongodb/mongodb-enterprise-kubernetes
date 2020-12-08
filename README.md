@@ -2,15 +2,19 @@
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploy of the following applications into Kubernetes clusters:
 * MongoDB - Replica Sets, Sharded Clusters and Standalones, with authentication, TLS and many more options.
-* Ops Manager - our enterprise management, monitoring and backup platform for MongoDB. The Operator can install and manage Ops Manager in Kubernetes for you.
+* Ops Manager - our enterprise management, monitoring and backup platform for MongoDB. The Operator can install and manage Ops Manager in Kubernetes for you. Ops Manager can manage MongoDB instances both inside and outside Kubernetes.
 
-The Operator requires access to one of our database management tools - Ops Manager or Cloud Manager - to deploy MongoDB instances. 
+The Operator requires access to one of our database management tools - Ops Manager or Cloud Manager - to deploy MongoDB instances.
 You may run Ops Manager either inside or outside Kubernetes, or may use Cloud Manager (cloud.mongodb.com) instead.
 
 The Operator is currently Generally Available, supported by the [MongoDB Support Team](https://support.mongodb.com/). If you need urgent help, please file a support ticket.
 For non-urgent requests, you may file a Github Issue here in the repo.
 
-You can discuss this integration in our new [Community Forum](https://community.mongodb.com/) - please use the tag [enterprise-kubernetes-operator](https://community.mongodb.com/tags/enterprise-kubernetes-operator).
+You can discuss this integration in our new [Community Forum](https://developer.mongodb.com/community/forums/) - please use the tag [kubernetes-operator](https://developer.mongodb.com/community/forums/tag/kubernetes-operator)
+
+Here are some talks from MongoDB Live 2020 about the Operator:
+* [Kubernetes, MongoDB, and Your MongoDB Data Platform](https://www.youtube.com/watch?v=o1fUPIOdKeU)
+* [Run it in Kubernetes! Community and Enterprise MongoDB in Containers](https://www.youtube.com/watch?v=2Xszdg-4T6A)
 
 ## Documentation ##
 
@@ -30,11 +34,11 @@ You can discuss this integration in our new [Community Forum](https://community.
 
 ## Requirements ##
 
-Please refer to the [Installation Instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/plan-k8s-operator-install/) 
-to see which Kubernetes and Openshift versions the Operator is compatible with 
+Please refer to the [Installation Instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/plan-k8s-operator-install/)
+to see which Kubernetes and Openshift versions the Operator is compatible with
 
-To work with MongoDB resource this Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) (Ops Manager can 
-be installed into the same Kubernetes cluster by the Operator or installed outside of the cluster manually) 
+To work with MongoDB resource this Operator requires [Ops Manager](https://docs.opsmanager.mongodb.com/current/) (Ops Manager can
+be installed into the same Kubernetes cluster by the Operator or installed outside of the cluster manually)
 or [Cloud Manager](https://cloud.mongodb.com/user#/cloud/login).
 > If this is your first time trying the Operator, Cloud Manager is easier to get started
 
@@ -75,11 +79,9 @@ or clone this repo, make any edits you need, and apply it from your machine.
 
 ### Installation using Helm Chart
 
-If you have installed the Helm client locally then you can run (note that `helm install` is a less preferred way as makes upgrades more complicated.
-`kubectl apply` is a much clearer way of installing/upgrading):
+If you have installed the Helm client locally then you can run:
 
-    helm template helm_chart > operator.yaml
-    kubectl apply -f operator.yaml
+    helm install mongodb-enterprise-operator helm_chart --values helm_chart/values.yaml
 
 You can customize installation by simple overriding of helm variables, for example use `--set operator.env="dev"` to run the Operator in development mode
 (this will turn logging level to `Debug` and will make logging output as non-json)
@@ -190,11 +192,11 @@ Note, that it takes up to 8 minutes to initialize the Application Database and s
 
 Now you can use the Ops Manager application to create MongoDB objects. You need to follow the
 [instructions](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/create-operator-credentials/#prerequisites)
-to prepare keys and enable network access to Ops Manager. 
+to prepare keys and enable network access to Ops Manager.
 Then you need to perform the standard steps necessary to create MongoDB resource:
-* Create a [credentials Secret](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/create-operator-credentials/#create-k8s-credentials) 
-* Create a [connection ConfigMap](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/create-project-using-configmap/) 
-  * Note, that you should use the value from `status.opsManager.url` in MongoDBOpsManager Resource as a value for `baseUrl` field in the ConfigMap  
+* Create a [credentials Secret](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/create-operator-credentials/#create-k8s-credentials)
+* Create a [connection ConfigMap](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/create-project-using-configmap/)
+  * Note, that you should use the value from `status.opsManager.url` in MongoDBOpsManager Resource as a value for `baseUrl` field in the ConfigMap
 
 ## Accessing Ops Manager UI (from a browser)
 

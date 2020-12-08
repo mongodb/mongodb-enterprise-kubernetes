@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: MongoDB Support
+      url: https://support.mongodb.com
+      about: Please use the Support Center to receive official support within a timeline. Use this for urgent requests.
+    - name: MongoDB Feedback
+      url: https://feedback.mongodb.com/forums/924355-ops-tools
+      about: Use our Feedback page for making feature requests.
