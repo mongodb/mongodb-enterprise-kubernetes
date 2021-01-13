@@ -13,4 +13,4 @@ spec:
       name: my-project
   credentials: my-credentials
   backup:
-    enabled: true
+    mode: enabled
