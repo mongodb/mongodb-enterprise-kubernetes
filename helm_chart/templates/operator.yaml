@@ -19,10 +19,6 @@ spec:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: {{ .Values.operator.name }}
         app.kubernetes.io/instance: {{ .Values.operator.name }}
-      annotations:
-        # lets promethues know to scrape the operator pod and where to scrape them
-        loadtest.io/scrape_port: "8080"
-        loadtest.io/should_be_scraped: "true"
     spec:
       serviceAccountName: {{ .Values.operator.name }}
 {{- if not .Values.managedSecurityContext }}
@@ -48,10 +44,10 @@ spec:
         {{- end }}
         resources:
           limits:
-            cpu: 300m
+            cpu: 1100m
             memory: 1Gi
           requests:
-            cpu: 200m
+            cpu: 500m
             memory: 200Mi
         env:
         - name: OPERATOR_ENV
@@ -93,6 +89,8 @@ spec:
         # AppDB
         - name: APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
+        - name: APPDB_AGENT_VERSION
+          value: {{ .Values.appDb.version }}
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.initAppDb }}/{{ .Values.initAppDb.name }}
         - name: INIT_APPDB_VERSION

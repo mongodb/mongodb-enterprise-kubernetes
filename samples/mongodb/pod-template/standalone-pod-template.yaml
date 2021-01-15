@@ -3,7 +3,7 @@ kind: MongoDB
 metadata:
   name: my-standalone-pod-template
 spec:
-  version: 4.2.2-ent
+  version: 4.2.11-ent
   type: Standalone
   opsManager:
     configMapRef:

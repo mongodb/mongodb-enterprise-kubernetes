@@ -14,7 +14,7 @@ spec:
     members: 3
     # it's possible to omit 'version' completely - the bundled MongoDB binary will be used in this case
     # and no MongoDB binary will be downloaded from the Internet
-    # version: 4.2.2-ent
+    # version: 4.2.11-ent
     persistent: true
     podSpec:
       cpu: '0.25'
