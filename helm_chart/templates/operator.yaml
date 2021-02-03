@@ -32,7 +32,7 @@ spec:
 {{- end }}
       containers:
       - name: {{ .Values.operator.deployment_name }}
-        image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}
+        image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}{{ .Values.build }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
         {{- if .Values.operator.watchedResources }}
         args:
@@ -76,25 +76,25 @@ spec:
         - name: INIT_DATABASE_IMAGE_REPOSITORY
           value: {{ .Values.registry.initDatabase }}/{{ .Values.initDatabase.name }}
         - name: INIT_DATABASE_VERSION
-          value: {{ .Values.initDatabase.version }}
+          value: {{ .Values.initDatabase.version }}{{ .Values.build }}
         - name: DATABASE_VERSION
-          value: {{ .Values.database.version }}
+          value: {{ .Values.database.version }}{{ .Values.build }}
         # Ops Manager
         - name: OPS_MANAGER_IMAGE_REPOSITORY
           value: {{ .Values.registry.opsManager }}/{{ .Values.opsManager.name }}
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: {{ .Values.registry.initOpsManager }}/{{ .Values.initOpsManager.name }}
         - name: INIT_OPS_MANAGER_VERSION
-          value: {{ .Values.initOpsManager.version }}
+          value: {{ .Values.initOpsManager.version }}{{ .Values.build }}
         # AppDB
         - name: APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
         - name: APPDB_AGENT_VERSION
-          value: {{ .Values.appDb.version }}
+          value: {{ .Values.appDb.version }}{{ .Values.build }}
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.initAppDb }}/{{ .Values.initAppDb.name }}
         - name: INIT_APPDB_VERSION
-          value: {{ .Values.initAppDb.version }}
+          value: {{ .Values.initAppDb.version }}{{ .Values.build }}
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
 {{- if .Values.registry.imagePullSecrets }}
