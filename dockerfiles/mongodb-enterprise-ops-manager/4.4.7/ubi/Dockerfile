@@ -1,0 +1,66 @@
+FROM registry.access.redhat.com/ubi8/ubi
+
+
+LABEL name="MongoDB Enterprise Ops Manager" \
+      maintainer="support@mongodb.com" \
+      vendor="MongoDB" \
+      version="4.4.7" \
+      release="1" \
+      summary="MongoDB Enterprise Ops Manager Image" \
+      description="MongoDB Enterprise Ops Manager"
+
+
+ENV MMS_HOME /mongodb-ops-manager
+ENV MMS_PROP_FILE ${MMS_HOME}/conf/conf-mms.properties
+ENV MMS_CONF_FILE ${MMS_HOME}/conf/mms.conf
+ENV MMS_LOG_DIR ${MMS_HOME}/logs
+
+EXPOSE 8080
+
+# OpsManager docker image needs to have the MongoDB dependencies because the
+# backup daemon is running its database locally
+
+RUN yum install --disableplugin=subscription-manager -y \
+  cyrus-sasl \
+  cyrus-sasl-gssapi \
+  cyrus-sasl-plain \
+  krb5-libs \
+  libcurl \
+  libpcap \
+  lm_sensors-libs \
+  net-snmp \
+  net-snmp-agent-libs \
+  openldap \
+  openssl \
+  rpm-libs \
+  net-tools \
+  procps-ng \
+  ncurses
+
+
+
+# Licenses is required to pass Redhat verification process
+# TODO: Add a proper license
+COPY LICENSE /licenses/mongodb-enterprise-ops-manager
+
+
+
+RUN curl --fail -L -o ops_manager.tar.gz https://downloads.mongodb.com/on-prem-mms/tar/mongodb-mms-4.4.7.100.20210109T1656Z-1.x86_64.tar.gz \
+    && tar -xzf ops_manager.tar.gz \
+    && rm ops_manager.tar.gz \
+    && mv mongodb-mms-* "${MMS_HOME}"
+
+
+# permissions
+RUN chmod -R 0775 "${MMS_LOG_DIR}" \
+    && chmod -R 0775 "${MMS_HOME}/conf" \
+    && chmod -R 0775 "${MMS_HOME}/tmp" \
+    && mkdir "${MMS_HOME}/mongodb-releases/" \
+    && chmod -R 0775 "${MMS_HOME}/mongodb-releases"
+
+USER 2000
+
+# operator to change the entrypoint to: /mongodb-ops-manager/bin/mongodb-mms start_mms (or a wrapper around this)
+ENTRYPOINT [ "sleep infinity" ]
+
+
