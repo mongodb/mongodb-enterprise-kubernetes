@@ -14,7 +14,7 @@ spec:
   # Indicates featureCompatibilityVersion. This attribute will make the data
   # format to persist in a particular version, maybe older, allowing for
   # future downgrades if necessary.
-  featureCompatibilityVersion: "3.6"
+  featureCompatibilityVersion: "4.0"
 
   # Please Note: The default Kubernetes cluster domain is `cluster.local`.
   # If your cluster has been configured with another domain, you can specify it

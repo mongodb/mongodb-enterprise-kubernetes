@@ -66,6 +66,8 @@ rules:
       - pods
     verbs:
       - patch
+      - delete
+      - get
 
 ---
 kind: RoleBinding
@@ -89,4 +91,3 @@ subjects:
     {{- else }}
     namespace: {{ .Values.namespace }}
     {{- end }}
-

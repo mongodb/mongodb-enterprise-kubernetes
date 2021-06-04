@@ -5,14 +5,13 @@ metadata:
   name: ops-manager
 spec:
   replicas: 1
-  version: 4.4.9
+  version: 4.4.12
 
   adminCredentials: ops-manager-admin-secret
 
   applicationDatabase:
     members: 3
     version: 4.2.6-ent
-    persistent: true
 
 
   # The statefulSet entry will modify the way the StatefulSet holding the

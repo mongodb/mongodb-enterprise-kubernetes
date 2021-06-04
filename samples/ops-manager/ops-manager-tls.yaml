@@ -4,7 +4,7 @@ metadata:
   name: ops-manager-tls
 spec:
   replicas: 1
-  version: 4.4.9
+  version: 4.4.12
   adminCredentials: ops-manager-admin-secret
 
   configuration:
@@ -31,7 +31,8 @@ spec:
         # optional, ConfigMap containing custom CA certificate
         # Will be used by Ops Manager to establish secure connection to application database
         ca: issuer-ca-config-map
-        # secret containing the TLS certificate signed by known or custom CA. The secret must have a key "server.pem"
+        # the prefix of the secret containing the TLS certificate signed by known or custom CA. The secret must have a key "server.pem"
         # and value of .pem file containing private key and TLS certificate
+        # the name of this secret must be appdb-ops-manager-tls-db-cert
         secretRef:
-          name: certs-for-appdb
+          prefix: appdb

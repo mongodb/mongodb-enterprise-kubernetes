@@ -4,7 +4,7 @@ kind: MongoDB
 metadata:
   name: my-tls-standalone
 spec:
-  version: 4.0.0-ent
+  version: 4.0.14-ent
 
   opsManager:
     configMapRef:

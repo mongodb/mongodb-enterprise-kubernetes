@@ -5,7 +5,7 @@ metadata:
   name: ops-manager-external
 spec:
   replicas: 1
-  version: 4.4.9
+  version: 4.4.12
   adminCredentials: ops-manager-admin-secret
 
   configuration:
@@ -33,4 +33,3 @@ spec:
   applicationDatabase:
     members: 3
     version: 4.2.6-ent
-    persistent: true

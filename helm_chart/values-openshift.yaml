@@ -8,14 +8,17 @@ operator:
   # Execution environment for the operator, dev or prod. Use dev for more verbose logging
   env: prod
 
-  # Name that will be assigned to most of internal Kubernetes objects like Deployment, ServiceAccount, Role etc.
-  name: enterprise-operator
+  # Name that will be assigned to most of internal Kubernetes objects like ServiceAccount, Role etc.
+  name: mongodb-enterprise-operator
+
+  # Name of the operator image
+  operator_image_name: enterprise-operator
 
   # Name of the deployment of the operator pod
   deployment_name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator and mongodb-enterprise-database images
-  version: 1.10.0
+  version: 1.11.0
 
   # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
   watchedResources:
@@ -30,7 +33,7 @@ database:
 
 initDatabase:
   name: mongodb-enterprise-init-database
-  version: 1.0.2
+  version: 1.0.3
 
 ## Ops Manager
 opsManager:
@@ -47,7 +50,16 @@ appDb:
 
 initAppDb:
   name: mongodb-enterprise-init-appdb
-  version: 1.0.6
+  version: 1.0.7
+
+agent:
+  name: mongodb-agent
+  version: 10.29.0.6830-1
+
+mongodb:
+  name: mongodb-enterprise-appdb-database
+  repo: quay.io/mongodb
+
 
 ## Registry
 registry:
@@ -61,6 +73,7 @@ registry:
   opsManager: registry.connect.redhat.com/mongodb
   initAppDb: registry.connect.redhat.com/mongodb
   appDb: registry.connect.redhat.com/mongodb
+  agent: registry.connect.redhat.com/mongodb
 
 # Set this to true if the operator will require Kubernetes CA
 # infrastructure to generate TLS certificates.

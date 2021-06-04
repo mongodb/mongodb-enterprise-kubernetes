@@ -32,7 +32,7 @@ spec:
 {{- end }}
       containers:
       - name: {{ .Values.operator.deployment_name }}
-        image: {{ .Values.registry.operator }}/{{ .Values.operator.name }}:{{ .Values.operator.version }}{{ .Values.build }}
+        image: {{ .Values.registry.operator }}/{{ .Values.operator.operator_image_name }}:{{ .Values.operator.version }}{{ .Values.build }}
         imagePullPolicy: {{ .Values.registry.pullPolicy }}
         {{- if .Values.operator.watchedResources }}
         args:
@@ -87,16 +87,19 @@ spec:
         - name: INIT_OPS_MANAGER_VERSION
           value: {{ .Values.initOpsManager.version }}{{ .Values.build }}
         # AppDB
-        - name: APPDB_IMAGE_REPOSITORY
-          value: {{ .Values.registry.appDb }}/{{ .Values.appDb.name }}
-        - name: APPDB_AGENT_VERSION
-          value: {{ .Values.appDb.version }}{{ .Values.build }}
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: {{ .Values.registry.initAppDb }}/{{ .Values.initAppDb.name }}
         - name: INIT_APPDB_VERSION
           value: {{ .Values.initAppDb.version }}{{ .Values.build }}
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: {{ .Values.registry.pullPolicy }}
+        - name: AGENT_IMAGE
+          value: "{{ .Values.registry.agent }}/{{ .Values.agent.name }}:{{ .Values.agent.version }}"
+        - name: MONGODB_IMAGE
+          value: {{ .Values.mongodb.name }}
+        - name: MONGODB_REPO_URL
+          value: {{ .Values.mongodb.repo }}
+
 {{- if .Values.registry.imagePullSecrets }}
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}

@@ -13,6 +13,8 @@ spec:
     kind: MongoDBUser
     listKind: MongoDBUserList
     plural: mongodbusers
+    shortNames:
+    - mdbu
     singular: mongodbuser
   scope: Namespaced
   versions:
@@ -30,8 +32,14 @@ spec:
       openAPIV3Schema:
         properties:
           apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -49,6 +57,8 @@ spec:
                 - name
                 type: object
               passwordSecretKeyRef:
+                description: 'SecretKeyRef is a reference to a value in a given secret
+                  in the same namespace. Based on: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.15/#secretkeyselector-v1-core'
                 properties:
                   key:
                     type: string
@@ -58,6 +68,8 @@ spec:
                 - name
                 type: object
               project:
+                description: 'Deprecated: This has been replaced by the MongoDBResourceRef
+                  which should be used instead'
                 type: string
               roles:
                 items:
@@ -94,6 +106,8 @@ spec:
                 type: string
               resourcesNotReady:
                 items:
+                  description: ResourceNotReady describes the dependent resource which
+                    is not ready yet
                   properties:
                     errors:
                       items:
@@ -105,6 +119,8 @@ spec:
                         type: object
                       type: array
                     kind:
+                      description: ResourceKind specifies a kind of a Kubernetes resource.
+                        Used in status of a Custom Resource
                       type: string
                     message:
                       type: string
