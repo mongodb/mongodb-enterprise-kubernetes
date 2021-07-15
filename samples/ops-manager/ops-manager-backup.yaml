@@ -5,13 +5,17 @@ metadata:
   name: ops-manager-backup
 spec:
   replicas: 1
-  version: 4.4.12
+  version: 5.0.0
   adminCredentials: ops-manager-admin-secret
 
   # optional. Enabled by default
   # Allows to configure backup in Ops Manager
   backup:
     enabled: true
+    # optional. Defaults to 1 if not set.
+    # Configures the number of backup daemons to create
+    members: 2
+  
     # optional. Configured by default if backup is enabled.
     # Configures Head db storage parameters
     headDB:
@@ -52,4 +56,4 @@ spec:
 
   applicationDatabase:
     members: 3
-    version: 4.2.6-ent
+    version: 4.4.4-ent
