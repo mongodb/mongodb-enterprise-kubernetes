@@ -1475,6 +1475,11 @@ spec:
                     items:
                       type: string
                     type: array
+                  members:
+                    description: Members indicate the number of backup daemon pods
+                      to create.
+                    minimum: 1
+                    type: integer
                   opLogStores:
                     description: OplogStoreConfigs describes the list of oplog store
                       configs used for backup

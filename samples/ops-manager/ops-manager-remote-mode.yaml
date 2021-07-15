@@ -1,10 +1,11 @@
+---
 apiVersion: mongodb.com/v1
 kind: MongoDBOpsManager
 metadata:
   name: ops-manager-remotemode
 spec:
   replicas: 1
-  version: 4.4.12
+  version: 5.0.0
   adminCredentials: ops-manager-admin-secret
   configuration:
     # Change this url to point to the nginx server deployed below
@@ -17,7 +18,7 @@ spec:
     enabled: false
 
   applicationDatabase:
-    version: "4.4.0-ent"
+    version: "4.4.4-ent"
     members: 3
     persistent: true
 
@@ -68,9 +69,9 @@ spec:
           command:
             - curl
             - -L
-            - https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1604-4.4.0.tgz
+            - https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1804-4.4.0.tgz
             - -o
-            - /mongodb-ops-manager/mongodb-releases/linux/mongodb-linux-x86_64-ubuntu1604-4.4.0.tgz
+            - /mongodb-ops-manager/mongodb-releases/linux/mongodb-linux-x86_64-ubuntu1804-4.4.0.tgz
           volumeMounts:
             - name: mongodb-versions
               mountPath: /mongodb-ops-manager/mongodb-releases/linux
@@ -91,9 +92,9 @@ spec:
           command:
             - curl
             - -L
-            - https://downloads.mongodb.com/linux/mongodb-linux-x86_64-enterprise-ubuntu1604-4.4.0.tgz
+            - https://downloads.mongodb.com/linux/mongodb-linux-x86_64-enterprise-ubuntu1804-4.4.0.tgz
             - -o
-            - /mongodb-ops-manager/mongodb-releases/linux/mongodb-linux-x86_64-enterprise-ubuntu1604-4.4.0.tgz
+            - /mongodb-ops-manager/mongodb-releases/linux/mongodb-linux-x86_64-enterprise-ubuntu1804-4.4.0.tgz
           volumeMounts:
             - name: mongodb-versions
               mountPath: /mongodb-ops-manager/mongodb-releases/linux
