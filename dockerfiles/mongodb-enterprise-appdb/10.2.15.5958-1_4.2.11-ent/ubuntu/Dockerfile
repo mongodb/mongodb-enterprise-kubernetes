@@ -4,8 +4,6 @@ FROM ${imagebase} as base
 FROM ubuntu:xenial-20210416
 
 
-
-
 LABEL name="MongoDB Enterprise AppDB" \
       version="10.2.15.5958-1_4.2.11-ent" \
       summary="MongoDB Enterprise AppDB" \
