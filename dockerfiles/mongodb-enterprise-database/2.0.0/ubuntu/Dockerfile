@@ -5,7 +5,6 @@ FROM ubuntu:xenial-20210416
 
 
 
-
 LABEL name="MongoDB Enterprise Database" \
       version="2.0.0" \
       summary="MongoDB Enterprise Database Image" \
