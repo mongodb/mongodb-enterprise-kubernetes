@@ -1,4 +1,4 @@
-FROM ubuntu:xenial-20210114
+FROM ubuntu:xenial-20210416
 
 
 LABEL name="MongoDB Enterprise Ops Manager" \
