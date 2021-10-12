@@ -126,6 +126,22 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.multiCluster.kubeConfigSecretName }}
 {{- end }}
+
+{{- with .Values.operator }}
+  {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+{{- end }}
+
 {{- if .Values.debug }}
 ---
 apiVersion: v1

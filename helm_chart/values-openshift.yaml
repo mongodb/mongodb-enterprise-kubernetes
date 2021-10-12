@@ -26,6 +26,12 @@ operator:
   - opsmanagers
   - mongodbusers
 
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
 ## Database
 database:
   name: enterprise-database
