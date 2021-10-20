@@ -5,7 +5,7 @@ metadata:
   name: ops-manager-remotemode
 spec:
   replicas: 1
-  version: 5.0.0
+  version: 5.0.2
   adminCredentials: ops-manager-admin-secret
   configuration:
     # Change this url to point to the nginx server deployed below
