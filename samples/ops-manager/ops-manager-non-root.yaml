@@ -5,7 +5,7 @@ metadata:
   name: ops-manager
 spec:
   replicas: 1
-  version: 5.0.0
+  version: 5.0.2
 
   adminCredentials: ops-manager-admin-secret
 
