@@ -1,0 +1,24 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: opsmanagerwizardless
+  annotations:
+    description: >-
+      Requires Ops Manager install to be wizardless
+      
+      The setting mms.ignoreInitiaUiSetup needs to be true
+spec:
+  crd:
+    spec:
+      names:
+        kind: OpsManagerWizardless
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package opsmanagerwizardless
+
+        violation[{"msg": msg}] {
+          value := object.get(input.review.object.spec.configuration, "mms.ignoreInitialUiSetup", "false")
+          not value == "true"
+          msg := sprintf("Wizard based setup of Ops Manager is not allowed. mms.ignoreInitialUiSetup needs to be true, currently is %v", [value])
+        }
