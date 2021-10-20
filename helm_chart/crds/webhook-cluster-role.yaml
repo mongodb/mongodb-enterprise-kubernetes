@@ -13,3 +13,15 @@ rules:
       - create
       - update
       - delete
+
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
