@@ -1,0 +1,25 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: mongodballowreplicaset
+  annotations:
+    description: >-
+      Allows only replica set deployment of MongoDB
+      
+      The type setting for MongoDB should be replicaset
+spec:
+  crd:
+    spec:
+      names:
+        kind: MongoDBAllowReplicaset
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package mongodballowreplicaset
+
+        violation[{"msg": msg}] {
+          deployment_type = object.get(input.review.object.spec, "type", "none")
+          not deployment_type == "replicaset"
+          msg := sprintf("Only replicaset deployment of MongoDB allowed, requested %v", [deployment_type])
+        }
+

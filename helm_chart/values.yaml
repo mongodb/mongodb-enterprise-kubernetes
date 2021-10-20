@@ -21,13 +21,16 @@ operator:
   deployment_name: mongodb-enterprise-operator
 
   # Version of mongodb-enterprise-operator
-  version: 1.12.0
+  version: 1.13.0
 
   # The Custom Resources that will be watched by the Operator. Needs to be changed if only some of the CRDs are installed
   watchedResources:
   - mongodb
   - opsmanagers
   - mongodbusers
+
+  # Create operator-service account
+  createOperatorServiceAccount: true
 
 ## Database
 database:
@@ -75,9 +78,10 @@ registry:
   appDb: quay.io/mongodb
   agent: quay.io/mongodb
 
-# Set this to true if the operator will require Kubernetes CA
-# infrastructure to generate TLS certificates.
-needsCAInfrastructure: true
+multiCluster:
+  clusters: []
+  kubeConfigSecretName: mongodb-enterprise-operator-multi-cluster-kubeconfig
+
 
 # Set this to false to disable subresource utilization
 # It might be required on some versions of Openshift

@@ -67,10 +67,6 @@ spec:
                 required:
                 - name
                 type: object
-              project:
-                description: 'Deprecated: This has been replaced by the MongoDBResourceRef
-                  which should be used instead'
-                type: string
               roles:
                 items:
                   properties:

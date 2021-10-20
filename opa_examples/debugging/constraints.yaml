@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDenyAll
+metadata:
+  name: deny-all-namespaces
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDB"]
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDBOpsManager"]

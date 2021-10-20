@@ -1,0 +1,36 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: mongodbstricttls
+  annotations:
+    description: >-
+      Requires MongoDB deployment to be in strict TLS mode
+
+      The setting ssl mode needs to be requireSSL and tls enabled should be true
+spec:
+  crd:
+    spec:
+      names:
+        kind: MongoDBStrictTLS
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package mongodbstricttls
+
+        default check_tls_strict = true
+        
+        tls := object.get(input.review.object.spec.security.tls, "enabled", false)
+        
+        tls_mode := object.get(input.review.object.spec.additionalMongodConfig.net.ssl, "mode", "none")
+
+        check_tls_strict = false {
+          not tls
+        }
+        check_tls_strict = false {
+          tls_mode != "requireSSL"
+        }
+        
+        violation[{"msg": msg}] {
+          not check_tls_strict
+          msg := sprintf("MongoDB deployment needs to be TLS and mode should be requireSSL, TLS enabled set to %v and mode set to %v", [tls, tls_mode])
+        }

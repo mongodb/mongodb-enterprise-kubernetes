@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: OpsManagerWizardless
+metadata:
+  name: ops-manager-wizardless-only
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDBOpsManager"]

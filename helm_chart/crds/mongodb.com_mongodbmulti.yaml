@@ -1,0 +1,517 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: mongodbmulti.mongodb.com
+spec:
+  group: mongodb.com
+  names:
+    kind: MongoDBMulti
+    listKind: MongoDBMultiList
+    plural: mongodbmulti
+    shortNames:
+    - mdbm
+    singular: mongodbmulti
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Current state of the MongoDB deployment.
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: The time since the MongoDBMulti resource was created.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              additionalMongodConfig:
+                description: 'AdditionalMongodConfig is additional configuration that
+                  can be passed to each data-bearing mongod at runtime. Uses the same
+                  structure as the mongod configuration file: https://docs.mongodb.com/manual/reference/configuration-options/'
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              agent:
+                properties:
+                  startupOptions:
+                    additionalProperties:
+                      type: string
+                    type: object
+                type: object
+              backup:
+                description: Backup contains configuration options for configuring
+                  backup for this MongoDB resource
+                properties:
+                  mode:
+                    enum:
+                    - enabled
+                    - disabled
+                    - terminated
+                    type: string
+                type: object
+              cloudManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                type: object
+              clusterDomain:
+                format: hostname
+                type: string
+              clusterSpecList:
+                description: ClusterSpecList holds a list with a clusterSpec corresponding
+                  to each cluster
+                properties:
+                  clusterSpecs:
+                    items:
+                      description: ClusterSpecItem is the mongodb multi-cluster spec
+                        that is specific to a particular Kubernetes cluster, this
+                        maps to the statefulset created in each cluster
+                      properties:
+                        clusterName:
+                          description: ClusterName is name of the cluster where the
+                            MongoDB Statefulset will be scheduled, the name should
+                            have a one on one mapping with the service-account created
+                            in the central cluster to talk to the workload clusters.
+                          type: string
+                        exposedExternally:
+                          description: ExposedExternally determines whether a NodePort
+                            service should be created for the resource
+                          type: boolean
+                        members:
+                          description: Amount of members for this MongoDB Replica
+                            Set
+                          type: integer
+                        service:
+                          description: this is an optional service, it will get the
+                            name "<rsName>-service" in case not provided
+                          type: string
+                        statefulSet:
+                          description: StatefulSetConfiguration holds the optional
+                            custom StatefulSet that should be merged into the operator
+                            created one.
+                          properties:
+                            spec:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          required:
+                          - spec
+                          type: object
+                      type: object
+                    type: array
+                type: object
+              connectivity:
+                properties:
+                  replicaSetHorizons:
+                    items:
+                      additionalProperties:
+                        type: string
+                      description: 'MongoDBHorizonConfig holds a map of horizon names
+                        to the node addresses, e.g. {   "internal": "my-rs-2.my-internal-domain.com:31843",   "external":
+                        "my-rs-2.my-external-domain.com:21467" } The key of each item
+                        in the map is an arbitrary, user-chosen string that represents
+                        the name of the horizon. The value of the item is the host
+                        and, optionally, the port that this mongod node will be connected
+                        to from.'
+                      type: object
+                    type: array
+                type: object
+              credentials:
+                description: Name of the Secret holding credentials information
+                type: string
+              duplicateServiceObjects:
+                description: 'In few service mesh options for ex: Istio, by default
+                  we would need to duplicate the service objects created per pod in
+                  all the clusters to enable DNS resolution. Users can however configure
+                  their ServiceMesh with DNS proxy(https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy/)
+                  enabled in which case the operator doesn''t need to create the service
+                  objects per cluster. This options tells the operator whether it
+                  should create the service objects in all the clusters or not. By
+                  default, if not specified the operator would create the duplicate
+                  svc objects.'
+                type: boolean
+              featureCompatibilityVersion:
+                type: string
+              logLevel:
+                enum:
+                - DEBUG
+                - INFO
+                - WARN
+                - ERROR
+                - FATAL
+                type: string
+              opsManager:
+                properties:
+                  configMapRef:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                type: object
+              persistent:
+                type: boolean
+              security:
+                properties:
+                  authentication:
+                    description: Authentication holds various authentication related
+                      settings that affect this MongoDB resource.
+                    properties:
+                      agents:
+                        description: Agents contains authentication configuration
+                          properties for the agents
+                        properties:
+                          automationLdapGroupDN:
+                            type: string
+                          automationPasswordSecretRef:
+                            description: SecretKeySelector selects a key of a Secret.
+                            properties:
+                              key:
+                                description: The key of the secret to select from.  Must
+                                  be a valid secret key.
+                                type: string
+                              name:
+                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                  TODO: Add other useful fields. apiVersion, kind,
+                                  uid?'
+                                type: string
+                              optional:
+                                description: Specify whether the Secret or its key
+                                  must be defined
+                                type: boolean
+                            required:
+                            - key
+                            type: object
+                          automationUserName:
+                            type: string
+                          clientCertificateSecretRef:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                          mode:
+                            description: Mode is the desired Authentication mode that
+                              the agents will use
+                            type: string
+                        required:
+                        - mode
+                        type: object
+                      enabled:
+                        type: boolean
+                      ignoreUnknownUsers:
+                        description: IgnoreUnknownUsers maps to the inverse of auth.authoritativeSet
+                        type: boolean
+                      internalCluster:
+                        type: string
+                      ldap:
+                        description: LDAP Configuration
+                        properties:
+                          authzQueryTemplate:
+                            type: string
+                          bindQueryPasswordSecretRef:
+                            properties:
+                              name:
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          bindQueryUser:
+                            type: string
+                          caConfigMapRef:
+                            description: Allows to point at a ConfigMap/key with a
+                              CA file to mount on the Pod
+                            properties:
+                              key:
+                                description: The key to select.
+                                type: string
+                              name:
+                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                  TODO: Add other useful fields. apiVersion, kind,
+                                  uid?'
+                                type: string
+                              optional:
+                                description: Specify whether the ConfigMap or its
+                                  key must be defined
+                                type: boolean
+                            required:
+                            - key
+                            type: object
+                          servers:
+                            items:
+                              type: string
+                            type: array
+                          transportSecurity:
+                            enum:
+                            - tls
+                            - none
+                            type: string
+                          userToDNMapping:
+                            type: string
+                          validateLDAPServerConfig:
+                            type: boolean
+                        type: object
+                      modes:
+                        items:
+                          type: string
+                        type: array
+                      requireClientTLSAuthentication:
+                        description: Clients should present valid TLS certificates
+                        type: boolean
+                    required:
+                    - enabled
+                    type: object
+                  certsSecretPrefix:
+                    type: string
+                  roles:
+                    items:
+                      properties:
+                        authenticationRestrictions:
+                          items:
+                            properties:
+                              clientSource:
+                                items:
+                                  type: string
+                                type: array
+                              serverAddress:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                        db:
+                          type: string
+                        privileges:
+                          items:
+                            properties:
+                              actions:
+                                items:
+                                  type: string
+                                type: array
+                              resource:
+                                properties:
+                                  cluster:
+                                    type: boolean
+                                  collection:
+                                    type: string
+                                  db:
+                                    type: string
+                                type: object
+                            required:
+                            - actions
+                            - resource
+                            type: object
+                          type: array
+                        role:
+                          type: string
+                        roles:
+                          items:
+                            properties:
+                              db:
+                                type: string
+                              role:
+                                type: string
+                            required:
+                            - db
+                            - role
+                            type: object
+                          type: array
+                      required:
+                      - db
+                      - role
+                      type: object
+                    type: array
+                  tls:
+                    properties:
+                      additionalCertificateDomains:
+                        items:
+                          type: string
+                        type: array
+                      ca:
+                        description: CA corresponds to a ConfigMap containing an entry
+                          for the CA certificate (ca.pem) used to validate the certificates
+                          created already.
+                        type: string
+                      enabled:
+                        description: Enables TLS for this resource. This will make
+                          the operator try to mount a Secret with a defined name (<resource-name>-cert).
+                          This is only used when enabling TLS on a MongoDB resource,
+                          and not on the AppDB, where TLS is configured by setting
+                          `secretRef.Name`.
+                        type: boolean
+                      secretRef:
+                        description: SecretRef points to a Secret object containing
+                          the certificates to use when enabling TLS.
+                        properties:
+                          name:
+                            description: DEPRECATED please use security.tls.secretRef.prefix
+                              instead
+                            type: string
+                          prefix:
+                            type: string
+                        type: object
+                    type: object
+                type: object
+              type:
+                enum:
+                - ReplicaSet
+                type: string
+              version:
+                pattern: ^[0-9]+.[0-9]+.[0-9]+(-.+)?$|^$
+                type: string
+            required:
+            - credentials
+            - type
+            - version
+            type: object
+          status:
+            properties:
+              backup:
+                properties:
+                  statusName:
+                    type: string
+                required:
+                - statusName
+                type: object
+              clusterStatusList:
+                description: ClusterStatusList holds a list of clusterStatuses corresponding
+                  to each cluster
+                properties:
+                  clusterStatuses:
+                    items:
+                      description: ClusterStatusItem is the mongodb multi-cluster
+                        spec that is specific to a particular Kubernetes cluster,
+                        this maps to the statefulset created in each cluster
+                      properties:
+                        clusterName:
+                          description: ClusterName is name of the cluster where the
+                            MongoDB Statefulset will be scheduled, the name should
+                            have a one on one mapping with the service-account created
+                            in the central cluster to talk to the workload clusters.
+                          type: string
+                        lastTransition:
+                          type: string
+                        members:
+                          type: integer
+                        message:
+                          type: string
+                        observedGeneration:
+                          format: int64
+                          type: integer
+                        phase:
+                          type: string
+                        resourcesNotReady:
+                          items:
+                            description: ResourceNotReady describes the dependent
+                              resource which is not ready yet
+                            properties:
+                              errors:
+                                items:
+                                  properties:
+                                    message:
+                                      type: string
+                                    reason:
+                                      type: string
+                                  type: object
+                                type: array
+                              kind:
+                                description: ResourceKind specifies a kind of a Kubernetes
+                                  resource. Used in status of a Custom Resource
+                                type: string
+                              message:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                            - kind
+                            - name
+                            type: object
+                          type: array
+                        warnings:
+                          items:
+                            type: string
+                          type: array
+                      required:
+                      - phase
+                      type: object
+                    type: array
+                type: object
+              lastTransition:
+                type: string
+              link:
+                type: string
+              message:
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              phase:
+                type: string
+              resourcesNotReady:
+                items:
+                  description: ResourceNotReady describes the dependent resource which
+                    is not ready yet
+                  properties:
+                    errors:
+                      items:
+                        properties:
+                          message:
+                            type: string
+                          reason:
+                            type: string
+                        type: object
+                      type: array
+                    kind:
+                      description: ResourceKind specifies a kind of a Kubernetes resource.
+                        Used in status of a Custom Resource
+                      type: string
+                    message:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - kind
+                  - name
+                  type: object
+                type: array
+              version:
+                type: string
+              warnings:
+                items:
+                  type: string
+                type: array
+            required:
+            - phase
+            - version
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

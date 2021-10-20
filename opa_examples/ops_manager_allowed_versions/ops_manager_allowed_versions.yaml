@@ -1,0 +1,28 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: opsmanagerallowedversions
+  annotations:
+    description: >-
+      Requires Ops Manager to be within the allowed versions
+      
+      The setting version should be within the pinned allowed values
+spec:
+  crd:
+    spec:
+      names:
+        kind: OpsManagerAllowedVersions
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package opsmanagerallowedversions
+
+        allowed_versions = ["4.4.5", "5.0.0"]
+
+        violation[{"msg": msg}] {
+          version = object.get(input.review.object.spec, "version", "none")
+          not q[version]
+          msg := sprintf("Ops Manager needs to be one of the allowed versions: ", [allowed_versions])
+        }
+
+        q[version] { version := allowed_versions[_] }

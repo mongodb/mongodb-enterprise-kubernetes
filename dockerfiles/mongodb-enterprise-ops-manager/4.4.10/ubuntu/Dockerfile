@@ -1,7 +1,7 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 
 LABEL name="MongoDB Enterprise Ops Manager" \
@@ -32,20 +32,22 @@ RUN apt-get -qq update \
         net-tools \
         netcat \
         procps \
-        libcurl3 \
         libgssapi-krb5-2 \
         libkrb5-dbg \
         libldap-2.4-2 \
         libpcap0.8 \
         libpci3 \
-        libsasl2-2 \
-        libsensors4 \
-        libsnmp30 \
-        libssl1.0.0 \
         libwrap0 \
+        libcurl4 \
+        liblzma5 \
+        libsasl2-modules \
+        libsasl2-modules-gssapi-mit\
+        openssl \
+        snmp \
     && apt-get upgrade -y -qq \
     && apt-get dist-upgrade -y -qq \
     && rm -rf /var/lib/apt/lists/*
+
 
 
 COPY --from=base /data/licenses /licenses/

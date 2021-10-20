@@ -350,9 +350,7 @@ spec:
                         required:
                         - enabled
                         type: object
-                      clusterAuthenticationMode:
-                        description: 'Deprecated: This has been replaced by Authentication.InternalCluster
-                          which should be used instead'
+                      certsSecretPrefix:
                         type: string
                       roles:
                         items:
@@ -496,6 +494,17 @@ spec:
                     description: Enabled indicates if Backups will be enabled for
                       this Ops Manager.
                     type: boolean
+                  externalServiceEnabled:
+                    type: boolean
+                  fileSystemStores:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
                   headDB:
                     description: HeadDB specifies configuration options for the HeadDB
                     properties:
@@ -551,6 +560,11 @@ spec:
                   s3Stores:
                     items:
                       properties:
+                        irsaEnabled:
+                          description: 'This is only set to "true" when user is running
+                            in EKS and is using AWS IRSA to configure S3 snapshot
+                            store. For more details refer this: https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/'
+                          type: boolean
                         mongodbResourceRef:
                           properties:
                             name:
@@ -598,6 +612,8 @@ spec:
                       spec:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
+                    required:
+                    - spec
                     type: object
                 required:
                 - enabled
@@ -662,6 +678,8 @@ spec:
               security:
                 description: Configure HTTPS.
                 properties:
+                  certsSecretPrefix:
+                    type: string
                   tls:
                     properties:
                       ca:
@@ -681,6 +699,8 @@ spec:
                   spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
+                required:
+                - spec
                 type: object
               version:
                 type: string

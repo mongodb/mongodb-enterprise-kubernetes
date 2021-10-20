@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: MongoDBAllowReplicaset
+metadata:
+  name: mongodb-allow-replicaset-only
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDB"]

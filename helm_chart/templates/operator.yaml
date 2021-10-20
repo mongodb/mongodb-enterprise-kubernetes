@@ -39,8 +39,17 @@ spec:
           {{- range .Values.operator.watchedResources }}
           - "-watch-resource={{ . }}"
           {{- end }}
+          {{- if .Values.multiCluster.clusters }}
+          - "-watch-resource=mongodbmulti"
+          - '-cluster-names={{ join "," .Values.multiCluster.clusters }}'
+          {{- end }}
         command:
           - "/usr/local/bin/mongodb-enterprise-operator"
+        {{- end }}
+        {{- if .Values.multiCluster.clusters }}
+        volumeMounts:
+          - mountPath: /etc/config/kubeconfig
+            name: kube-config-volume
         {{- end }}
         resources:
           limits:
@@ -53,7 +62,7 @@ spec:
         - name: OPERATOR_ENV
           value: {{ .Values.operator.env }}
         - name: WATCH_NAMESPACE
-{{- if .Values.operator.watchNamespace}}
+{{- if .Values.operator.watchNamespace }}
           value: "{{ .Values.operator.watchNamespace }}"
 {{- else }}
           valueFrom:
@@ -104,7 +113,19 @@ spec:
         - name: IMAGE_PULL_SECRETS
           value: {{ .Values.registry.imagePullSecrets }}
 {{- end }}
-
+{{- if .Values.customEnvVars }}
+  {{- range split "&" .Values.customEnvVars }}
+        - name: {{ (split "=" .)._0 }}
+          value: '{{ (split "=" .)._1 }}'
+  {{- end }}
+{{- end }}
+{{- if .Values.multiCluster.clusters }}
+      volumes:
+        - name: kube-config-volume
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.multiCluster.kubeConfigSecretName }}
+{{- end }}
 {{- if .Values.debug }}
 ---
 apiVersion: v1

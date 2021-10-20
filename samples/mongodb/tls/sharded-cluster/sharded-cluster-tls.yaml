@@ -23,11 +23,14 @@ spec:
   # This will create a TLS enabled Sharded Cluster, which means that
   # all the traffic between Shards and clients will be encrypted using
   # TLS certificates.  These certificates will be generated on the fly
-  # by the operator using the Kubernetes CA.  Please refer to
-  # Kubernetes TLS Documentation on how to approve these certs:
-  #
-  # https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
-  #
+  # by the operator using the Kubernetes CA.
   security:
+    # The operator will look for secrets with the following names:
+    # mdb-my-sharded-cluster-mongos-cert
+    # mdb-my-sharded-cluster-config-cert
+    # mdb-my-sharded-cluster-<x>-cert
+    # Where x is all numbers between 0 and the number of shards (excluded)
+    certsSecretPrefix: mdb
     tls:
+      ca: custom-ca
       enabled: true

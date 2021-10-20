@@ -5,7 +5,7 @@ metadata:
   name: ops-manager-scram
 spec:
   replicas: 1
-  version: 5.0.0
+  version: 5.0.2
   adminCredentials: ops-manager-admin-secret
 
   # the application database backing Ops Manager. Replica Set is the only supported type
