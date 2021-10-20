@@ -1,27 +1,36 @@
+{{ if .Values.operator.createOperatorServiceAccount }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.operator.name }}
-  {{- if .Values.namespace }}
   namespace: {{ .Values.namespace }}
-  {{- end }}
 {{- if .Values.registry.imagePullSecrets}}
 imagePullSecrets:
   - name: {{ .Values.registry.imagePullSecrets }}
 {{- end }}
 
+{{- end }}
+
+{{- $watchNamespace := list .Values.namespace }}
+{{- if .Values.operator.watchNamespace }}
+{{- $watchNamespace = regexSplit "," .Values.operator.watchNamespace -1 }}
+{{- $watchNamespace = concat $watchNamespace (list .Values.namespace) }}
+{{- end }}
+
+{{- $roleScope := "Role" -}}
+{{- if or (gt (len $watchNamespace) 1) (eq (first $watchNamespace) "*") }}
+{{- $roleScope = "ClusterRole" }}
+{{- end }}
 
 ---
-kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRole {{ else }} Role {{ end }}
+kind: {{ $roleScope }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.operator.name }}
-  {{- if not (eq (.Values.operator.watchNamespace | default "*") "*") }}
-  namespace: {{ .Values.operator.watchNamespace }}
-  {{- else }}
+{{- if eq $roleScope "Role" }}
   namespace: {{ .Values.namespace }}
-  {{- end }}
+{{- end }}
 rules:
 - apiGroups:
   - ""
@@ -65,7 +74,27 @@ rules:
   - get
   - list
   - watch
-  {{- if eq (.Values.operator.watchNamespace | default "") "*" }}
+  - delete
+  - deletecollection
+- apiGroups:
+  - mongodb.com
+  verbs:
+  - "*"
+  resources:
+  - mongodb
+  - mongodb/finalizers
+  - mongodbusers
+  - opsmanagers
+  - opsmanagers/finalizers
+  - mongodbmulti
+  - mongodbmulti/finalizers
+{{- if .Values.subresourceEnabled }}
+  - mongodb/status
+  - mongodbusers/status
+  - opsmanagers/status
+  - mongodbmulti/status
+{{- end }}
+{{- if eq $roleScope "ClusterRole" }}
 - apiGroups:
   - ""
   resources:
@@ -73,22 +102,8 @@ rules:
   verbs:
   - list
   - watch
-  {{- end}}
-- apiGroups:
-  - mongodb.com
-  resources:
-  - mongodb
-  - mongodb/finalizers
-  - mongodbusers
-  - opsmanagers
-  - opsmanagers/finalizers
-{{- if .Values.subresourceEnabled }}
-  - mongodb/status
-  - mongodbusers/status
-  - opsmanagers/status
-{{- end }}
-  verbs:
-  - "*"
+{{- end}}
+
 # This ClusterRoleBinding is necessary in order to use validating
 # webhooks—these will prevent you from applying a variety of invalid resource
 # definitions. The validating webhooks are optional so this can be removed if
@@ -108,61 +123,29 @@ subjects:
   name: {{ .Values.operator.name }}
   namespace: {{ .Values.namespace }}
 
----
-kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRoleBinding {{ else }} RoleBinding {{ end }}
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: {{ .Values.operator.name }}
-  {{- if not (eq (.Values.operator.watchNamespace | default "*") "*") }}
-  namespace: {{ .Values.operator.watchNamespace }}
-  {{- else }}
-  namespace: {{ .Values.namespace }}
-  {{- end }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: {{ if eq (.Values.operator.watchNamespace | default "") "*" }} ClusterRole {{ else }} Role {{ end }}
-  name: {{ .Values.operator.name }}
-subjects:
-- kind: ServiceAccount
-  name: {{ .Values.operator.name }}
-  {{- if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
-  {{- end }}
+{{- range $idx, $namespace := $watchNamespace }}
 
-# This ClusterRole is needed if the user wants to use the Kubernetes CA
-# infrastructure to generate certificates.
-{{- if .Values.needsCAInfrastructure }}
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs
-rules:
-- apiGroups:
-  - certificates.k8s.io
-  resources:
-  - certificatesigningrequests
-  verbs:
-  - get
-  - create
-  - list
-  - watch
-
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs-binding
-  namespace: {{ .Values.namespace }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ .Values.operator.name }}-{{ .Values.namespace }}-certs
-subjects:
-- kind: ServiceAccount
-  name: {{ .Values.operator.name }}
-  namespace: {{ .Values.namespace }}
-
+{{- $namespaceBlock := "" }}
+{{- if not (eq $namespace "*") }}
+{{- $namespaceBlock = printf "namespace: %s" $namespace }}
 {{- end }}
 
-
+---
+{{- if eq $namespace "*" }}
+kind: ClusterRoleBinding
+{{- else }}
+kind: RoleBinding
+{{- end }}
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ $.Values.operator.name }}
+  {{ $namespaceBlock }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: {{ $roleScope }}
+  name: {{ $.Values.operator.name }}
+subjects:
+- kind: ServiceAccount
+  name: {{ $.Values.operator.name }}
+  namespace: {{ $.Values.namespace }}
+{{- end }}
