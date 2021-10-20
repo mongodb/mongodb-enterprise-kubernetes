@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: MongoDBStrictTLS
+metadata:
+  name: mongodb-strict-tls-only
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDB"]
