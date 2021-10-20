@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: OpsManagerAllowedVersions
+metadata:
+  name: ops-manager-allowed-versions-only
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDBOpsManager"]
