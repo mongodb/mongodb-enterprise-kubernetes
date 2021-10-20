@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: OpsManagerReplicaMembers
+metadata:
+  name: ops-manager-replicamembers-only
+spec:
+  match:
+    kinds:
+      - apiGroups: ["mongodb.com"]
+        kinds: ["MongoDBOpsManager"]
