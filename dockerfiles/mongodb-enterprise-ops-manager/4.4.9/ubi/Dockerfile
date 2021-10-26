@@ -1,7 +1,7 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 LABEL name="MongoDB Enterprise Ops Manager" \
@@ -23,7 +23,7 @@ EXPOSE 8080
 # OpsManager docker image needs to have the MongoDB dependencies because the
 # backup daemon is running its database locally
 
-RUN yum install --disableplugin=subscription-manager -y \
+RUN microdnf install --disableplugin=subscription-manager -y \
   cyrus-sasl \
   cyrus-sasl-gssapi \
   cyrus-sasl-plain \
@@ -35,6 +35,7 @@ RUN yum install --disableplugin=subscription-manager -y \
   net-snmp-agent-libs \
   openldap \
   openssl \
+  tar \
   rpm-libs \
   net-tools \
   procps-ng \
