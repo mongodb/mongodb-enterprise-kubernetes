@@ -35,11 +35,11 @@ operator:
 ## Database
 database:
   name: mongodb-enterprise-database
-  version: 2.0.1
+  version: 2.0.2
 
 initDatabase:
   name: mongodb-enterprise-init-database
-  version: 1.0.4
+  version: 1.0.5
 
 ## Ops Manager
 opsManager:
