@@ -1,13 +1,13 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM ubuntu:16.04
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 LABEL name="MongoDB Enterprise Ops Manager" \
       maintainer="support@mongodb.com" \
       vendor="MongoDB" \
-      version="4.2.24" \
+      version="5.0.2" \
       release="1" \
       summary="MongoDB Enterprise Ops Manager Image" \
       description="MongoDB Enterprise Ops Manager"
@@ -23,36 +23,30 @@ EXPOSE 8080
 # OpsManager docker image needs to have the MongoDB dependencies because the
 # backup daemon is running its database locally
 
-RUN apt-get -qq update \
-    && apt-get -y -qq install \
-        apt-utils \
-        ca-certificates \
-        curl \
-        libsasl2-2 \
-        net-tools \
-        netcat \
-        procps \
-        libcurl3 \
-        libgssapi-krb5-2 \
-        libkrb5-dbg \
-        libldap-2.4-2 \
-        libpcap0.8 \
-        libpci3 \
-        libsasl2-2 \
-        libsensors4 \
-        libsnmp30 \
-        libssl1.0.0 \
-        libwrap0 \
-    && apt-get upgrade -y -qq \
-    && apt-get dist-upgrade -y -qq \
-    && rm -rf /var/lib/apt/lists/*
+RUN microdnf install --disableplugin=subscription-manager -y \
+  cyrus-sasl \
+  cyrus-sasl-gssapi \
+  cyrus-sasl-plain \
+  krb5-libs \
+  libcurl \
+  libpcap \
+  lm_sensors-libs \
+  net-snmp \
+  net-snmp-agent-libs \
+  openldap \
+  openssl \
+  tar \
+  rpm-libs \
+  net-tools \
+  procps-ng \
+  ncurses
 
 
 COPY --from=base /data/licenses /licenses/
 
 
 
-RUN curl --fail -L -o ops_manager.tar.gz https://downloads.mongodb.com/on-prem-mms/tar/mongodb-mms-4.2.24.57112.20210430T1522Z-1.x86_64.tar.gz \
+RUN curl --fail -L -o ops_manager.tar.gz https://downloads.mongodb.com/on-prem-mms/tar/mongodb-mms-5.0.2.100.20210901T1556Z-1.x86_64.tar.gz \
     && tar -xzf ops_manager.tar.gz \
     && rm ops_manager.tar.gz \
     && mv mongodb-mms-* "${MMS_HOME}"

@@ -1,19 +1,17 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM ubuntu:xenial-20210114
+FROM ubuntu:18.04
 
 
 
-
-LABEL name="MongoDB Enterprise AppDB" \
-      version="10.2.15.5958-1_4.2.11-ent" \
-      summary="MongoDB Enterprise AppDB" \
-      description="MongoDB Enterprise AppDB" \
+LABEL name="MongoDB Enterprise Database" \
+      version="2.0.2" \
+      summary="MongoDB Enterprise Database Image" \
+      description="MongoDB Enterprise Database Image" \
       vendor="MongoDB" \
       release="1" \
       maintainer="support@mongodb.com"
-
 
 
 
@@ -24,44 +22,20 @@ ENV MMS_LOG_DIR /var/log/mongodb-mms-automation
 
 
 
-
-
-
-
-# Download and extract the MongoDB archive and put it where the automation agent
-# expects to find it. The Mongodb agent will download MongoDB from the Internet
-# only if the version does not match the version we have put inside the image.
-
-COPY --from=base /data/mongodb_server_ubuntu.tgz /tmp
-RUN mkdir -p /var/lib/mongodb-mms-automation/downloads \
-    && tar -xzf "/tmp/mongodb_server_ubuntu.tgz" --directory "/var/lib/mongodb-mms-automation/downloads" \
-    && rm "/tmp/mongodb_server_ubuntu.tgz" \
-    && chmod -R 0775 "/var/lib/mongodb-mms-automation/downloads"
-
-COPY --from=base /data/mongodb_agent_linux.tgz /tmp
-RUN mkdir -p ${MMS_HOME}/files/ \
-    && tar -xzf /tmp/mongodb_agent_linux.tgz --directory / \
-    && mv /mongodb-mms-automation-agent-*/mongodb-mms-automation-agent "${MMS_HOME}/files/" \
-    && chmod +x "${MMS_HOME}/files/mongodb-mms-automation-agent" \
-    && rm -rf /tmp/mongodb_agent_linux.tgz "/mongodb-mms-automation-agent-*/"
-
-RUN echo "10.2.15.5958-1" > ${MMS_HOME}/files/agent-version
-
-
-
-
-
 RUN apt-get -qq update \
         && apt-get -y -qq install \
         curl \
         jq \
-        libcurl3 \
+        libcurl4 \
         libgssapi-krb5-2 \
         libkrb5-dbg \
         libldap-2.4-2 \
+        liblzma5 \
         libpcap0.8 \
         libsasl2-2 \
-        lsb-release \
+        libsasl2-modules \
+        libsasl2-modules-gssapi-mit \
+        libwrap0 \
         openssl \
         snmp \
         libnss-wrapper \

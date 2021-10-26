@@ -1,13 +1,12 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM ubuntu:xenial-20210114
-
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 
 LABEL name="MongoDB Enterprise Database" \
-      version="2.0.0" \
+      version="2.0.2" \
       summary="MongoDB Enterprise Database Image" \
       description="MongoDB Enterprise Database Image" \
       vendor="MongoDB" \
@@ -18,33 +17,41 @@ LABEL name="MongoDB Enterprise Database" \
 
 
 
-
 ENV MMS_HOME /mongodb-automation
 ENV MMS_LOG_DIR /var/log/mongodb-mms-automation
 
 
 
+RUN microdnf update -y && rm -rf /var/cache/yum
+
+# these are the packages needed for the agent
+RUN microdnf install -y --disableplugin=subscription-manager \
+        hostname \
+        nss_wrapper \
+        procps
 
 
-
-
-RUN apt-get -qq update \
-        && apt-get -y -qq install \
-        curl \
-        jq \
-        libcurl3 \
-        libgssapi-krb5-2 \
-        libkrb5-dbg \
-        libldap-2.4-2 \
-        libpcap0.8 \
-        libsasl2-2 \
-        lsb-release \
+# these are the packages needed for MongoDB
+# (https://docs.mongodb.com/manual/tutorial/install-mongodb-enterprise-on-red-hat-tarball/ "RHEL/CentOS 8" tab)
+RUN microdnf install -y --disableplugin=subscription-manager \
+        cyrus-sasl \
+        cyrus-sasl-gssapi \
+        cyrus-sasl-plain \
+        krb5-libs \
+        libcurl \
+        lm_sensors-libs \
+        net-snmp \
+        net-snmp-agent-libs \
+        openldap \
         openssl \
-        snmp \
-        libnss-wrapper \
-        && apt-get upgrade -y -qq \
-        && apt-get dist-upgrade -y -qq \
-        && rm -rf /var/lib/apt/lists/*
+        jq \ 
+        tar \
+        findutils
+
+
+RUN microdnf remove perl-IO-Socket-SSL
+
+RUN ln -s /usr/lib64/libsasl2.so.3 /usr/lib64/libsasl2.so.2
 
 
 # Set the required perms
