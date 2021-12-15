@@ -82,13 +82,7 @@ or can clone this repo, make any edits you need, and apply it from disk:
 
 ### Installation using the Helm Chart
 
-If you have installed the Helm client locally then you can run:
-
-    helm install mongodb-enterprise-operator helm_chart --values helm_chart/values.yaml
-
-You can customize your installation by overriding helm variables. For example use `--set operator.env="dev"` to run the Operator in development mode (this will turn the logging level to `Debug` and will make logging output plaintext rather than json).
-
-Pass the `--values helm_chart/values-openshift.yaml` parameter if you want to install the Operator into an OpenShift cluster. You can specify an image pull secret name using `--set registry.imagePullSecrets=<secret_name>`
+MongoDB's official Helm Charts are hosted at https://github.com/mongodb/helm-charts
 
 ## MongoDB Resource ##
 
