@@ -36,3 +36,4 @@ USER 2000
 
 ENTRYPOINT exec /usr/local/bin/mongodb-enterprise-operator
 
+
