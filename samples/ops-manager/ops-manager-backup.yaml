@@ -5,7 +5,7 @@ metadata:
   name: ops-manager-backup
 spec:
   replicas: 1
-  version: 5.0.2
+  version: 5.0.5
   adminCredentials: ops-manager-admin-secret
 
   # optional. Enabled by default
@@ -15,7 +15,7 @@ spec:
     # optional. Defaults to 1 if not set.
     # Configures the number of backup daemons to create
     members: 2
-  
+
     # optional. Configured by default if backup is enabled.
     # Configures Head db storage parameters
     headDB:
@@ -35,6 +35,17 @@ spec:
         # optional. Specify if Oplog database has SCRAM-SHA authentication enabled
         mongodbUserRef:
           name: admin-user
+
+    # Configures the list of S3 Oplog Store Configs
+    s3OplogStores:
+      - name: my-s3-oplog-store
+        # the name of the secret which contains aws credentials
+        s3SecretRef:
+          name: my-aws-creds
+        s3BucketEndpoint: s3.us-east-1.amazonaws.com
+        s3BucketName: my-s3-oplog-store-bucket-name
+        pathStyleAccessEnabled: true
+
     # Configures the list of S3 Snapshot Configs. Application database is used as a database for S3 metadata
     # by default
     # Note, that either S3 Snapshot or Blockstore config needs to be specified to backup MongoDB deployments
@@ -54,6 +65,10 @@ spec:
         mongodbResourceRef:
           name: my-mongodb-blockstore
 
+    # The secret referenced by this field contains the certificates used to enable Queryable Backups https://docs.opsmanager.mongodb.com/current/tutorial/query-backup/
+    queryableBackupSecretRef:
+      name: queryable-backup-pem-secret
+
   applicationDatabase:
     members: 3
-    version: 4.4.4-ent
+    version: 4.4.11-ent
