@@ -27,3 +27,4 @@ RUN tar xfz /tools/mongodb_tools.tgz --directory /tools \
 USER 2000
 ENTRYPOINT [ "/bin/cp", "-f", "-r", "/scripts/agent-launcher.sh", "/scripts/agent-launcher-lib.sh", "/probes/readinessprobe", "/probes/probe.sh", "/tools", "/opt/scripts/" ]
 
+
