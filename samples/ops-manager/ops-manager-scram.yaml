@@ -5,13 +5,13 @@ metadata:
   name: ops-manager-scram
 spec:
   replicas: 1
-  version: 5.0.2
+  version: 5.0.5
   adminCredentials: ops-manager-admin-secret
 
   # the application database backing Ops Manager. Replica Set is the only supported type
   # Application database has the SCRAM-SHA authentication mode always enabled
   applicationDatabase:
-    version: "4.4.4-ent"
+    version: "4.4.11-ent"
     members: 3
     podSpec:
       cpu: '0.25'
