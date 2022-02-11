@@ -1,0 +1,20 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: ops-manager
+spec:
+  replicas: 3
+  version: 5.0.5
+  adminCredentials: ops-manager-admin-secret
+  configuration:
+    mms.fromEmailAddr: "admin@example.com"
+
+  applicationDatabase:
+    members: 3
+    version: 4.4.11-ent
+    automationConfig:
+      processes:
+        # this will disable the second AppDB process to allow for manual backups to be taken.
+        - name: ops-manager-db-1
+          disabled: true
