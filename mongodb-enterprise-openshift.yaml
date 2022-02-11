@@ -1,16 +1,17 @@
 ---
-# Source: enterprise-operator/templates/operator-roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-operator
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/operator-roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator-mongodb-webhook-binding
+  namespace: mongodb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -20,7 +21,7 @@ subjects:
   name: mongodb-enterprise-operator
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/operator-roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -93,7 +94,7 @@ rules:
 # definitions. The validating webhooks are optional so this can be removed if
 # necessary.
 ---
-# Source: enterprise-operator/templates/operator-roles.yaml
+# Source: mongodb-enterprise-operator/templates/operator-roles.yaml
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -108,28 +109,28 @@ subjects:
   name: mongodb-enterprise-operator
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/database-roles.yaml
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-appdb
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/database-roles.yaml
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-database-pods
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/database-roles.yaml
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-enterprise-ops-manager
   namespace: mongodb
 ---
-# Source: enterprise-operator/templates/database-roles.yaml
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -151,7 +152,7 @@ rules:
       - delete
       - get
 ---
-# Source: enterprise-operator/templates/database-roles.yaml
+# Source: mongodb-enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -166,7 +167,7 @@ subjects:
     name: mongodb-enterprise-appdb
     namespace: mongodb
 ---
-# Source: enterprise-operator/templates/operator.yaml
+# Source: mongodb-enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -189,7 +190,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.15.0
+        image: registry.connect.redhat.com/mongodb/enterprise-operator:1.14.0
         imagePullPolicy: Always
         args:
           - "-watch-resource=mongodb"
@@ -225,7 +226,7 @@ spec:
         - name: INIT_DATABASE_IMAGE_REPOSITORY
           value: registry.connect.redhat.com/mongodb/mongodb-enterprise-init-database
         - name: INIT_DATABASE_VERSION
-          value: 1.0.7
+          value: 1.0.6
         - name: DATABASE_VERSION
           value: 2.0.2
         # Ops Manager
@@ -234,16 +235,16 @@ spec:
         - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
           value: registry.connect.redhat.com/mongodb/mongodb-enterprise-init-ops-manager
         - name: INIT_OPS_MANAGER_VERSION
-          value: 1.0.6
+          value: 1.0.5
         # AppDB
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: registry.connect.redhat.com/mongodb/mongodb-enterprise-init-appdb
         - name: INIT_APPDB_VERSION
-          value: 1.0.9
+          value: 1.0.8
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: AGENT_IMAGE
-          value: "registry.connect.redhat.com/mongodb/mongodb-agent:11.0.11.7036-1"
+          value: "registry.connect.redhat.com/mongodb/mongodb-agent:11.0.5.6963-1"
         - name: MONGODB_IMAGE
           value: mongodb-enterprise-appdb-database
         - name: MONGODB_REPO_URL
