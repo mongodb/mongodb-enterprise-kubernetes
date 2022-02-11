@@ -3,14 +3,14 @@ kind: MongoDBOpsManager
 metadata:
   name: ops-manager
 spec:
-  version: 5.0.2
+  version: 5.0.5
   replicas: 3
   adminCredentials: ops-manager-admin-secret
   backup:
     enabled: false
   applicationDatabase:
-    # The version specificed must match the one in the image provided in the `mongod` field
-    version: 4.4.4-ent
+    # The version specified must match the one in the image provided in the `mongod` field
+    version: 4.4.11-ent
     members: 3
     podSpec:
       podTemplate:
@@ -19,6 +19,6 @@ spec:
             - name: mongodb-agent
               image: 'quay.io/mongodb/mongodb-agent:10.29.0.6830-1'
             - name: mongod
-              image: 'quay.io/mongodb/mongodb-enterprise-appdb-database:4.4.4-ent'
+              image: 'quay.io/mongodb/mongodb-enterprise-appdb-database:4.4.11-ent'
             - name: mongodb-agent-monitoring
               image: 'quay.io/mongodb/mongodb-agent:10.29.0.6830-1'

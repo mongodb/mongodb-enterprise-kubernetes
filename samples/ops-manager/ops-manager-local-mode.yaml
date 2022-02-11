@@ -4,7 +4,7 @@ metadata:
   name: ops-manager-localmode
 spec:
   replicas: 2
-  version: 5.0.2
+  version: 5.0.5
   adminCredentials: ops-manager-admin-secret
   configuration:
     # this enables local mode in Ops Manager
@@ -36,5 +36,5 @@ spec:
     enabled: false
 
   applicationDatabase:
-    version: "4.4.4-ent"
+    version: "4.4.11-ent"
     members: 3

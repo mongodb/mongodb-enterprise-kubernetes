@@ -1,0 +1,16 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-replica-set-backup-disabled
+spec:
+  members: 3
+  version: 4.4.0-ent
+  type: ReplicaSet
+
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+  backup:
+    mode: disabled
