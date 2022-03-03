@@ -28,7 +28,7 @@ metadata:
   namespace: mongodb
 rules:
 - apiGroups:
-  - ""
+  - ''
   resources:
   - services
   verbs:
@@ -39,7 +39,7 @@ rules:
   - update
   - delete
 - apiGroups:
-  - ""
+  - ''
   resources:
   - secrets
   - configmaps
@@ -62,7 +62,7 @@ rules:
   - delete
   - update
 - apiGroups:
-  - ""
+  - ''
   resources:
   - pods
   verbs:
@@ -74,7 +74,7 @@ rules:
 - apiGroups:
   - mongodb.com
   verbs:
-  - "*"
+  - '*'
   resources:
   - mongodb
   - mongodb/finalizers
@@ -136,20 +136,20 @@ metadata:
   name: mongodb-enterprise-appdb
   namespace: mongodb
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - get
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - patch
-      - delete
-      - get
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - patch
+  - delete
+  - get
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
@@ -162,9 +162,9 @@ roleRef:
   kind: Role
   name: mongodb-enterprise-appdb
 subjects:
-  - kind: ServiceAccount
-    name: mongodb-enterprise-appdb
-    namespace: mongodb
+- kind: ServiceAccount
+  name: mongodb-enterprise-appdb
+  namespace: mongodb
 ---
 # Source: enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
@@ -175,10 +175,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-      matchLabels:
-        app.kubernetes.io/component: controller
-        app.kubernetes.io/name: mongodb-enterprise-operator
-        app.kubernetes.io/instance: mongodb-enterprise-operator
+    matchLabels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/name: mongodb-enterprise-operator
+      app.kubernetes.io/instance: mongodb-enterprise-operator
   template:
     metadata:
       labels:
@@ -192,14 +192,14 @@ spec:
         runAsUser: 2000
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.15.0
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.15.1
         imagePullPolicy: Always
         args:
-          - "-watch-resource=mongodb"
-          - "-watch-resource=opsmanagers"
-          - "-watch-resource=mongodbusers"
+        - -watch-resource=mongodb
+        - -watch-resource=opsmanagers
+        - -watch-resource=mongodbusers
         command:
-          - "/usr/local/bin/mongodb-enterprise-operator"
+        - /usr/local/bin/mongodb-enterprise-operator
         resources:
           limits:
             cpu: 1100m
@@ -226,7 +226,7 @@ spec:
         - name: INIT_DATABASE_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-database
         - name: INIT_DATABASE_VERSION
-          value: 1.0.7
+          value: 1.0.8
         - name: DATABASE_VERSION
           value: 2.0.2
         # Ops Manager
@@ -244,7 +244,7 @@ spec:
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: AGENT_IMAGE
-          value: "quay.io/mongodb/mongodb-agent:11.0.11.7036-1"
+          value: quay.io/mongodb/mongodb-agent:11.0.11.7036-1
         - name: MONGODB_IMAGE
           value: mongodb-enterprise-appdb-database
         - name: MONGODB_REPO_URL
