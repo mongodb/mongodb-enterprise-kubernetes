@@ -402,6 +402,53 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
+              prometheus:
+                description: Prometheus configurations.
+                properties:
+                  metricsPath:
+                    description: Indicates path to the metrics endpoint.
+                    pattern: ^\/[a-z0-9]+$
+                    type: string
+                  passwordSecretRef:
+                    description: Name of a Secret containing a HTTP Basic Auth Password.
+                    properties:
+                      key:
+                        description: Key is the key in the secret storing this password.
+                          Defaults to "password"
+                        type: string
+                      name:
+                        description: Name is the name of the secret storing this user's
+                          password
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  port:
+                    description: Port where metrics endpoint will bind to. Defaults
+                      to 9216.
+                    type: integer
+                  tlsSecretKeyRef:
+                    description: Name of a Secret (type kubernetes.io/tls) holding
+                      the certificates to use in the Prometheus endpoint.
+                    properties:
+                      key:
+                        description: Key is the key in the secret storing this password.
+                          Defaults to "password"
+                        type: string
+                      name:
+                        description: Name is the name of the secret storing this user's
+                          password
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  username:
+                    description: HTTP Basic Auth Username for metrics endpoint.
+                    type: string
+                required:
+                - passwordSecretRef
+                - username
+                type: object
               security:
                 properties:
                   authentication:
@@ -2089,6 +2136,10 @@ spec:
                       store configs used for backup.
                     items:
                       properties:
+                        customCertificate:
+                          description: Set this to "true" when you have custom certificates
+                            for your S3 buckets
+                          type: boolean
                         irsaEnabled:
                           description: 'This is only set to "true" when user is running
                             in EKS and is using AWS IRSA to configure S3 snapshot
@@ -2136,6 +2187,10 @@ spec:
                   s3Stores:
                     items:
                       properties:
+                        customCertificate:
+                          description: Set this to "true" when you have custom certificates
+                            for your S3 buckets
+                          type: boolean
                         irsaEnabled:
                           description: 'This is only set to "true" when user is running
                             in EKS and is using AWS IRSA to configure S3 snapshot
