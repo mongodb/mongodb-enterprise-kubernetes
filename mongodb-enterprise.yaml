@@ -192,7 +192,7 @@ spec:
         runAsUser: 2000
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.15.2
+        image: quay.io/mongodb/mongodb-enterprise-operator:1.16.0
         imagePullPolicy: Always
         args:
         - -watch-resource=mongodb
@@ -244,7 +244,7 @@ spec:
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: AGENT_IMAGE
-          value: quay.io/mongodb/mongodb-agent:11.0.11.7036-1
+          value: quay.io/mongodb/mongodb-agent:11.12.0.7388-1
         - name: MONGODB_IMAGE
           value: mongodb-enterprise-appdb-database
         - name: MONGODB_REPO_URL
