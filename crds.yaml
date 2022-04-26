@@ -112,22 +112,6 @@ spec:
                 x-kubernetes-preserve-unknown-fields: true
               configSrvPodSpec:
                 properties:
-                  cpu:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  cpuRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memory:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memoryRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
                   nodeAffinity:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -242,22 +226,6 @@ spec:
                 type: integer
               mongosPodSpec:
                 properties:
-                  cpu:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  cpuRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memory:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memoryRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
                   nodeAffinity:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -328,22 +296,6 @@ spec:
                 type: boolean
               podSpec:
                 properties:
-                  cpu:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  cpuRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memory:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memoryRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
                   nodeAffinity:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -640,14 +592,12 @@ spec:
                           instead SecretRef points to a Secret object containing the
                           certificates to use when enabling TLS.
                         properties:
-                          name:
-                            description: DEPRECATED please use security.certsSecretPrefix
-                              instead
-                            type: string
                           prefix:
                             description: DEPRECATED please use security.certsSecretPrefix
                               instead
                             type: string
+                        required:
+                        - prefix
                         type: object
                     type: object
                 type: object
@@ -673,22 +623,6 @@ spec:
                 type: integer
               shardPodSpec:
                 properties:
-                  cpu:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  cpuRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memory:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
-                  memoryRequests:
-                    description: DEPRECATED. Please set this value using `spec.podTemplate`
-                      instead.
-                    type: string
                   nodeAffinity:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -1212,14 +1146,12 @@ spec:
                           instead SecretRef points to a Secret object containing the
                           certificates to use when enabling TLS.
                         properties:
-                          name:
-                            description: DEPRECATED please use security.certsSecretPrefix
-                              instead
-                            type: string
                           prefix:
                             description: DEPRECATED please use security.certsSecretPrefix
                               instead
                             type: string
+                        required:
+                        - prefix
                         type: object
                     type: object
                 type: object
@@ -1415,6 +1347,8 @@ spec:
             type: object
           spec:
             properties:
+              connectionStringSecretName:
+                type: string
               db:
                 type: string
               mongodbResourceRef:
@@ -1720,22 +1654,6 @@ spec:
                     type: object
                   podSpec:
                     properties:
-                      cpu:
-                        description: DEPRECATED. Please set this value using `spec.podTemplate`
-                          instead.
-                        type: string
-                      cpuRequests:
-                        description: DEPRECATED. Please set this value using `spec.podTemplate`
-                          instead.
-                        type: string
-                      memory:
-                        description: DEPRECATED. Please set this value using `spec.podTemplate`
-                          instead.
-                        type: string
-                      memoryRequests:
-                        description: DEPRECATED. Please set this value using `spec.podTemplate`
-                          instead.
-                        type: string
                       nodeAffinity:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
@@ -1798,6 +1716,54 @@ spec:
                     description: 'Deprecated: This has been replaced by the PrivateCloudConfig
                       which should be used instead'
                     type: string
+                  prometheus:
+                    description: Enables Prometheus integration on the AppDB.
+                    properties:
+                      metricsPath:
+                        description: Indicates path to the metrics endpoint.
+                        pattern: ^\/[a-z0-9]+$
+                        type: string
+                      passwordSecretRef:
+                        description: Name of a Secret containing a HTTP Basic Auth
+                          Password.
+                        properties:
+                          key:
+                            description: Key is the key in the secret storing this
+                              password. Defaults to "password"
+                            type: string
+                          name:
+                            description: Name is the name of the secret storing this
+                              user's password
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      port:
+                        description: Port where metrics endpoint will bind to. Defaults
+                          to 9216.
+                        type: integer
+                      tlsSecretKeyRef:
+                        description: Name of a Secret (type kubernetes.io/tls) holding
+                          the certificates to use in the Prometheus endpoint.
+                        properties:
+                          key:
+                            description: Key is the key in the secret storing this
+                              password. Defaults to "password"
+                            type: string
+                          name:
+                            description: Name is the name of the secret storing this
+                              user's password
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      username:
+                        description: HTTP Basic Auth Username for metrics endpoint.
+                        type: string
+                    required:
+                    - passwordSecretRef
+                    - username
+                    type: object
                   security:
                     properties:
                       authentication:
@@ -1994,14 +1960,12 @@ spec:
                               instead SecretRef points to a Secret object containing
                               the certificates to use when enabling TLS.
                             properties:
-                              name:
-                                description: DEPRECATED please use security.certsSecretPrefix
-                                  instead
-                                type: string
                               prefix:
                                 description: DEPRECATED please use security.certsSecretPrefix
                                   instead
                                 type: string
+                            required:
+                            - prefix
                             type: object
                         type: object
                     type: object
