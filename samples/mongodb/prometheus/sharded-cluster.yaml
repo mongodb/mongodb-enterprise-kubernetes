@@ -1,0 +1,83 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-sharded-cluster
+spec:
+  shardCount: 2
+  mongodsPerShardCount: 3
+  mongosCount: 2
+  configServerCount: 3
+  version: 5.0.6-ent
+  type: ShardedCluster
+
+  # Before you create this object, you'll need to create a project ConfigMap and a
+  # credentials Secret. For instructions on how to do this, please refer to our
+  # documentation, here:
+  # https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials
+
+  # This flag allows the creation of pods without persistent volumes. This is for
+  # testing only, and must not be used in production. 'false' will disable
+  # Persistent Volume Claims. The default is 'true'
+  persistent: false
+
+  prometheus:
+    passwordSecretRef:
+      # SecretRef to a Secret with a 'password' entry on it.
+      name: prometheus-password
+
+    # change this value to your Prometheus username
+    username: <prom-username>
+
+    # Enables HTTPS on the prometheus scrapping endpoint
+    # This should be a reference to a Secret type kuberentes.io/tls
+    # tlsSecretKeyRef:
+    #   name: <prometheus-tls-cert-secret>
+
+    # Port for Prometheus, default is 9216
+    # port: 9216
+    #
+    # Metrics path for Prometheus, default is /metrics
+    # metricsPath: '/metrics'
+
+  configSrvPodSpec:
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "2"
+                memory: 700M
+              requests:
+                cpu: "1"
+                memory: 500M
+  shardPodSpec:
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "2"
+                memory: 700M
+              requests:
+                cpu: "1"
+                memory: 500M
+
+  mongosPodSpec:
+    podTemplate:
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "1"
+                memory: 200M
+              requests:
+                cpu: "0.5"
+                memory: 100M
