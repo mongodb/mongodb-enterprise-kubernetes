@@ -1,0 +1,45 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: my-replica-set
+spec:
+  members: 3
+  version: 5.0.6-ent
+
+  opsManager:
+    configMapRef:
+      name: my-project
+
+  credentials: my-credentials
+  type: ReplicaSet
+
+  persistent: true
+
+  prometheus:
+    passwordSecretRef:
+      # SecretRef to a Secret with a 'password' entry on it.
+      name: prometheus-password
+
+    # change this value to your Prometheus username
+    username: <prom-username>
+
+    # Enables HTTPS on the prometheus scrapping endpoint
+    # This should be a reference to a Secret type kuberentes.io/tls
+    # tlsSecretKeyRef:
+    #   name: <prometheus-tls-cert-secret>
+
+    # Port for Prometheus, default is 9216
+    # port: 9216
+    #
+    # Metrics path for Prometheus, default is /metrics
+    # metricsPath: '/metrics'
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus-password
+type: Opaque
+stringData:
+  password: <prom-password>
