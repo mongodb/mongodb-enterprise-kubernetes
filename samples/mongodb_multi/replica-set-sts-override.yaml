@@ -26,6 +26,13 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
+            # to override the default storage class for the pv
+            volumeClaimTemplates:
+            - metadata:
+                name: data
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: "gp2"
       - clusterName: cluster2.mongokubernetes.com
         members: 1
         statefulSet:
@@ -37,6 +44,12 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
+            volumeClaimTemplates:
+            - metadata:
+                name: data
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: "gp2"
       - clusterName: cluster3.mongokubernetes.com
         members: 1
         statefulSet:
@@ -48,3 +61,9 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
+            volumeClaimTemplates:
+            - metadata:
+                name: data
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: "gp2"
