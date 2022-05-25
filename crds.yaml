@@ -602,8 +602,9 @@ spec:
                     type: object
                 type: object
               service:
-                description: this is an optional service, it will get the name "<rsName>-service"
-                  in case not provided
+                description: DEPRECATED please use `spec.statefulSet.spec.serviceName`
+                  to provide a custom service name. this is an optional service, it
+                  will get the name "<rsName>-service" in case not provided
                 type: string
               shard:
                 properties:
@@ -680,6 +681,16 @@ spec:
                   podTemplate:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
+                type: object
+              statefulSet:
+                description: StatefulSetConfiguration holds the optional custom StatefulSet
+                  that should be merged into the operator created one.
+                properties:
+                  spec:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                required:
+                - spec
                 type: object
               type:
                 enum:
