@@ -7,7 +7,6 @@ metadata:
 spec:
   version: 4.4.0-ent
   type: ReplicaSet
-  persistent: false
   duplicateServiceObjects: false
   credentials: my-credentials
   opsManager:
@@ -26,13 +25,14 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
-            # to override the default storage class for the pv
+            # to override the default storage size of the "data" PV
             volumeClaimTemplates:
             - metadata:
                 name: data
               spec:
-                accessModes: [ "ReadWriteOnce" ]
-                storageClassName: "gp2"
+                resources:
+                  requests:
+                    storage: 1Gi
       - clusterName: cluster2.mongokubernetes.com
         members: 1
         statefulSet:
@@ -44,12 +44,13 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
-            volumeClaimTemplates:
-            - metadata:
+              volumeClaimTemplates:
+              - metadata:
                 name: data
               spec:
-                accessModes: [ "ReadWriteOnce" ]
-                storageClassName: "gp2"
+                resources:
+                  requests:
+                    storage: 1Gi
       - clusterName: cluster3.mongokubernetes.com
         members: 1
         statefulSet:
@@ -61,9 +62,11 @@ spec:
                   image: busybox
                   command: ["sleep"]
                   args: [ "infinity" ]
-            volumeClaimTemplates:
-            - metadata:
+              volumeClaimTemplates:
+              - metadata:
                 name: data
               spec:
-                accessModes: [ "ReadWriteOnce" ]
-                storageClassName: "gp2"
+                resources:
+                  requests:
+                    storage: 1Gi
+                
