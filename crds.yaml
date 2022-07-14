@@ -464,11 +464,15 @@ spec:
                             items:
                               type: string
                             type: array
+                          timeoutMS:
+                            type: integer
                           transportSecurity:
                             enum:
                             - tls
                             - none
                             type: string
+                          userCacheInvalidationInterval:
+                            type: integer
                           userToDNMapping:
                             type: string
                           validateLDAPServerConfig:
@@ -1021,11 +1025,15 @@ spec:
                             items:
                               type: string
                             type: array
+                          timeoutMS:
+                            type: integer
                           transportSecurity:
                             enum:
                             - tls
                             - none
                             type: string
+                          userCacheInvalidationInterval:
+                            type: integer
                           userToDNMapping:
                             type: string
                           validateLDAPServerConfig:
@@ -1826,11 +1834,15 @@ spec:
                                 items:
                                   type: string
                                 type: array
+                              timeoutMS:
+                                type: integer
                               transportSecurity:
                                 enum:
                                 - tls
                                 - none
                                 type: string
+                              userCacheInvalidationInterval:
+                                type: integer
                               userToDNMapping:
                                 type: string
                               validateLDAPServerConfig:

@@ -20,8 +20,6 @@ spec:
   applicationDatabase:
     version: "4.4.11-ent"
     members: 3
-    persistent: true
-
 ---
 # The nginx deployment allows to deploy the web server that will serve mongodb binaries to the MongoDBOpsManager resource
 # The example below provides the binaries for 4.4.0 mongodb (community and enterprise) for ubuntu and rhel (necessary if

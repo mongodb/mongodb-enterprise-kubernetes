@@ -51,3 +51,17 @@ spec:
         bindQueryPasswordSecretRef:
           name: "<secret-name>"
 
+        # Select True to validate the LDAP server configuration or False to skip validation.
+        validateLDAPServerConfig: false
+
+        # LDAP-formatted query URL template executed by MongoDB to obtain the LDAP groups that the user belongs to
+        authzQueryTemplate: "{USER}?memberOf?base"
+
+        # Maps the username provided to mongod or mongos for authentication to an LDAP Distinguished Name (DN).
+        userToDNMapping: '[{match: "CN=mms-automation-agent,(.+),L=NY,ST=NY,C=US", substitution: "uid=mms-automation-agent,{0},dc=example,dc=org"}, {match: "(.+)", substitution:"uid={0},ou=groups,dc=example,dc=org"}]'
+
+        # Specify how long an authentication request should wait before timing out. In milliseconds.
+        timeoutMS: 10000
+
+        # Specify how long MongoDB waits to flush the LDAP user cache. In seconds.
+        userCacheInvalidationInterval: 30

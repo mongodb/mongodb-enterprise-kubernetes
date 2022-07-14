@@ -15,6 +15,5 @@ spec:
   additionalMongodConfig:
     systemLog:
       logAppend: true
-      verbosity: 4
-    operationProfiling:
-      mode: slowOp
+    systemLog.verbosity: 4
+    operationProfiling.mode: slowOp
