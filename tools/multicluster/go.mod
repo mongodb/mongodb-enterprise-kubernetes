@@ -1,6 +1,6 @@
 module github.com/10gen/ops-manager-kubernetes/multi
 
-go 1.17
+go 1.18
 
 require (
 	github.com/ghodss/yaml v1.0.0
