@@ -1,24 +1,15 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM ubuntu:16.04
 
-ARG agent_version
-
-LABEL name="MongoDB Agent" \
-      version="${agent_version}" \
-      summary="MongoDB Agent" \
-      description="MongoDB Agent" \
-      vendor="MongoDB" \
-      release="1" \
-      maintainer="support@mongodb.com"
-
-RUN microdnf install -y  --disableplugin=subscription-manager curl \
-    hostname nss_wrapper tar gzip procps\
-    && microdnf upgrade -y  \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN microdnf remove perl-IO-Socket-SSL
+RUN apt-get -qq update \
+        && apt-get -y -qq install \
+        curl \
+        libnss-wrapper \
+        && apt-get upgrade -y -qq \
+        && apt-get dist-upgrade -y -qq \
+        && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /agent \
     && mkdir -p /var/lib/mongodb-mms-automation \
       && mkdir -p /var/log/mongodb-mms-automation/ \
@@ -30,7 +21,6 @@ RUN mkdir -p /agent \
 
 COPY --from=base /data/mongodb-agent.tar.gz /agent
 COPY --from=base /data/mongodb-tools.tgz /agent
-COPY --from=base /data/LICENSE /licenses/LICENSE
 
 RUN tar xfz /agent/mongodb-agent.tar.gz \
     && mv mongodb-mms-automation-agent-*/mongodb-mms-automation-agent /agent/mongodb-agent \
