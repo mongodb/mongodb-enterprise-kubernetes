@@ -9,21 +9,21 @@ FROM ubuntu:20.04
 
 
 LABEL name="MongoDB Enterprise Operator" \
-    maintainer="support@mongodb.com" \
-    vendor="MongoDB" \
-    version="1.16.1" \
-    release="1" \
-    summary="MongoDB Enterprise Operator Image" \
-    description="MongoDB Enterprise Operator Image"
+      maintainer="support@mongodb.com" \
+      vendor="MongoDB" \
+      version="1.16.1" \
+      release="1" \
+      summary="MongoDB Enterprise Operator Image" \
+      description="MongoDB Enterprise Operator Image"
 
 
 
 # Adds up-to-date CA certificates.
 RUN apt-get -qq update && \
-    apt-get -y -qq install ca-certificates curl && \
-    apt-get upgrade -y -qq && \
-    apt-get dist-upgrade -y -qq && \
-    rm -rf /var/lib/apt/lists/*
+      apt-get -y -qq install ca-certificates curl && \
+      apt-get upgrade -y -qq && \
+      apt-get dist-upgrade -y -qq && \
+      rm -rf /var/lib/apt/lists/*
 
 
 
@@ -37,3 +37,5 @@ USER 2000
 
 
 ENTRYPOINT exec /usr/local/bin/mongodb-enterprise-operator
+
+

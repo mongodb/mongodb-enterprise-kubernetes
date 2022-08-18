@@ -5,12 +5,12 @@ FROM ubuntu:20.04
 
 
 LABEL name="MongoDB Enterprise Ops Manager" \
-    maintainer="support@mongodb.com" \
-    vendor="MongoDB" \
-    version="5.0.10" \
-    release="1" \
-    summary="MongoDB Enterprise Ops Manager Image" \
-    description="MongoDB Enterprise Ops Manager"
+      maintainer="support@mongodb.com" \
+      vendor="MongoDB" \
+      version="5.0.10" \
+      release="1" \
+      summary="MongoDB Enterprise Ops Manager Image" \
+      description="MongoDB Enterprise Ops Manager"
 
 
 ENV MMS_HOME /mongodb-ops-manager
@@ -25,25 +25,25 @@ EXPOSE 8080
 
 RUN apt-get -qq update \
     && apt-get -y -qq install \
-    apt-utils \
-    ca-certificates \
-    curl \
-    libsasl2-2 \
-    net-tools \
-    netcat \
-    procps \
-    libgssapi-krb5-2 \
-    libkrb5-dbg \
-    libldap-2.4-2 \
-    libpcap0.8 \
-    libpci3 \
-    libwrap0 \
-    libcurl4 \
-    liblzma5 \
-    libsasl2-modules \
-    libsasl2-modules-gssapi-mit\
-    openssl \
-    snmp \
+        apt-utils \
+        ca-certificates \
+        curl \
+        libsasl2-2 \
+        net-tools \
+        netcat \
+        procps \
+        libgssapi-krb5-2 \
+        libkrb5-dbg \
+        libldap-2.4-2 \
+        libpcap0.8 \
+        libpci3 \
+        libwrap0 \
+        libcurl4 \
+        liblzma5 \
+        libsasl2-modules \
+        libsasl2-modules-gssapi-mit\
+        openssl \
+        snmp \
     && apt-get upgrade -y -qq \
     && apt-get dist-upgrade -y -qq \
     && rm -rf /var/lib/apt/lists/*
@@ -68,7 +68,13 @@ RUN chmod -R 0775 "${MMS_LOG_DIR}" \
     && mkdir "${MMS_HOME}/mongodb-releases/" \
     && chmod -R 0775 "${MMS_HOME}/mongodb-releases"
 
+# The "${MMS_HOME}/conf" will be populated by the docker-entry-point.sh.
+# For now we need to move into the templates directory.
+RUN cp -r "${MMS_HOME}/conf" "${MMS_HOME}/conf-template"
+
 USER 2000
 
 # operator to change the entrypoint to: /mongodb-ops-manager/bin/mongodb-mms start_mms (or a wrapper around this)
 ENTRYPOINT [ "sleep infinity" ]
+
+

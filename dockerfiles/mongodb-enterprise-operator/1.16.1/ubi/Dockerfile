@@ -9,12 +9,12 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 LABEL name="MongoDB Enterprise Operator" \
-    maintainer="support@mongodb.com" \
-    vendor="MongoDB" \
-    version="1.16.1" \
-    release="1" \
-    summary="MongoDB Enterprise Operator Image" \
-    description="MongoDB Enterprise Operator Image"
+      maintainer="support@mongodb.com" \
+      vendor="MongoDB" \
+      version="1.16.1" \
+      release="1" \
+      summary="MongoDB Enterprise Operator Image" \
+      description="MongoDB Enterprise Operator Image"
 
 
 # Building an UBI-based image: https://red.ht/3n6b9y0
@@ -35,3 +35,5 @@ USER 2000
 
 
 ENTRYPOINT exec /usr/local/bin/mongodb-enterprise-operator
+
+

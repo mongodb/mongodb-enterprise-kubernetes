@@ -58,6 +58,10 @@ RUN chmod -R 0775 "${MMS_LOG_DIR}" \
     && mkdir "${MMS_HOME}/mongodb-releases/" \
     && chmod -R 0775 "${MMS_HOME}/mongodb-releases"
 
+# The "${MMS_HOME}/conf" will be populated by the docker-entry-point.sh.
+# For now we need to move into the templates directory.
+RUN cp -r "${MMS_HOME}/conf" "${MMS_HOME}/conf-template"
+
 USER 2000
 
 # operator to change the entrypoint to: /mongodb-ops-manager/bin/mongodb-mms start_mms (or a wrapper around this)
