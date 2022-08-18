@@ -46,7 +46,7 @@ COPY --from=base /data/licenses /licenses/
 
 
 
-RUN curl --fail -L -o ops_manager.tar.gz https://s3.amazonaws.com/mongodb-mms-build-onprem/10cf46c744564e2cb3e61e5b777f7820f586aef8/mongodb-mms-5.0.0.100.20210710T1827Z-1.x86_64.tar.gz \
+RUN curl --fail -L -o ops_manager.tar.gz https://downloads.mongodb.com/on-prem-mms/tar/mongodb-mms-5.0.0.100.20210710T1827Z-1.x86_64.tar.gz \
     && tar -xzf ops_manager.tar.gz \
     && rm ops_manager.tar.gz \
     && mv mongodb-mms-* "${MMS_HOME}"
@@ -58,6 +58,14 @@ RUN chmod -R 0775 "${MMS_LOG_DIR}" \
     && chmod -R 0775 "${MMS_HOME}/tmp" \
     && mkdir "${MMS_HOME}/mongodb-releases/" \
     && chmod -R 0775 "${MMS_HOME}/mongodb-releases"
+
+# The "${MMS_HOME}/conf" will be populated by the docker-entry-point.sh.
+# For now we need to move into the templates directory.
+RUN cp -r "${MMS_HOME}/conf" "${MMS_HOME}/conf-template"
+
+# The "${MMS_HOME}/conf" will be populated by the docker-entry-point.sh.
+# For now we need to move into the templates directory.
+RUN cp -r "${MMS_HOME}/conf" "${MMS_HOME}/conf-template"
 
 USER 2000
 
