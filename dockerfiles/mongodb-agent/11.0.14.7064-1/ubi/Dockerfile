@@ -6,12 +6,12 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 ARG agent_version
 
 LABEL name="MongoDB Agent" \
-    version="${agent_version}" \
-    summary="MongoDB Agent" \
-    description="MongoDB Agent" \
-    vendor="MongoDB" \
-    release="1" \
-    maintainer="support@mongodb.com"
+      version="${agent_version}" \
+      summary="MongoDB Agent" \
+      description="MongoDB Agent" \
+      vendor="MongoDB" \
+      release="1" \
+      maintainer="support@mongodb.com"
 
 RUN microdnf install -y  --disableplugin=subscription-manager curl \
     hostname nss_wrapper tar gzip procps\
@@ -21,11 +21,11 @@ RUN microdnf install -y  --disableplugin=subscription-manager curl \
 RUN microdnf remove perl-IO-Socket-SSL
 RUN mkdir -p /agent \
     && mkdir -p /var/lib/mongodb-mms-automation \
-    && mkdir -p /var/log/mongodb-mms-automation/ \
-    && chmod -R +wr /var/log/mongodb-mms-automation/ \
-    # ensure that the agent user can write the logs in OpenShift
-    && touch /var/log/mongodb-mms-automation/readiness.log \
-    && chmod ugo+rw /var/log/mongodb-mms-automation/readiness.log
+      && mkdir -p /var/log/mongodb-mms-automation/ \
+      && chmod -R +wr /var/log/mongodb-mms-automation/ \
+      # ensure that the agent user can write the logs in OpenShift
+      && touch /var/log/mongodb-mms-automation/readiness.log \
+      && chmod ugo+rw /var/log/mongodb-mms-automation/readiness.log
 
 
 COPY --from=base /data/mongodb-agent.tar.gz /agent

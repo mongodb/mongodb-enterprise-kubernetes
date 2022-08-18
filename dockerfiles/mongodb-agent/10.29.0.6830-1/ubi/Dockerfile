@@ -1,24 +1,12 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM registry.access.redhat.com/ubi7/ubi
 
-ARG agent_version
-
-LABEL name="MongoDB Agent" \
-      version="${agent_version}" \
-      summary="MongoDB Agent" \
-      description="MongoDB Agent" \
-      vendor="MongoDB" \
-      release="1" \
-      maintainer="support@mongodb.com"
-
-RUN microdnf install -y  --disableplugin=subscription-manager curl \
-    hostname nss_wrapper tar gzip procps\
-    && microdnf upgrade -y  \
+RUN yum install -y  --disableplugin=subscription-manager -q curl \
+    hostname nss_wrapper --exclude perl-IO-Socket-SSL procps \
+    && yum upgrade -y -q \
     && rm -rf /var/lib/apt/lists/*
-
-RUN microdnf remove perl-IO-Socket-SSL
 RUN mkdir -p /agent \
     && mkdir -p /var/lib/mongodb-mms-automation \
       && mkdir -p /var/log/mongodb-mms-automation/ \
@@ -30,7 +18,6 @@ RUN mkdir -p /agent \
 
 COPY --from=base /data/mongodb-agent.tar.gz /agent
 COPY --from=base /data/mongodb-tools.tgz /agent
-COPY --from=base /data/LICENSE /licenses/LICENSE
 
 RUN tar xfz /agent/mongodb-agent.tar.gz \
     && mv mongodb-mms-automation-agent-*/mongodb-mms-automation-agent /agent/mongodb-agent \
