@@ -44,34 +44,51 @@ type flags struct {
 	centralClusterNamespace    string
 	cleanup                    bool
 	clusterScoped              bool
+	installDatabaseRoles       bool
+	operatorName               string
+	sourceCluster              string
 }
 
-var (
-	memberClusters string
+const (
+	kubeConfigSecretName       = "mongodb-enterprise-operator-multi-cluster-kubeconfig"
+	kubeConfigSecretKey        = "kubeconfig"
+	appdbServiceAccount        = "mongodb-enterprise-appdb"
+	databasePodsServiceAccount = "mongodb-enterprise-database-pods"
+	opsManagerServiceAccount   = "mongodb-enterprise-ops-manager"
+	appdbRole                  = "mongodb-enterprise-appdb"
+	appdbRoleBinding           = "mongodb-enterprise-appdb"
+	defaultOperatorName        = "mongodb-enterprise-operator"
 )
 
-const (
-	kubeConfigSecretName = "mongodb-enterprise-operator-multi-cluster-kubeconfig"
-	kubeConfigSecretKey  = "kubeconfig"
-)
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
 
 // parseFlags returns a struct containing all of the flags provided by the user.
-func parseFlags() (flags, error) {
+func parseSetupFlags() (flags, error) {
+	var memberClusters string
+	setupCmd := flag.NewFlagSet("setup", flag.ExitOnError)
 	flags := flags{}
-	flag.StringVar(&memberClusters, "member-clusters", "", "Comma separated list of member clusters. [required]")
-	flag.StringVar(&flags.serviceAccount, "service-account", "mongodb-enterprise-operator-multi-cluster", "Name of the service account which should be used for the Operator to communicate with the member clusters. [optional, default: mongodb-enterprise-operator-multi-cluster]")
-	flag.StringVar(&flags.centralCluster, "central-cluster", "", "The central cluster the operator will be deployed in. [required]")
-	flag.StringVar(&flags.memberClusterNamespace, "member-cluster-namespace", "", "The namespace the member cluster resources will be deployed to. [required]")
-	flag.StringVar(&flags.centralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
-	flag.BoolVar(&flags.cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
-	flag.BoolVar(&flags.clusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
-	flag.Parse()
-
+	setupCmd.StringVar(&memberClusters, "member-clusters", "", "Comma separated list of member clusters. [required]")
+	setupCmd.StringVar(&flags.serviceAccount, "service-account", "mongodb-enterprise-operator-multi-cluster", "Name of the service account which should be used for the Operator to communicate with the member clusters. [optional, default: mongodb-enterprise-operator-multi-cluster]")
+	setupCmd.StringVar(&flags.centralCluster, "central-cluster", "", "The central cluster the operator will be deployed in. [required]")
+	setupCmd.StringVar(&flags.memberClusterNamespace, "member-cluster-namespace", "", "The namespace the member cluster resources will be deployed to. [required]")
+	setupCmd.StringVar(&flags.centralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
+	setupCmd.BoolVar(&flags.cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
+	setupCmd.BoolVar(&flags.clusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
+	setupCmd.BoolVar(&flags.installDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
+	setupCmd.Parse(os.Args[2:])
 	if anyAreEmpty(memberClusters, flags.serviceAccount, flags.centralCluster, flags.memberClusterNamespace, flags.centralClusterNamespace) {
 		return flags, fmt.Errorf("non empty values are required for [service-account, member-clusters, central-cluster, member-cluster-namespace, central-cluster-namespace]")
 	}
 
 	flags.memberClusters = strings.Split(memberClusters, ",")
+
 	configFilePath := loadKubeConfigFilePath()
 	kubeconfig, err := clientcmd.LoadFromFile(configFilePath)
 	if err != nil {
@@ -81,6 +98,41 @@ func parseFlags() (flags, error) {
 		return flags, err
 	}
 
+	return flags, nil
+}
+
+func parseRecoverFlags() (flags, error) {
+	var memberClusters string
+	recoverCmd := flag.NewFlagSet("recover", flag.ExitOnError)
+	flags := flags{}
+	recoverCmd.StringVar(&memberClusters, "member-clusters", "", "Comma separated list of member clusters. [required]")
+	recoverCmd.StringVar(&flags.serviceAccount, "service-account", "mongodb-enterprise-operator-multi-cluster", "Name of the service account which should be used for the Operator to communicate with the member clusters. [optional, default: mongodb-enterprise-operator-multi-cluster]")
+	recoverCmd.StringVar(&flags.centralCluster, "central-cluster", "", "The central cluster the operator will be deployed in. [required]")
+	recoverCmd.StringVar(&flags.memberClusterNamespace, "member-cluster-namespace", "", "The namespace the member cluster resources will be deployed to. [required]")
+	recoverCmd.StringVar(&flags.centralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
+	recoverCmd.BoolVar(&flags.cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
+	recoverCmd.BoolVar(&flags.clusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
+	recoverCmd.StringVar(&flags.operatorName, "operator-name", defaultOperatorName, "Name used to identify the deployment of the operator. [optional, default: mongodb-enterprise-operator]")
+	recoverCmd.BoolVar(&flags.installDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
+	recoverCmd.StringVar(&flags.sourceCluster, "source-cluster", "", "The source cluster for recovery. This has to be one of the healthy member cluster that is the source of truth for new cluster configuration. [required]")
+	recoverCmd.Parse(os.Args[2:])
+	if anyAreEmpty(memberClusters, flags.serviceAccount, flags.centralCluster, flags.memberClusterNamespace, flags.centralClusterNamespace, flags.sourceCluster) {
+		return flags, fmt.Errorf("non empty values are required for [service-account, member-clusters, central-cluster, member-cluster-namespace, central-cluster-namespace, source-cluster]")
+	}
+
+	flags.memberClusters = strings.Split(memberClusters, ",")
+	if !contains(flags.memberClusters, flags.sourceCluster) {
+		return flags, fmt.Errorf("source-cluster has to be one of the healthy member clusters: %s", memberClusters)
+	}
+
+	configFilePath := loadKubeConfigFilePath()
+	kubeconfig, err := clientcmd.LoadFromFile(configFilePath)
+	if err != nil {
+		return flags, fmt.Errorf("error loading kubeconfig file '%s': %s", configFilePath, err)
+	}
+	if flags.memberClusterApiServerUrls, err = getMemberClusterApiServerUrls(kubeconfig, flags.memberClusters); err != nil {
+		return flags, err
+	}
 	return flags, nil
 }
 
@@ -144,16 +196,46 @@ func multiClusterLabels() map[string]string {
 }
 
 func main() {
-	flags, err := parseFlags()
-	if err != nil {
-		fmt.Printf("error parsing flags: %s\n", err)
+	if len(os.Args) < 2 {
+		fmt.Println("expected 'setup' or 'recover' subcommands")
+		os.Exit(1)
+	}
+	switch os.Args[1] {
+	case "setup":
+		flags, err := parseSetupFlags()
+		if err != nil {
+			fmt.Printf("error parsing flags: %s\n", err)
+
+			os.Exit(1)
+		}
+		if err := ensureMultiClusterResources(flags, getKubernetesClient); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	case "recover":
+		flags, err := parseRecoverFlags()
+		if err != nil {
+			fmt.Printf("error parsing flags: %s\n", err)
+
+			os.Exit(1)
+		}
+		if err := ensureMultiClusterResources(flags, getKubernetesClient); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		clientMap, err := createClientMap(flags.memberClusters, flags.centralCluster, loadKubeConfigFilePath(), getKubernetesClient)
+		if err != nil {
+			fmt.Printf("failed to create clientset map: %s\n", err)
+			os.Exit(1)
+		}
+
+		patchOperatorDeployment(clientMap, flags)
+		fmt.Println("Patched operator to use new member clusters.")
+	default:
+		fmt.Println("expected 'setup' or 'recover' subcommands")
 		os.Exit(1)
 	}
 
-	if err := ensureMultiClusterResources(flags, getKubernetesClient); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
 
 // anyAreEmpty returns true if any of the given strings have the zero value.
@@ -469,6 +551,18 @@ func ensureMultiClusterResources(flags flags, getClient func(clusterName, kubeCo
 		return fmt.Errorf("failed creating KubeConfig secret: %s", err)
 	}
 
+	if flags.sourceCluster != "" {
+		if err := setupDatabaseRoles(clientMap, flags); err != nil {
+			return fmt.Errorf("failed setting up database roles: %s", err)
+		}
+		fmt.Println("Ensured database Roles in member clusters.")
+	} else if flags.installDatabaseRoles {
+		if err := installDatabaseRoles(clientMap, flags); err != nil {
+			return fmt.Errorf("failed installing database roles: %s", err)
+		}
+		fmt.Println("Ensured database Roles in member clusters.")
+	}
+
 	return nil
 }
 
@@ -494,6 +588,7 @@ func createKubeConfigSecret(centralClusterClient kubernetes.Interface, kubeConfi
 	go func() {
 		fmt.Printf("Creating KubeConfig secret %s/%s in cluster %s\n", flags.centralClusterNamespace, kubeConfigSecret.Name, flags.centralCluster)
 		_, err := centralClusterClient.CoreV1().Secrets(flags.centralClusterNamespace).Create(ctx, &kubeConfigSecret, metav1.CreateOptions{})
+
 		if !errors.IsAlreadyExists(err) && err != nil {
 			errorChan <- fmt.Errorf("failed creating secret: %s", err)
 			return
@@ -847,6 +942,7 @@ func getServiceAccountsWithTimeout(lister kubernetes.Interface, namespace string
 
 func getServiceAccounts(ctx context.Context, lister kubernetes.Interface, namespace string, accounts chan []corev1.ServiceAccount, errorChan chan error) {
 	saList, err := lister.CoreV1().ServiceAccounts(namespace).List(ctx, metav1.ListOptions{})
+
 	if err != nil {
 		errorChan <- fmt.Errorf("failed to list service accounts in member cluster namespace %s: %s", namespace, err)
 		return
@@ -889,4 +985,289 @@ func getServiceAccountToken(ctx context.Context, secretLister kubernetes.Interfa
 		}
 	}
 	errorChan <- fmt.Errorf("no service account token found for serviceaccount: %s", sa.Name)
+}
+
+// copySecret copies a Secret from a source cluster to a target cluster
+func copySecret(ctx context.Context, src, dst kubernetes.Interface, namespace, name string) error {
+	secret, err := src.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return fmt.Errorf("failed retrieving secret: %s from source cluster: %s", name, err)
+	}
+	_, err = dst.CoreV1().Secrets(namespace).Create(ctx, &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+			Labels:    secret.Labels,
+		},
+		Data: secret.Data,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		return err
+	}
+	return nil
+}
+
+func createServiceAccount(ctx context.Context, c kubernetes.Interface, serviceAccountName, namespace string) error {
+	sa := corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceAccountName,
+			Namespace: namespace,
+			Labels:    multiClusterLabels(),
+		},
+	}
+
+	_, err := c.CoreV1().ServiceAccounts(sa.Namespace).Create(ctx, &sa, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		return fmt.Errorf("error creating service account: %s", err)
+	}
+	return nil
+}
+
+func createDatabaseRole(ctx context.Context, c kubernetes.Interface, roleName, namespace string) error {
+	role := rbacv1.Role{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      roleName,
+			Namespace: namespace,
+			Labels:    multiClusterLabels(),
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{""},
+				Resources: []string{"secrets"},
+				Verbs:     []string{"get"},
+			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"pods"},
+				Verbs:     []string{"patch", "delete", "get"},
+			},
+		},
+	}
+	roleBinding := rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      roleName,
+			Namespace: namespace,
+			Labels:    multiClusterLabels(),
+		},
+		RoleRef: rbacv1.RoleRef{
+			Kind: "Role",
+			Name: roleName,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind: "ServiceAccount",
+				Name: appdbServiceAccount,
+			},
+		},
+	}
+	_, err := c.RbacV1().Roles(role.Namespace).Create(ctx, &role, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		return fmt.Errorf("error creating role: %s", err)
+	}
+
+	_, err = c.RbacV1().RoleBindings(roleBinding.Namespace).Create(ctx, &roleBinding, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		return fmt.Errorf("error creating role binding: %s", err)
+	}
+	return nil
+}
+
+// createDatabaseRoles creates the default ServiceAccounts, Roles and RoleBindings required for running database
+// instances in a member cluster.
+func createDatabaseRoles(ctx context.Context, client kubernetes.Interface, f flags) error {
+	if err := createServiceAccount(ctx, client, appdbServiceAccount, f.memberClusterNamespace); err != nil {
+		return err
+	}
+	if err := createServiceAccount(ctx, client, databasePodsServiceAccount, f.memberClusterNamespace); err != nil {
+		return err
+	}
+	if err := createServiceAccount(ctx, client, opsManagerServiceAccount, f.memberClusterNamespace); err != nil {
+		return err
+	}
+	if err := createDatabaseRole(ctx, client, appdbRole, f.memberClusterNamespace); err != nil {
+		return err
+	}
+	return nil
+}
+
+// copyDatabaseRoles copies the ServiceAccounts, Roles and RoleBindings required for running database instances
+// in a member cluster. This is used for adding new member clusters by copying over the configuration of a healthy
+// source cluster.
+func copyDatabaseRoles(ctx context.Context, src, dst kubernetes.Interface, namespace string, errorChan chan error) {
+	appdbSA, err := src.CoreV1().ServiceAccounts(namespace).Get(ctx, appdbServiceAccount, metav1.GetOptions{})
+	if err != nil {
+		errorChan <- fmt.Errorf("failed retrieving service account %s from source cluster: %s", appdbServiceAccount, err)
+	}
+	dbpodsSA, err := src.CoreV1().ServiceAccounts(namespace).Get(ctx, databasePodsServiceAccount, metav1.GetOptions{})
+	if err != nil {
+		errorChan <- fmt.Errorf("failed retrieving service account %s from source cluster: %s", databasePodsServiceAccount, err)
+	}
+	opsManagerSA, err := src.CoreV1().ServiceAccounts(namespace).Get(ctx, opsManagerServiceAccount, metav1.GetOptions{})
+	if err != nil {
+		errorChan <- fmt.Errorf("failed retrieving service account %s from source cluster: %s", opsManagerServiceAccount, err)
+	}
+	appdbR, err := src.RbacV1().Roles(namespace).Get(ctx, appdbRole, metav1.GetOptions{})
+	if err != nil {
+		errorChan <- fmt.Errorf("failed retrieving role %s from source cluster: %s", appdbRole, err)
+	}
+	appdbRB, err := src.RbacV1().RoleBindings(namespace).Get(ctx, appdbRoleBinding, metav1.GetOptions{})
+	if err != nil {
+		errorChan <- fmt.Errorf("failed retrieving role binding %s from source cluster: %s", appdbRoleBinding, err)
+	}
+	if len(appdbSA.ImagePullSecrets) > 0 {
+		if err := copySecret(ctx, src, dst, namespace, appdbSA.ImagePullSecrets[0].Name); err != nil {
+			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", appdbSA.ImagePullSecrets[0].Name, err)
+		}
+
+	}
+	if len(dbpodsSA.ImagePullSecrets) > 0 {
+		if err := copySecret(ctx, src, dst, namespace, dbpodsSA.ImagePullSecrets[0].Name); err != nil {
+			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", dbpodsSA.ImagePullSecrets[0].Name, err)
+		}
+	}
+	if len(opsManagerSA.ImagePullSecrets) > 0 {
+		if err := copySecret(ctx, src, dst, namespace, opsManagerSA.ImagePullSecrets[0].Name); err != nil {
+			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", opsManagerSA.ImagePullSecrets[0].Name, err)
+		}
+	}
+	_, err = dst.CoreV1().ServiceAccounts(namespace).Create(ctx, &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   appdbSA.Name,
+			Labels: appdbSA.Labels,
+		},
+		ImagePullSecrets: appdbSA.DeepCopy().ImagePullSecrets,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		errorChan <- fmt.Errorf("error creating service account: %s", err)
+	}
+	_, err = dst.CoreV1().ServiceAccounts(namespace).Create(ctx, &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   dbpodsSA.Name,
+			Labels: dbpodsSA.Labels,
+		},
+		ImagePullSecrets: dbpodsSA.DeepCopy().ImagePullSecrets,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		errorChan <- fmt.Errorf("error creating service account: %s", err)
+
+	}
+	_, err = dst.CoreV1().ServiceAccounts(namespace).Create(ctx, &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   opsManagerSA.Name,
+			Labels: opsManagerSA.Labels,
+		},
+		ImagePullSecrets: opsManagerSA.DeepCopy().ImagePullSecrets,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		errorChan <- fmt.Errorf("error creating service account: %s", err)
+	}
+
+	_, err = dst.RbacV1().Roles(namespace).Create(ctx, &rbacv1.Role{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   appdbR.Name,
+			Labels: appdbR.Labels,
+		},
+		Rules: appdbR.DeepCopy().Rules,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		errorChan <- fmt.Errorf("error creating role: %s", err)
+	}
+	_, err = dst.RbacV1().RoleBindings(namespace).Create(ctx, &rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   appdbRB.Name,
+			Labels: appdbRB.Labels,
+		},
+		Subjects: appdbRB.DeepCopy().Subjects,
+		RoleRef:  appdbRB.DeepCopy().RoleRef,
+	}, metav1.CreateOptions{})
+	if !errors.IsAlreadyExists(err) && err != nil {
+		errorChan <- fmt.Errorf("error creating role binding: %s", err)
+	}
+}
+
+func installDatabaseRoles(clientSet map[string]kubernetes.Interface, f flags) error {
+	totalClusters := len(f.memberClusters) + 1
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(totalClusters*2)*time.Second)
+	defer cancel()
+
+	done := make(chan struct{})
+	errorChan := make(chan error)
+
+	go func() {
+		for _, clusterName := range f.memberClusters {
+			if err := createDatabaseRoles(ctx, clientSet[clusterName], f); err != nil {
+				errorChan <- err
+			}
+		}
+		done <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case err := <-errorChan:
+		return err
+	case <-done:
+		return nil
+	}
+}
+
+// setupDatabaseRoles installs the required database roles in the member clusters.
+// The flags passed to the CLI must contain a healthy source member cluster which will be treated as
+// the source of truth for all the member clusters.
+func setupDatabaseRoles(clientSet map[string]kubernetes.Interface, f flags) error {
+	totalClusters := len(f.memberClusters) + 1
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(totalClusters*2)*time.Second)
+	defer cancel()
+
+	done := make(chan struct{})
+	errorChan := make(chan error)
+
+	go func() {
+		for _, clusterName := range f.memberClusters {
+			if clusterName != f.sourceCluster {
+				copyDatabaseRoles(ctx, clientSet[f.sourceCluster], clientSet[clusterName], f.memberClusterNamespace, errorChan)
+			}
+		}
+		done <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case err := <-errorChan:
+		return err
+	case <-done:
+		return nil
+	}
+}
+
+// patchOperatorDeployment updates the operator deployment with configurations required for
+// dataplane recovery, currently this only includes the names of the member clusters.
+func patchOperatorDeployment(clientMap map[string]kubernetes.Interface, flags flags) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	c := clientMap[flags.centralCluster]
+	operator, err := c.AppsV1().Deployments(flags.centralClusterNamespace).Get(ctx, flags.operatorName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	newArgs := []string{}
+
+	for _, arg := range operator.Spec.Template.Spec.Containers[0].Args {
+		if strings.HasPrefix(arg, "-cluster-names") {
+			newArgs = append(newArgs, fmt.Sprintf("-cluster-names=%s", strings.Join(flags.memberClusters, ",")))
+		} else {
+			newArgs = append(newArgs, arg)
+		}
+	}
+	operator.Spec.Template.Spec.Containers[0].Args = newArgs
+
+	_, err = c.AppsV1().Deployments(flags.centralClusterNamespace).Update(ctx, operator, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
