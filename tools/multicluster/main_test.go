@@ -60,7 +60,6 @@ users:
 
 func testFlags(t *testing.T, cleanup bool) flags {
 	memberClusters := []string{"member-cluster-0", "member-cluster-1", "member-cluster-2"}
-
 	kubeconfig, err := clientcmd.Load([]byte(testKubeconfig))
 	assert.NoError(t, err)
 
@@ -76,6 +75,7 @@ func testFlags(t *testing.T, cleanup bool) flags {
 		centralClusterNamespace:    "central-namespace",
 		cleanup:                    cleanup,
 		clusterScoped:              false,
+		operatorName:               "mongodb-enterprise-operator",
 	}
 
 }
@@ -118,6 +118,18 @@ func TestExistingServiceAccounts_DoNotCause_AlreadyExistsErrors(t *testing.T) {
 
 	assert.NoError(t, err)
 	assertServiceAccountsExist(t, clientMap, flags)
+}
+
+func TestDatabaseRoles_GetCreated(t *testing.T) {
+	flags := testFlags(t, false)
+	flags.clusterScoped = true
+	flags.installDatabaseRoles = true
+
+	clientMap := getClientResources(flags)
+	err := ensureMultiClusterResources(flags, getFakeClientFunction(clientMap, nil))
+
+	assert.NoError(t, err)
+	assertDatabaseRolesExist(t, clientMap, flags)
 }
 
 func TestRoles_GetsCreated_WhenTheyDoesNotExit(t *testing.T) {
@@ -404,6 +416,65 @@ func assertServiceAccountsExist(t *testing.T, clientMap map[string]kubernetes.In
 	assert.NotNil(t, sa)
 	assert.Equal(t, flags.serviceAccount, sa.Name)
 	assert.Equal(t, sa.Labels, multiClusterLabels())
+}
+
+// assertDatabaseRolesExist asserts the DatabaseRoles are created as expected.
+func assertDatabaseRolesExist(t *testing.T, clientMap map[string]kubernetes.Interface, flags flags) {
+	for _, clusterName := range flags.memberClusters {
+		client := clientMap[clusterName]
+
+		// appDB service account
+		sa, err := client.CoreV1().ServiceAccounts(flags.memberClusterNamespace).Get(context.TODO(), appdbServiceAccount, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.NotNil(t, sa)
+		assert.Equal(t, sa.Labels, multiClusterLabels())
+
+		// database pods service account
+		sa, err = client.CoreV1().ServiceAccounts(flags.memberClusterNamespace).Get(context.TODO(), databasePodsServiceAccount, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.NotNil(t, sa)
+		assert.Equal(t, sa.Labels, multiClusterLabels())
+
+		// ops manager service account
+		sa, err = client.CoreV1().ServiceAccounts(flags.memberClusterNamespace).Get(context.TODO(), opsManagerServiceAccount, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.NotNil(t, sa)
+		assert.Equal(t, sa.Labels, multiClusterLabels())
+
+		// appdb role
+		r, err := client.RbacV1().Roles(flags.memberClusterNamespace).Get(context.TODO(), appdbRole, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, r.Labels, multiClusterLabels())
+		assert.Equal(t, []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{""},
+				Resources: []string{"secrets"},
+				Verbs:     []string{"get"},
+			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"pods"},
+				Verbs:     []string{"patch", "delete", "get"},
+			},
+		}, r.Rules)
+
+		// appdb rolebinding
+		rb, err := client.RbacV1().RoleBindings(flags.memberClusterNamespace).Get(context.TODO(), appdbRoleBinding, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, rb.Labels, multiClusterLabels())
+		assert.Equal(t, []rbacv1.Subject{
+			{
+				Kind: "ServiceAccount",
+				Name: appdbServiceAccount,
+			},
+		}, rb.Subjects)
+		assert.Equal(t, rbacv1.RoleRef{
+			Kind: "Role",
+			Name: appdbRole,
+		}, rb.RoleRef)
+	}
 }
 
 // assertMemberClusterRolesExist should be used when member cluster cluster roles should exist.
