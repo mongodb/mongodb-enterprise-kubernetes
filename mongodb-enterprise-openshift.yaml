@@ -7,6 +7,34 @@ metadata:
   namespace: mongodb
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook
+rules:
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - create
+  - update
+  - delete
+
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+---
+# Source: enterprise-operator/templates/operator-roles.yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -189,7 +217,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
       - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator-ubi:1.17.1
+        image: quay.io/mongodb/mongodb-enterprise-operator-ubi:1.17.2
         imagePullPolicy: Always
         args:
         - -watch-resource=mongodb
@@ -225,7 +253,7 @@ spec:
         - name: INIT_DATABASE_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
         - name: INIT_DATABASE_VERSION
-          value: 1.0.12
+          value: 1.0.13
         - name: DATABASE_VERSION
           value: 2.0.2
         # Ops Manager
@@ -239,7 +267,7 @@ spec:
         - name: INIT_APPDB_IMAGE_REPOSITORY
           value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
         - name: INIT_APPDB_VERSION
-          value: 1.0.12
+          value: 1.0.13
         - name: OPS_MANAGER_IMAGE_PULL_POLICY
           value: Always
         - name: AGENT_IMAGE
@@ -252,12 +280,12 @@ spec:
           value: 'true'
         - name: RELATED_IMAGE_MONGODB_ENTERPRISE_DATABASE_IMAGE_2_0_2
           value: quay.io/mongodb/mongodb-enterprise-database-ubi:2.0.2
-        - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_0_12
-          value: quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.0.12
+        - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_0_13
+          value: quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.0.13
         - name: RELATED_IMAGE_INIT_OPS_MANAGER_IMAGE_REPOSITORY_1_0_9
           value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi:1.0.9
-        - name: RELATED_IMAGE_INIT_APPDB_IMAGE_REPOSITORY_1_0_12
-          value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi:1.0.12
+        - name: RELATED_IMAGE_INIT_APPDB_IMAGE_REPOSITORY_1_0_13
+          value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi:1.0.13
         - name: RELATED_IMAGE_AGENT_IMAGE_11_0_5_6963_1
           value: quay.io/mongodb/mongodb-agent-ubi:11.0.5.6963-1
         - name: RELATED_IMAGE_AGENT_IMAGE_11_12_0_7388_1
