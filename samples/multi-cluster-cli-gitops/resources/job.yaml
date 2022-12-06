@@ -1,0 +1,36 @@
+# Sample PreSync job to perform the manual dataplane recovery before a replica set sync
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: multicluster-cli-recover-
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: multicluster-cli
+        image: your-registry/multi-cluster-cli
+        env:
+        - name: KUBECONFIG
+          value: /etc/config/kubeconfig
+        args:
+        - "-central-cluster=central.mongokubernetes.com"
+        - "-member-clusters=cluster1.mongokubernetes.com,cluster2.mongokubernetes.com,cluster4.mongokubernetes.com"
+        - "-member-cluster-namespace=mongodb"
+        - "-central-cluster-namespace=mongodb"
+        - "-operator-name=mongodb-enterprise-operator-multi-cluster"
+        - "-source-cluster=cluster1.mongokubernetes.com"
+        volumeMounts:
+        - mountPath: /etc/config/kubeconfig
+          name: kube-config-volume
+      restartPolicy: Never
+      volumes:
+      - name: kube-config-volume
+        secret:
+          defaultMode: 420
+          secretName: mongodb-enterprise-operator-multi-cluster-kubeconfig
+
+  backoffLimit: 2

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: my-project
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Example Project
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: mongodb
+    server: https://central.mongokubernetes.com
+  clusterResourceWhitelist:
+  # Allow MongoDBMulti resources to be synced
+  - group: ''
+    kind: MongoDBMulti
+  # Allow Jobs to be created (used for sync hooks in this example)
+  - group: ''
+    kind: Job
+  - group: ''
+    kind: Namespace
