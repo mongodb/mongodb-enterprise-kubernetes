@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: multi-cluster-replica-set
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    name: database
+spec:
+  project: my-project
+  source:
+    repoURL: https://github.com/mongodb/mongodb-enterprise-kubernetes
+    targetRevision: "fix/ubi-8-repo-names"
+    path: samples/multi-cluster-cli-gitops
+  destination:
+    server: https://central.mongokubernetes.com
+    namespace: mongodb
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+    - CreateNamespace=true
