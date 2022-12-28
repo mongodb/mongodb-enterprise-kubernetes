@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
   name: mongodb.mongodb.com
 spec:
@@ -71,17 +70,130 @@ spec:
                 description: Backup contains configuration options for configuring
                   backup for this MongoDB resource
                 properties:
+                  assignmentLabels:
+                    description: Assignment Labels set in the Ops Manager
+                    items:
+                      type: string
+                    type: array
                   autoTerminateOnDeletion:
                     description: AutoTerminateOnDeletion indicates if the Operator
                       should stop and terminate the Backup before the cleanup, when
                       the MongoDB CR is deleted
                     type: boolean
+                  encryption:
+                    description: Encryption settings
+                    properties:
+                      kmip:
+                        description: Kmip corresponds to the KMIP configuration assigned
+                          to the Ops Manager Project's configuration.
+                        properties:
+                          client:
+                            description: KMIP Client configuration
+                            properties:
+                              clientCertificatePrefix:
+                                description: 'A prefix used to construct KMIP client
+                                  certificate (and corresponding password) Secret
+                                  names. The names are generated using the following
+                                  pattern: KMIP Client Certificate (TLS Secret): <clientCertificatePrefix>-<CR
+                                  Name>-kmip-client KMIP Client Certificate Password:
+                                  <clientCertificatePrefix>-<CR Name>-kmip-client-password
+                                  The expected key inside is called "password".'
+                                type: string
+                            type: object
+                        required:
+                        - client
+                        type: object
+                    type: object
                   mode:
                     enum:
                     - enabled
                     - disabled
                     - terminated
                     type: string
+                  snapshotSchedule:
+                    properties:
+                      clusterCheckpointIntervalMin:
+                        enum:
+                        - 15
+                        - 30
+                        - 60
+                        type: integer
+                      dailySnapshotRetentionDays:
+                        description: Number of days to retain daily snapshots. Setting
+                          0 will disable this rule.
+                        maximum: 365
+                        minimum: 0
+                        type: integer
+                      fullIncrementalDayOfWeek:
+                        description: Day of the week when Ops Manager takes a full
+                          snapshot. This ensures a recent complete backup. Ops Manager
+                          sets the default value to SUNDAY.
+                        enum:
+                        - SUNDAY
+                        - MONDAY
+                        - TUESDAY
+                        - WEDNESDAY
+                        - THURSDAY
+                        - FRIDAY
+                        - SATURDAY
+                        type: string
+                      monthlySnapshotRetentionMonths:
+                        description: Number of months to retain weekly snapshots.
+                          Setting 0 will disable this rule.
+                        maximum: 36
+                        minimum: 0
+                        type: integer
+                      pointInTimeWindowHours:
+                        description: Number of hours in the past for which a point-in-time
+                          snapshot can be created.
+                        enum:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                        - 5
+                        - 6
+                        - 7
+                        - 15
+                        - 30
+                        - 60
+                        - 90
+                        - 120
+                        - 180
+                        - 360
+                        type: integer
+                      referenceHourOfDay:
+                        description: Hour of the day to schedule snapshots using a
+                          24-hour clock, in UTC.
+                        maximum: 23
+                        minimum: 0
+                        type: integer
+                      referenceMinuteOfHour:
+                        description: Minute of the hour to schedule snapshots, in
+                          UTC.
+                        maximum: 59
+                        minimum: 0
+                        type: integer
+                      snapshotIntervalHours:
+                        description: Number of hours between snapshots.
+                        enum:
+                        - 6
+                        - 8
+                        - 12
+                        - 24
+                        type: integer
+                      snapshotRetentionDays:
+                        description: Number of days to keep recent snapshots.
+                        maximum: 365
+                        minimum: 1
+                        type: integer
+                      weeklySnapshotRetentionWeeks:
+                        description: Number of weeks to retain weekly snapshots. Setting
+                          0 will disable this rule
+                        maximum: 365
+                        minimum: 0
+                        type: integer
+                    type: object
                 type: object
               cloudManager:
                 properties:
@@ -408,6 +520,7 @@ spec:
                             required:
                             - key
                             type: object
+                            x-kubernetes-map-type: atomic
                           automationUserName:
                             type: string
                           clientCertificateSecretRef:
@@ -460,6 +573,7 @@ spec:
                             required:
                             - key
                             type: object
+                            x-kubernetes-map-type: atomic
                           servers:
                             items:
                               type: string
@@ -567,18 +681,6 @@ spec:
                           used when enabling TLS on a MongoDB resource, and not on
                           the AppDB, where TLS is configured by setting `secretRef.Name`.
                         type: boolean
-                      secretRef:
-                        description: DEPRECATED please use security.certsSecretPrefix
-                          instead SecretRef points to a Secret object containing the
-                          certificates to use when enabling TLS.
-                        properties:
-                          prefix:
-                            description: DEPRECATED please use security.certsSecretPrefix
-                              instead
-                            type: string
-                        required:
-                        - prefix
-                        type: object
                     type: object
                 type: object
               service:
@@ -753,19 +855,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
   name: mongodbmulti.mongodb.com
 spec:
@@ -823,17 +918,130 @@ spec:
                 description: Backup contains configuration options for configuring
                   backup for this MongoDB resource
                 properties:
+                  assignmentLabels:
+                    description: Assignment Labels set in the Ops Manager
+                    items:
+                      type: string
+                    type: array
                   autoTerminateOnDeletion:
                     description: AutoTerminateOnDeletion indicates if the Operator
                       should stop and terminate the Backup before the cleanup, when
                       the MongoDB CR is deleted
                     type: boolean
+                  encryption:
+                    description: Encryption settings
+                    properties:
+                      kmip:
+                        description: Kmip corresponds to the KMIP configuration assigned
+                          to the Ops Manager Project's configuration.
+                        properties:
+                          client:
+                            description: KMIP Client configuration
+                            properties:
+                              clientCertificatePrefix:
+                                description: 'A prefix used to construct KMIP client
+                                  certificate (and corresponding password) Secret
+                                  names. The names are generated using the following
+                                  pattern: KMIP Client Certificate (TLS Secret): <clientCertificatePrefix>-<CR
+                                  Name>-kmip-client KMIP Client Certificate Password:
+                                  <clientCertificatePrefix>-<CR Name>-kmip-client-password
+                                  The expected key inside is called "password".'
+                                type: string
+                            type: object
+                        required:
+                        - client
+                        type: object
+                    type: object
                   mode:
                     enum:
                     - enabled
                     - disabled
                     - terminated
                     type: string
+                  snapshotSchedule:
+                    properties:
+                      clusterCheckpointIntervalMin:
+                        enum:
+                        - 15
+                        - 30
+                        - 60
+                        type: integer
+                      dailySnapshotRetentionDays:
+                        description: Number of days to retain daily snapshots. Setting
+                          0 will disable this rule.
+                        maximum: 365
+                        minimum: 0
+                        type: integer
+                      fullIncrementalDayOfWeek:
+                        description: Day of the week when Ops Manager takes a full
+                          snapshot. This ensures a recent complete backup. Ops Manager
+                          sets the default value to SUNDAY.
+                        enum:
+                        - SUNDAY
+                        - MONDAY
+                        - TUESDAY
+                        - WEDNESDAY
+                        - THURSDAY
+                        - FRIDAY
+                        - SATURDAY
+                        type: string
+                      monthlySnapshotRetentionMonths:
+                        description: Number of months to retain weekly snapshots.
+                          Setting 0 will disable this rule.
+                        maximum: 36
+                        minimum: 0
+                        type: integer
+                      pointInTimeWindowHours:
+                        description: Number of hours in the past for which a point-in-time
+                          snapshot can be created.
+                        enum:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                        - 5
+                        - 6
+                        - 7
+                        - 15
+                        - 30
+                        - 60
+                        - 90
+                        - 120
+                        - 180
+                        - 360
+                        type: integer
+                      referenceHourOfDay:
+                        description: Hour of the day to schedule snapshots using a
+                          24-hour clock, in UTC.
+                        maximum: 23
+                        minimum: 0
+                        type: integer
+                      referenceMinuteOfHour:
+                        description: Minute of the hour to schedule snapshots, in
+                          UTC.
+                        maximum: 59
+                        minimum: 0
+                        type: integer
+                      snapshotIntervalHours:
+                        description: Number of hours between snapshots.
+                        enum:
+                        - 6
+                        - 8
+                        - 12
+                        - 24
+                        type: integer
+                      snapshotRetentionDays:
+                        description: Number of days to keep recent snapshots.
+                        maximum: 365
+                        minimum: 1
+                        type: integer
+                      weeklySnapshotRetentionWeeks:
+                        description: Number of weeks to retain weekly snapshots. Setting
+                          0 will disable this rule
+                        maximum: 365
+                        minimum: 0
+                        type: integer
+                    type: object
                 type: object
               cloudManager:
                 properties:
@@ -885,6 +1093,8 @@ spec:
                           required:
                           - spec
                           type: object
+                      required:
+                      - members
                       type: object
                     type: array
                 type: object
@@ -969,6 +1179,7 @@ spec:
                             required:
                             - key
                             type: object
+                            x-kubernetes-map-type: atomic
                           automationUserName:
                             type: string
                           clientCertificateSecretRef:
@@ -1021,6 +1232,7 @@ spec:
                             required:
                             - key
                             type: object
+                            x-kubernetes-map-type: atomic
                           servers:
                             items:
                               type: string
@@ -1128,19 +1340,19 @@ spec:
                           used when enabling TLS on a MongoDB resource, and not on
                           the AppDB, where TLS is configured by setting `secretRef.Name`.
                         type: boolean
-                      secretRef:
-                        description: DEPRECATED please use security.certsSecretPrefix
-                          instead SecretRef points to a Secret object containing the
-                          certificates to use when enabling TLS.
-                        properties:
-                          prefix:
-                            description: DEPRECATED please use security.certsSecretPrefix
-                              instead
-                            type: string
-                        required:
-                        - prefix
-                        type: object
                     type: object
+                type: object
+              statefulSet:
+                description: StatefulSetConfiguration provides the statefulset override
+                  for each of the cluster's statefulset if  "StatefulSetConfiguration"
+                  is specified at cluster level under "clusterSpecList" that takes
+                  precedence over the global one
+                properties:
+                  spec:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                required:
+                - spec
                 type: object
               type:
                 enum:
@@ -1281,19 +1493,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
   name: mongodbusers.mongodb.com
 spec:
@@ -1449,19 +1654,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
   name: opsmanagers.mongodb.com
 spec:
@@ -1776,6 +1974,7 @@ spec:
                                 required:
                                 - key
                                 type: object
+                                x-kubernetes-map-type: atomic
                               automationUserName:
                                 type: string
                               clientCertificateSecretRef:
@@ -1830,6 +2029,7 @@ spec:
                                 required:
                                 - key
                                 type: object
+                                x-kubernetes-map-type: atomic
                               servers:
                                 items:
                                   type: string
@@ -1938,18 +2138,6 @@ spec:
                               and not on the AppDB, where TLS is configured by setting
                               `secretRef.Name`.
                             type: boolean
-                          secretRef:
-                            description: DEPRECATED please use security.certsSecretPrefix
-                              instead SecretRef points to a Secret object containing
-                              the certificates to use when enabling TLS.
-                            properties:
-                              prefix:
-                                description: DEPRECATED please use security.certsSecretPrefix
-                                  instead
-                                type: string
-                            required:
-                            - prefix
-                            type: object
                         type: object
                     type: object
                   service:
@@ -1971,6 +2159,11 @@ spec:
               backup:
                 description: Backup
                 properties:
+                  assignmentLabels:
+                    description: Assignment Labels set in the Ops Manager
+                    items:
+                      type: string
+                    type: array
                   blockStores:
                     items:
                       description: DataStoreConfig is the description of the config
@@ -1978,6 +2171,11 @@ spec:
                         Optionally references the user if the Mongodb is configured
                         with authentication
                       properties:
+                        assignmentLabels:
+                          description: Assignment Labels set in the Ops Manager
+                          items:
+                            type: string
+                          type: array
                         mongodbResourceRef:
                           properties:
                             name:
@@ -2005,6 +2203,35 @@ spec:
                     description: Enabled indicates if Backups will be enabled for
                       this Ops Manager.
                     type: boolean
+                  encryption:
+                    description: Encryption settings
+                    properties:
+                      kmip:
+                        description: Kmip corresponds to the KMIP configuration assigned
+                          to the Ops Manager Project's configuration.
+                        properties:
+                          server:
+                            description: KMIP Server configuration
+                            properties:
+                              ca:
+                                description: CA corresponds to a ConfigMap containing
+                                  an entry for the CA certificate (ca.pem) used for
+                                  KMIP authentication
+                                type: string
+                              url:
+                                description: 'KMIP Server url in the following format:
+                                  hostname:port Valid examples are: 10.10.10.3:5696
+                                  my-kmip-server.mycorp.com:5696 kmip-svc.svc.cluster.local:5696'
+                                pattern: '[^\:]+:[0-9]{0,5}'
+                                type: string
+                            required:
+                            - ca
+                            - url
+                            type: object
+                        required:
+                        - server
+                        type: object
+                    type: object
                   externalServiceEnabled:
                     type: boolean
                   fileSystemStores:
@@ -2045,6 +2272,11 @@ spec:
                         Optionally references the user if the Mongodb is configured
                         with authentication
                       properties:
+                        assignmentLabels:
+                          description: Assignment Labels set in the Ops Manager
+                          items:
+                            type: string
+                          type: array
                         mongodbResourceRef:
                           properties:
                             name:
@@ -2083,6 +2315,11 @@ spec:
                       store configs used for backup.
                     items:
                       properties:
+                        assignmentLabels:
+                          description: Assignment Labels set in the Ops Manager
+                          items:
+                            type: string
+                          type: array
                         customCertificate:
                           description: Set this to "true" when you have custom certificates
                             for your S3 buckets
@@ -2136,6 +2373,11 @@ spec:
                   s3Stores:
                     items:
                       properties:
+                        assignmentLabels:
+                          description: Assignment Labels set in the Ops Manager
+                          items:
+                            type: string
+                          type: array
                         customCertificate:
                           description: Set this to "true" when you have custom certificates
                             for your S3 buckets
@@ -2465,9 +2707,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

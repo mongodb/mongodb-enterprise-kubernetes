@@ -1116,18 +1116,18 @@ func copyDatabaseRoles(ctx context.Context, src, dst kubernetes.Interface, names
 	}
 	if len(appdbSA.ImagePullSecrets) > 0 {
 		if err := copySecret(ctx, src, dst, namespace, appdbSA.ImagePullSecrets[0].Name); err != nil {
-			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", appdbSA.ImagePullSecrets[0].Name, err)
+			fmt.Printf("failed creating image pull secret %s: %s\n", appdbSA.ImagePullSecrets[0].Name, err)
 		}
 
 	}
 	if len(dbpodsSA.ImagePullSecrets) > 0 {
 		if err := copySecret(ctx, src, dst, namespace, dbpodsSA.ImagePullSecrets[0].Name); err != nil {
-			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", dbpodsSA.ImagePullSecrets[0].Name, err)
+			fmt.Printf("failed creating image pull secret %s: %s\n", dbpodsSA.ImagePullSecrets[0].Name, err)
 		}
 	}
 	if len(opsManagerSA.ImagePullSecrets) > 0 {
 		if err := copySecret(ctx, src, dst, namespace, opsManagerSA.ImagePullSecrets[0].Name); err != nil {
-			errorChan <- fmt.Errorf("failed creating image pull secret %s: %s", opsManagerSA.ImagePullSecrets[0].Name, err)
+			fmt.Printf("failed creating image pull secret %s: %s\n", opsManagerSA.ImagePullSecrets[0].Name, err)
 		}
 	}
 	_, err = dst.CoreV1().ServiceAccounts(namespace).Create(ctx, &corev1.ServiceAccount{
