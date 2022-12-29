@@ -31,7 +31,7 @@ spec:
 
   configSrvPodSpec:
     podTemplate:
-      spec:        
+      spec:
         containers:
           - name: mongodb-enterprise-database
             resources:
@@ -43,7 +43,7 @@ spec:
                 memory: 500M
   shardPodSpec:
     podTemplate:
-      spec:        
+      spec:
         containers:
           - name: mongodb-enterprise-database
             resources:
@@ -56,7 +56,7 @@ spec:
 
   mongosPodSpec:
     podTemplate:
-      spec:        
+      spec:
         containers:
           - name: mongodb-enterprise-database
             resources:

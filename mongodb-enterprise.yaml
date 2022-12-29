@@ -12,27 +12,27 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: mongodb-enterprise-operator-mongodb-webhook
 rules:
-- apiGroups:
-  - admissionregistration.k8s.io
-  resources:
-  - validatingwebhookconfigurations
-  verbs:
-  - get
-  - create
-  - update
-  - delete
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - validatingwebhookconfigurations
+    verbs:
+      - get
+      - create
+      - update
+      - delete
 
-- apiGroups:
-  - ''
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
 kind: ClusterRoleBinding
@@ -44,9 +44,9 @@ roleRef:
   kind: ClusterRole
   name: mongodb-enterprise-operator-mongodb-webhook
 subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-operator
-  namespace: mongodb
+  - kind: ServiceAccount
+    name: mongodb-enterprise-operator
+    namespace: mongodb
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
 kind: Role
@@ -55,66 +55,66 @@ metadata:
   name: mongodb-enterprise-operator
   namespace: mongodb
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  - configmaps
-  verbs:
-  - get
-  - list
-  - create
-  - update
-  - delete
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - delete
-  - update
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-  - delete
-  - deletecollection
-- apiGroups:
-  - mongodb.com
-  verbs:
-  - '*'
-  resources:
-  - mongodb
-  - mongodb/finalizers
-  - mongodbusers
-  - opsmanagers
-  - opsmanagers/finalizers
-  - mongodbmulti
-  - mongodbmulti/finalizers
-  - mongodb/status
-  - mongodbusers/status
-  - opsmanagers/status
-  - mongodbmulti/status
+  - apiGroups:
+      - ''
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - delete
+      - update
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
+      - deletecollection
+  - apiGroups:
+      - mongodb.com
+    verbs:
+      - '*'
+    resources:
+      - mongodb
+      - mongodb/finalizers
+      - mongodbusers
+      - opsmanagers
+      - opsmanagers/finalizers
+      - mongodbmulti
+      - mongodbmulti/finalizers
+      - mongodb/status
+      - mongodbusers/status
+      - opsmanagers/status
+      - mongodbmulti/status
 
 # This ClusterRoleBinding is necessary in order to use validating
 # webhooks—these will prevent you from applying a variety of invalid resource
@@ -132,9 +132,9 @@ roleRef:
   kind: Role
   name: mongodb-enterprise-operator
 subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-operator
-  namespace: mongodb
+  - kind: ServiceAccount
+    name: mongodb-enterprise-operator
+    namespace: mongodb
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
@@ -164,20 +164,20 @@ metadata:
   name: mongodb-enterprise-appdb
   namespace: mongodb
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - get
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  verbs:
-  - patch
-  - delete
-  - get
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - patch
+      - delete
+      - get
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 kind: RoleBinding
@@ -190,9 +190,9 @@ roleRef:
   kind: Role
   name: mongodb-enterprise-appdb
 subjects:
-- kind: ServiceAccount
-  name: mongodb-enterprise-appdb
-  namespace: mongodb
+  - kind: ServiceAccount
+    name: mongodb-enterprise-appdb
+    namespace: mongodb
 ---
 # Source: enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
@@ -219,63 +219,65 @@ spec:
         runAsNonRoot: true
         runAsUser: 2000
       containers:
-      - name: mongodb-enterprise-operator
-        image: quay.io/mongodb/mongodb-enterprise-operator:1.17.2
-        imagePullPolicy: Always
-        args:
-        - -watch-resource=mongodb
-        - -watch-resource=opsmanagers
-        - -watch-resource=mongodbusers
-        command:
-        - /usr/local/bin/mongodb-enterprise-operator
-        resources:
-          limits:
-            cpu: 1100m
-            memory: 1Gi
-          requests:
-            cpu: 500m
-            memory: 200Mi
-        env:
-        - name: OPERATOR_ENV
-          value: prod
-        - name: WATCH_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: CURRENT_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: IMAGE_PULL_POLICY
-          value: Always
+        - name: mongodb-enterprise-operator
+          image: "quay.io/mongodb/mongodb-enterprise-operator:1.18.0"
+          imagePullPolicy: Always
+          args:
+            - -watch-resource=mongodb
+            - -watch-resource=opsmanagers
+            - -watch-resource=mongodbusers
+          command:
+            - /usr/local/bin/mongodb-enterprise-operator
+          resources:
+            limits:
+              cpu: 1100m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 200Mi
+          env:
+            - name: OPERATOR_ENV
+              value: prod
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CURRENT_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CLUSTER_CLIENT_TIMEOUT
+              value: "10"
+            - name: IMAGE_PULL_POLICY
+              value: Always
         # Database
-        - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-          value: quay.io/mongodb/mongodb-enterprise-database
-        - name: INIT_DATABASE_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-init-database
-        - name: INIT_DATABASE_VERSION
-          value: 1.0.13
-        - name: DATABASE_VERSION
-          value: 2.0.2
+            - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
+              value: quay.io/mongodb/mongodb-enterprise-database
+            - name: INIT_DATABASE_IMAGE_REPOSITORY
+              value: quay.io/mongodb/mongodb-enterprise-init-database
+            - name: INIT_DATABASE_VERSION
+              value: 1.0.14
+            - name: DATABASE_VERSION
+              value: 2.0.2
         # Ops Manager
-        - name: OPS_MANAGER_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-ops-manager
-        - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
-        - name: INIT_OPS_MANAGER_VERSION
-          value: 1.0.9
+            - name: OPS_MANAGER_IMAGE_REPOSITORY
+              value: quay.io/mongodb/mongodb-enterprise-ops-manager
+            - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
+              value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
+            - name: INIT_OPS_MANAGER_VERSION
+              value: 1.0.10
         # AppDB
-        - name: INIT_APPDB_IMAGE_REPOSITORY
-          value: quay.io/mongodb/mongodb-enterprise-init-appdb
-        - name: INIT_APPDB_VERSION
-          value: 1.0.13
-        - name: OPS_MANAGER_IMAGE_PULL_POLICY
-          value: Always
-        - name: AGENT_IMAGE
-          value: quay.io/mongodb/mongodb-agent:11.12.0.7388-1
-        - name: MONGODB_IMAGE
-          value: mongodb-enterprise-appdb-database
-        - name: MONGODB_REPO_URL
-          value: quay.io/mongodb
-        - name: PERFORM_FAILOVER
-          value: 'true'
+            - name: INIT_APPDB_IMAGE_REPOSITORY
+              value: quay.io/mongodb/mongodb-enterprise-init-appdb
+            - name: INIT_APPDB_VERSION
+              value: 1.0.14
+            - name: OPS_MANAGER_IMAGE_PULL_POLICY
+              value: Always
+            - name: AGENT_IMAGE
+              value: "quay.io/mongodb/mongodb-agent:12.0.15.7646-1"
+            - name: MONGODB_IMAGE
+              value: mongodb-enterprise-appdb-database
+            - name: MONGODB_REPO_URL
+              value: quay.io/mongodb
+            - name: PERFORM_FAILOVER
+              value: 'true'
