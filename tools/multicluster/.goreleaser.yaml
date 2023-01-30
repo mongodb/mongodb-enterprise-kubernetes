@@ -14,6 +14,7 @@ builds:
     - amd64
     - arm64
 
+
 archives:
   - format: tar.gz
     name_template: "kubectl-mongodb-multicluster_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
@@ -28,3 +29,6 @@ release:
   prerelease: auto
   draft: true
   name_template: "MongoDB MultiCluster CLI {{ .Version  }}"
+
+git:
+  tag_sort: -version:creatordate
