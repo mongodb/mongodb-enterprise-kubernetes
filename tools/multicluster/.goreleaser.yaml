@@ -1,0 +1,34 @@
+project_name: kubectl-mongodb-multicluster
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+    - linux
+    - darwin
+    goarch:
+    - amd64
+    - arm64
+
+
+archives:
+  - format: tar.gz
+    name_template: "kubectl-mongodb-multicluster_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  skip: true
+
+release:
+  prerelease: auto
+  draft: true
+  name_template: "MongoDB MultiCluster CLI {{ .Version  }}"
+
+git:
+  tag_sort: -version:creatordate
