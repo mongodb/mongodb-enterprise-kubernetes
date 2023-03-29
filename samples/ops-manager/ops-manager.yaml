@@ -34,5 +34,3 @@ spec:
     additionalMongodConfig:
       operationProfiling:
         mode: slowOp
-    podSpec:
-      cpu: '0.25'

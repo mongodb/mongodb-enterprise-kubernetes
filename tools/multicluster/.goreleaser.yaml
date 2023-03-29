@@ -1,4 +1,4 @@
-project_name: kubectl-mongodb_multicluster
+project_name: kubectl-mongodb
 
 before:
   hooks:
@@ -17,7 +17,7 @@ builds:
 
 archives:
   - format: tar.gz
-    name_template: "kubectl-mongodb_multicluster_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "kubectl-mongodb_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -28,7 +28,7 @@ changelog:
 release:
   prerelease: auto
   draft: true
-  name_template: "MongoDB MultiCluster CLI {{ .Version  }}"
+  name_template: "MongoDB Enterprise CLI {{ .Version  }}"
 
 git:
   tag_sort: -version:creatordate

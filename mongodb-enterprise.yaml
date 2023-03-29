@@ -21,7 +21,6 @@ rules:
       - create
       - update
       - delete
-
   - apiGroups:
       - ""
     resources:
@@ -109,17 +108,12 @@ rules:
       - mongodbusers
       - opsmanagers
       - opsmanagers/finalizers
-      - mongodbmulti
-      - mongodbmulti/finalizers
+      - mongodbmulticluster
+      - mongodbmulticluster/finalizers
       - mongodb/status
       - mongodbusers/status
       - opsmanagers/status
-      - mongodbmulti/status
-
-# This ClusterRoleBinding is necessary in order to use validating
-# webhooks—these will prevent you from applying a variety of invalid resource
-# definitions. The validating webhooks are optional so this can be removed if
-# necessary.
+      - mongodbmulticluster/status
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
 kind: RoleBinding
@@ -135,6 +129,11 @@ subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-operator
     namespace: mongodb
+
+# This ClusterRoleBinding is necessary in order to use validating
+# webhooks—these will prevent you from applying a variety of invalid resource
+# definitions. The validating webhooks are optional so this can be removed if
+# necessary.
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
@@ -220,7 +219,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator:1.18.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator:1.19.1"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -250,27 +249,27 @@ spec:
               value: "10"
             - name: IMAGE_PULL_POLICY
               value: Always
-        # Database
+            # Database
             - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
               value: quay.io/mongodb/mongodb-enterprise-database
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database
             - name: INIT_DATABASE_VERSION
-              value: 1.0.14
+              value: 1.0.15
             - name: DATABASE_VERSION
               value: 2.0.2
-        # Ops Manager
+            # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
             - name: INIT_OPS_MANAGER_VERSION
               value: 1.0.10
-        # AppDB
+            # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb
             - name: INIT_APPDB_VERSION
-              value: 1.0.14
+              value: 1.0.15
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
