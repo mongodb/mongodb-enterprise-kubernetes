@@ -126,7 +126,7 @@ data:
   baseUrl: https://my-ops-manager-or-cloud-manager-url
 ```
 > `projectName` is optional, and the value of `metadata.name` will be used if it is not defined.
-> `orgId` is optional, and the Project name will be used if it is not defined.
+> `orgId` is required.
 
 Apply this file to create the new `Project`:
 

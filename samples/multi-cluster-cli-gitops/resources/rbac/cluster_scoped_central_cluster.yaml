@@ -1,0 +1,99 @@
+# Central Cluster, cluster-scoped resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-operator-multi-cluster-role
+rules:
+- apiGroups:
+  - mongodb.com
+  resources:
+  - mongodbmulticluster
+  - mongodbmulticluster/finalizers
+  - mongodbmulticluster/status
+  - mongodbusers
+  - mongodbusers/status
+  - opsmanagers
+  - opsmanagers/finalizers
+  - opsmanagers/status
+  - mongodb
+  - mongodb/finalizers
+  - mongodb/status
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+  - services
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+  - deletecollection
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - list
+  - watch
+
+---
+# Central Cluster, cluster-scoped resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-operator-multi-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-multi-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: test-service-account
+  namespace: central-namespace
+
+---
+# Central Cluster, cluster-scoped resources
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+- name: image-registries-secret
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: test-service-account
+  namespace: central-namespace
+
+---

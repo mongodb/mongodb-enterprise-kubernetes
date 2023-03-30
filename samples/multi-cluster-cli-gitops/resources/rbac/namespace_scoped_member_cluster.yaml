@@ -1,0 +1,150 @@
+# Member Cluster, namespace-scoped resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-appdb
+  namespace: member-namespace
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - patch
+  - delete
+  - get
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-operator-multi-role
+  namespace: member-namespace
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+  - services
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+  - deletecollection
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+# Member Cluster, namespace-scoped resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-appdb
+  namespace: member-namespace
+roleRef:
+  apiGroup: ""
+  kind: Role
+  name: mongodb-enterprise-appdb
+subjects:
+- kind: ServiceAccount
+  name: mongodb-enterprise-appdb
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-operator-multi-role-binding
+  namespace: member-namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mongodb-enterprise-operator-multi-role
+subjects:
+- kind: ServiceAccount
+  name: test-service-account
+  namespace: member-namespace
+
+---
+# Member Cluster, namespace-scoped resources
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-appdb
+  namespace: member-namespace
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-database-pods
+  namespace: member-namespace
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: mongodb-enterprise-ops-manager
+  namespace: member-namespace
+
+---
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+- name: image-registries-secret
+metadata:
+  creationTimestamp: null
+  labels:
+    multi-cluster: "true"
+  name: test-service-account
+  namespace: member-namespace
+
+---

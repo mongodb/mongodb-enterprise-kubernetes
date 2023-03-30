@@ -277,16 +277,19 @@ spec:
               connectivity:
                 properties:
                   replicaSetHorizons:
+                    description: 'ReplicaSetHorizons holds list of maps of horizons
+                      to be configured in each of MongoDB processes. Horizons map
+                      horizon names to the node addresses for each process in the
+                      replicaset, e.g.: [ { "internal": "my-rs-0.my-internal-domain.com:31843",
+                      "external": "my-rs-0.my-external-domain.com:21467" }, { "internal":
+                      "my-rs-1.my-internal-domain.com:31843", "external": "my-rs-1.my-external-domain.com:21467"
+                      }, ... ] The key of each item in the map is an arbitrary, user-chosen
+                      string that represents the name of the horizon. The value of
+                      the item is the host and, optionally, the port that this mongod
+                      node will be connected to from.'
                     items:
                       additionalProperties:
                         type: string
-                      description: 'MongoDBHorizonConfig holds a map of horizon names
-                        to the node addresses, e.g. {   "internal": "my-rs-2.my-internal-domain.com:31843",   "external":
-                        "my-rs-2.my-external-domain.com:21467" } The key of each item
-                        in the map is an arbitrary, user-chosen string that represents
-                        the name of the horizon. The value of the item is the host
-                        and, optionally, the port that this mongod node will be connected
-                        to from.'
                       type: object
                     type: array
                 type: object
@@ -294,9 +297,32 @@ spec:
                 description: Name of the Secret holding credentials information
                 type: string
               exposedExternally:
-                description: ExposedExternally determines whether a NodePort service
-                  should be created for the resource
+                description: 'DEPRECATED: use ExternalAccessConfiguration instead'
                 type: boolean
+              externalAccess:
+                description: ExternalAccessConfiguration provides external access
+                  configuration.
+                properties:
+                  externalDomain:
+                    description: An external domain that is used for exposing MongoDB
+                      to the outside world.
+                    type: string
+                  externalService:
+                    description: Provides a way to override the default (NodePort)
+                      Service
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: A map of annotations that shall be added to the
+                          externally available Service.
+                        type: object
+                      spec:
+                        description: A wrapper for the Service spec object.
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    type: object
+                type: object
               featureCompatibilityVersion:
                 type: string
               logLevel:
@@ -307,6 +333,21 @@ spec:
                 - ERROR
                 - FATAL
                 type: string
+              memberConfig:
+                description: MemberConfig
+                items:
+                  properties:
+                    priority:
+                      type: string
+                    tags:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    votes:
+                      type: integer
+                  type: object
+                type: array
+                x-kubernetes-preserve-unknown-fields: true
               members:
                 description: Amount of members for this MongoDB Replica Set
                 type: integer
@@ -756,9 +797,67 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
+              shardSpecificPodSpec:
+                description: ShardSpecificPodSpec allows you to provide a Statefulset
+                  override per shard.
+                items:
+                  properties:
+                    persistence:
+                      properties:
+                        multiple:
+                          properties:
+                            data:
+                              properties:
+                                labelSelector:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                              type: object
+                            journal:
+                              properties:
+                                labelSelector:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                              type: object
+                            logs:
+                              properties:
+                                labelSelector:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                              type: object
+                          type: object
+                        single:
+                          properties:
+                            labelSelector:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                          type: object
+                      type: object
+                    podTemplate:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                type: array
               statefulSet:
-                description: StatefulSetConfiguration holds the optional custom StatefulSet
-                  that should be merged into the operator created one.
+                description: StatefulSetConfiguration provides the statefulset override
+                  for each of the cluster's statefulset if  "StatefulSetConfiguration"
+                  is specified at cluster level under "clusterSpecList" that takes
+                  precedence over the global one
                 properties:
                   spec:
                     type: object
@@ -862,16 +961,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
-  name: mongodbmulti.mongodb.com
+  name: mongodbmulticluster.mongodb.com
 spec:
   group: mongodb.com
   names:
-    kind: MongoDBMulti
-    listKind: MongoDBMultiList
-    plural: mongodbmulti
+    kind: MongoDBMultiCluster
+    listKind: MongoDBMultiClusterList
+    plural: mongodbmulticluster
     shortNames:
-    - mdbm
-    singular: mongodbmulti
+    - mdbmc
+    singular: mongodbmulticluster
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -879,7 +978,7 @@ spec:
       jsonPath: .status.phase
       name: Phase
       type: string
-    - description: The time since the MongoDBMulti resource was created.
+    - description: The time since the MongoDBMultiCluster resource was created.
       jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -1055,62 +1154,97 @@ spec:
                 format: hostname
                 type: string
               clusterSpecList:
-                description: ClusterSpecList holds a list with a clusterSpec corresponding
-                  to each cluster
-                properties:
-                  clusterSpecs:
-                    items:
-                      description: ClusterSpecItem is the mongodb multi-cluster spec
-                        that is specific to a particular Kubernetes cluster, this
-                        maps to the statefulset created in each cluster
+                items:
+                  description: ClusterSpecItem is the mongodb multi-cluster spec that
+                    is specific to a particular Kubernetes cluster, this maps to the
+                    statefulset created in each cluster
+                  properties:
+                    clusterName:
+                      description: ClusterName is name of the cluster where the MongoDB
+                        Statefulset will be scheduled, the name should have a one
+                        on one mapping with the service-account created in the central
+                        cluster to talk to the workload clusters.
+                      type: string
+                    exposedExternally:
+                      description: 'DEPRECATED: use ExternalAccessConfiguration instead'
+                      type: boolean
+                    externalAccess:
+                      description: ExternalAccessConfiguration provides external access
+                        configuration for Multi-Cluster.
                       properties:
-                        clusterName:
-                          description: ClusterName is name of the cluster where the
-                            MongoDB Statefulset will be scheduled, the name should
-                            have a one on one mapping with the service-account created
-                            in the central cluster to talk to the workload clusters.
+                        externalDomain:
+                          description: An external domain that is used for exposing
+                            MongoDB to the outside world.
                           type: string
-                        exposedExternally:
-                          description: ExposedExternally determines whether a NodePort
-                            service should be created for the resource
-                          type: boolean
-                        members:
-                          description: Amount of members for this MongoDB Replica
-                            Set
-                          type: integer
-                        service:
-                          description: this is an optional service, it will get the
-                            name "<rsName>-service" in case not provided
-                          type: string
-                        statefulSet:
-                          description: StatefulSetConfiguration holds the optional
-                            custom StatefulSet that should be merged into the operator
-                            created one.
+                        externalService:
+                          description: Provides a way to override the default (NodePort)
+                            Service
                           properties:
+                            annotations:
+                              additionalProperties:
+                                type: string
+                              description: A map of annotations that shall be added
+                                to the externally available Service.
+                              type: object
                             spec:
+                              description: A wrapper for the Service spec object.
                               type: object
                               x-kubernetes-preserve-unknown-fields: true
-                          required:
-                          - spec
                           type: object
-                      required:
-                      - members
                       type: object
-                    type: array
-                type: object
+                    memberConfig:
+                      description: MemberConfig
+                      items:
+                        properties:
+                          priority:
+                            type: string
+                          tags:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          votes:
+                            type: integer
+                        type: object
+                      type: array
+                      x-kubernetes-preserve-unknown-fields: true
+                    members:
+                      description: Amount of members for this MongoDB Replica Set
+                      type: integer
+                    service:
+                      description: this is an optional service, it will get the name
+                        "<rsName>-service" in case not provided
+                      type: string
+                    statefulSet:
+                      description: StatefulSetConfiguration holds the optional custom
+                        StatefulSet that should be merged into the operator created
+                        one.
+                      properties:
+                        spec:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - spec
+                      type: object
+                  required:
+                  - members
+                  type: object
+                type: array
               connectivity:
                 properties:
                   replicaSetHorizons:
+                    description: 'ReplicaSetHorizons holds list of maps of horizons
+                      to be configured in each of MongoDB processes. Horizons map
+                      horizon names to the node addresses for each process in the
+                      replicaset, e.g.: [ { "internal": "my-rs-0.my-internal-domain.com:31843",
+                      "external": "my-rs-0.my-external-domain.com:21467" }, { "internal":
+                      "my-rs-1.my-internal-domain.com:31843", "external": "my-rs-1.my-external-domain.com:21467"
+                      }, ... ] The key of each item in the map is an arbitrary, user-chosen
+                      string that represents the name of the horizon. The value of
+                      the item is the host and, optionally, the port that this mongod
+                      node will be connected to from.'
                     items:
                       additionalProperties:
                         type: string
-                      description: 'MongoDBHorizonConfig holds a map of horizon names
-                        to the node addresses, e.g. {   "internal": "my-rs-2.my-internal-domain.com:31843",   "external":
-                        "my-rs-2.my-external-domain.com:21467" } The key of each item
-                        in the map is an arbitrary, user-chosen string that represents
-                        the name of the horizon. The value of the item is the host
-                        and, optionally, the port that this mongod node will be connected
-                        to from.'
                       type: object
                     type: array
                 type: object
@@ -1128,6 +1262,33 @@ spec:
                   default, if not specified the operator would create the duplicate
                   svc objects.'
                 type: boolean
+              exposedExternally:
+                description: 'DEPRECATED: use ExternalAccessConfiguration instead'
+                type: boolean
+              externalAccess:
+                description: ExternalAccessConfiguration provides external access
+                  configuration.
+                properties:
+                  externalDomain:
+                    description: An external domain that is used for exposing MongoDB
+                      to the outside world.
+                    type: string
+                  externalService:
+                    description: Provides a way to override the default (NodePort)
+                      Service
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: A map of annotations that shall be added to the
+                          externally available Service.
+                        type: object
+                      spec:
+                        description: A wrapper for the Service spec object.
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    type: object
+                type: object
               featureCompatibilityVersion:
                 type: string
               logLevel:
@@ -1148,6 +1309,53 @@ spec:
                 type: object
               persistent:
                 type: boolean
+              prometheus:
+                description: Prometheus configurations.
+                properties:
+                  metricsPath:
+                    description: Indicates path to the metrics endpoint.
+                    pattern: ^\/[a-z0-9]+$
+                    type: string
+                  passwordSecretRef:
+                    description: Name of a Secret containing a HTTP Basic Auth Password.
+                    properties:
+                      key:
+                        description: Key is the key in the secret storing this password.
+                          Defaults to "password"
+                        type: string
+                      name:
+                        description: Name is the name of the secret storing this user's
+                          password
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  port:
+                    description: Port where metrics endpoint will bind to. Defaults
+                      to 9216.
+                    type: integer
+                  tlsSecretKeyRef:
+                    description: Name of a Secret (type kubernetes.io/tls) holding
+                      the certificates to use in the Prometheus endpoint.
+                    properties:
+                      key:
+                        description: Key is the key in the secret storing this password.
+                          Defaults to "password"
+                        type: string
+                      name:
+                        description: Name is the name of the secret storing this user's
+                          password
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  username:
+                    description: HTTP Basic Auth Username for metrics endpoint.
+                    type: string
+                required:
+                - passwordSecretRef
+                - username
+                type: object
               security:
                 properties:
                   authentication:
@@ -1356,7 +1564,9 @@ spec:
                 type: object
               type:
                 enum:
+                - Standalone
                 - ReplicaSet
+                - ShardedCluster
                 type: string
               version:
                 pattern: ^[0-9]+.[0-9]+.[0-9]+(-.+)?$|^$
@@ -1366,6 +1576,7 @@ spec:
             - type
             - version
             type: object
+            x-kubernetes-preserve-unknown-fields: true
           status:
             properties:
               backup:
@@ -1777,16 +1988,20 @@ spec:
                   connectivity:
                     properties:
                       replicaSetHorizons:
+                        description: 'ReplicaSetHorizons holds list of maps of horizons
+                          to be configured in each of MongoDB processes. Horizons
+                          map horizon names to the node addresses for each process
+                          in the replicaset, e.g.: [ { "internal": "my-rs-0.my-internal-domain.com:31843",
+                          "external": "my-rs-0.my-external-domain.com:21467" }, {
+                          "internal": "my-rs-1.my-internal-domain.com:31843", "external":
+                          "my-rs-1.my-external-domain.com:21467" }, ... ] The key
+                          of each item in the map is an arbitrary, user-chosen string
+                          that represents the name of the horizon. The value of the
+                          item is the host and, optionally, the port that this mongod
+                          node will be connected to from.'
                         items:
                           additionalProperties:
                             type: string
-                          description: 'MongoDBHorizonConfig holds a map of horizon
-                            names to the node addresses, e.g. {   "internal": "my-rs-2.my-internal-domain.com:31843",   "external":
-                            "my-rs-2.my-external-domain.com:21467" } The key of each
-                            item in the map is an arbitrary, user-chosen string that
-                            represents the name of the horizon. The value of the item
-                            is the host and, optionally, the port that this mongod
-                            node will be connected to from.'
                           type: object
                         type: array
                     type: object

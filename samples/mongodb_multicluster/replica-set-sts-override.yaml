@@ -1,0 +1,68 @@
+# provide statefulset override per cluster
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBMultiCluster
+metadata:
+  name: multi-replica-set
+spec:
+  version: 4.4.0-ent
+  type: ReplicaSet
+  persistent: false
+  duplicateServiceObjects: false
+  credentials: my-credentials
+  opsManager:
+    configMapRef:
+      name: my-project
+  clusterSpecList:
+    - clusterName: cluster1.mongokubernetes.com
+      members: 2
+      statefulSet:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: sidecar1
+                image: busybox
+                command: ["sleep"]
+                args: [ "infinity" ]
+          # to override the default storage class for the pv
+          volumeClaimTemplates:
+          - metadata:
+              name: data
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: "gp2"
+    - clusterName: cluster2.mongokubernetes.com
+      members: 1
+      statefulSet:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: sidecar2
+                image: busybox
+                command: ["sleep"]
+                args: [ "infinity" ]
+          volumeClaimTemplates:
+          - metadata:
+              name: data
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: "gp2"
+    - clusterName: cluster3.mongokubernetes.com
+      members: 1
+      statefulSet:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: sidecar3
+                image: busybox
+                command: ["sleep"]
+                args: [ "infinity" ]
+          volumeClaimTemplates:
+          - metadata:
+              name: data
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: "gp2"
