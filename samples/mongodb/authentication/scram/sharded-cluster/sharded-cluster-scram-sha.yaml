@@ -23,7 +23,7 @@ spec:
   security:
     authentication:
       enabled: true
-      modes: ["SCRAM"] # Valid authentication modes are "SCRAM' and "X509"
+      modes: ["SCRAM"] # Valid authentication modes are "SCRAM', "SCRAM-SHA-1", "MONGODB-CR", "X509" and "LDAP"
 
       # Optional field - ignoreUnknownUsers
       # A value of true means that any users not configured via the Operator or the Ops Manager or Cloud Manager UI
