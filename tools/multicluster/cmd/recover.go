@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/10gen/ops-manager-kubernetes/multi/pkg/common"
+
 	"github.com/spf13/cobra"
 	"golang.org/x/xerrors"
 	"k8s.io/client-go/tools/clientcmd"
@@ -13,18 +15,18 @@ import (
 func init() {
 	multiclusterCmd.AddCommand(recoverCmd)
 
-	recoverCmd.Flags().StringVar(&memberClusters, "member-clusters", "", "Comma separated list of member clusters. [required]")
-	recoverCmd.Flags().StringVar(&recoverFlags.serviceAccount, "service-account", "mongodb-enterprise-operator-multi-cluster", "Name of the service account which should be used for the Operator to communicate with the member clusters. [optional, default: mongodb-enterprise-operator-multi-cluster]")
-	recoverCmd.Flags().StringVar(&recoverFlags.centralCluster, "central-cluster", "", "The central cluster the operator will be deployed in. [required]")
-	recoverCmd.Flags().StringVar(&recoverFlags.memberClusterNamespace, "member-cluster-namespace", "", "The namespace the member cluster resources will be deployed to. [required]")
-	recoverCmd.Flags().StringVar(&recoverFlags.centralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
-	recoverCmd.Flags().BoolVar(&recoverFlags.cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
-	recoverCmd.Flags().BoolVar(&recoverFlags.clusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
-	recoverCmd.Flags().StringVar(&recoverFlags.operatorName, "operator-name", defaultOperatorName, "Name used to identify the deployment of the operator. [optional, default: mongodb-enterprise-operator]")
-	recoverCmd.Flags().BoolVar(&recoverFlags.installDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
-	recoverCmd.Flags().StringVar(&recoverFlags.sourceCluster, "source-cluster", "", "The source cluster for recovery. This has to be one of the healthy member cluster that is the source of truth for new cluster configuration. [required]")
-	recoverCmd.Flags().BoolVar(&recoverFlags.createServiceAccountSecrets, "create-service-account-secrets", true, "Create service account token secrets. [optional default: true]")
-	recoverCmd.Flags().StringVar(&memberClustersApiServers, "member-clusters-api-servers", "", "Comma separated list of api servers addresses. [optional, default will take addresses from KUBECONFIG env var]")
+	recoverCmd.Flags().StringVar(&common.MemberClusters, "member-clusters", "", "Comma separated list of member clusters. [required]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.ServiceAccount, "service-account", "mongodb-enterprise-operator-multi-cluster", "Name of the service account which should be used for the Operator to communicate with the member clusters. [optional, default: mongodb-enterprise-operator-multi-cluster]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.CentralCluster, "central-cluster", "", "The central cluster the operator will be deployed in. [required]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.MemberClusterNamespace, "member-cluster-namespace", "", "The namespace the member cluster resources will be deployed to. [required]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.CentralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
+	recoverCmd.Flags().BoolVar(&RecoverFlags.Cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
+	recoverCmd.Flags().BoolVar(&RecoverFlags.ClusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.OperatorName, "operator-name", common.DefaultOperatorName, "Name used to identify the deployment of the operator. [optional, default: mongodb-enterprise-operator]")
+	recoverCmd.Flags().BoolVar(&RecoverFlags.InstallDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
+	recoverCmd.Flags().StringVar(&RecoverFlags.SourceCluster, "source-cluster", "", "The source cluster for recovery. This has to be one of the healthy member cluster that is the source of truth for new cluster configuration. [required]")
+	recoverCmd.Flags().BoolVar(&RecoverFlags.CreateServiceAccountSecrets, "create-service-account-secrets", true, "Create service account token secrets. [optional default: true]")
+	recoverCmd.Flags().StringVar(&common.MemberClustersApiServers, "member-clusters-api-servers", "", "Comma separated list of api servers addresses. [optional, default will take addresses from KUBECONFIG env var]")
 }
 
 // recoverCmd represents the recover command
@@ -45,18 +47,18 @@ kubectl-mongodb multicluster recover --central-cluster="operator-cluster" --memb
 			os.Exit(1)
 		}
 
-		clientMap, err := createClientMap(recoverFlags.memberClusters, recoverFlags.centralCluster, loadKubeConfigFilePath(), getKubernetesClient)
+		clientMap, err := common.CreateClientMap(RecoverFlags.MemberClusters, RecoverFlags.CentralCluster, common.LoadKubeConfigFilePath(), common.GetKubernetesClient)
 		if err != nil {
 			fmt.Printf("failed to create clientset map: %s", err)
 			os.Exit(1)
 		}
 
-		if err := ensureMultiClusterResources(cmd.Context(), recoverFlags, clientMap); err != nil {
+		if err := common.EnsureMultiClusterResources(cmd.Context(), RecoverFlags, clientMap); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		if err := replaceClusterMembersConfigMap(cmd.Context(), clientMap[recoverFlags.centralCluster], recoverFlags); err != nil {
+		if err := common.ReplaceClusterMembersConfigMap(cmd.Context(), clientMap[RecoverFlags.CentralCluster], RecoverFlags); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -64,32 +66,32 @@ kubectl-mongodb multicluster recover --central-cluster="operator-cluster" --memb
 	},
 }
 
-var recoverFlags = flags{}
+var RecoverFlags = common.Flags{}
 
 func parseRecoverFlags(args []string) error {
-	if anyAreEmpty(memberClusters, recoverFlags.serviceAccount, recoverFlags.centralCluster, recoverFlags.memberClusterNamespace, recoverFlags.centralClusterNamespace, recoverFlags.sourceCluster) {
+	if common.AnyAreEmpty(common.MemberClusters, RecoverFlags.ServiceAccount, RecoverFlags.CentralCluster, RecoverFlags.MemberClusterNamespace, RecoverFlags.CentralClusterNamespace, RecoverFlags.SourceCluster) {
 		return xerrors.Errorf("non empty values are required for [service-account, member-clusters, central-cluster, member-cluster-namespace, central-cluster-namespace, source-cluster]")
 	}
 
-	recoverFlags.memberClusters = strings.Split(memberClusters, ",")
-	if !contains(recoverFlags.memberClusters, recoverFlags.sourceCluster) {
-		return xerrors.Errorf("source-cluster has to be one of the healthy member clusters: %s", memberClusters)
+	RecoverFlags.MemberClusters = strings.Split(common.MemberClusters, ",")
+	if !common.Contains(RecoverFlags.MemberClusters, RecoverFlags.SourceCluster) {
+		return xerrors.Errorf("source-cluster has to be one of the healthy member clusters: %s", common.MemberClusters)
 	}
 
-	if strings.TrimSpace(memberClustersApiServers) != "" {
-		recoverFlags.memberClusterApiServerUrls = strings.Split(memberClustersApiServers, ",")
-		if len(recoverFlags.memberClusterApiServerUrls) != len(recoverFlags.memberClusters) {
-			return xerrors.Errorf("expected %d addresses in member-clusters-api-servers parameter but got %d", len(recoverFlags.memberClusters), len(recoverFlags.memberClusterApiServerUrls))
+	if strings.TrimSpace(common.MemberClustersApiServers) != "" {
+		RecoverFlags.MemberClusterApiServerUrls = strings.Split(common.MemberClustersApiServers, ",")
+		if len(RecoverFlags.MemberClusterApiServerUrls) != len(RecoverFlags.MemberClusters) {
+			return xerrors.Errorf("expected %d addresses in member-clusters-api-servers parameter but got %d", len(RecoverFlags.MemberClusters), len(RecoverFlags.MemberClusterApiServerUrls))
 		}
 	}
 
-	configFilePath := loadKubeConfigFilePath()
+	configFilePath := common.LoadKubeConfigFilePath()
 	kubeconfig, err := clientcmd.LoadFromFile(configFilePath)
 	if err != nil {
 		return xerrors.Errorf("error loading kubeconfig file '%s': %w", configFilePath, err)
 	}
-	if len(recoverFlags.memberClusterApiServerUrls) == 0 {
-		if recoverFlags.memberClusterApiServerUrls, err = getMemberClusterApiServerUrls(kubeconfig, recoverFlags.memberClusters); err != nil {
+	if len(RecoverFlags.MemberClusterApiServerUrls) == 0 {
+		if RecoverFlags.MemberClusterApiServerUrls, err = common.GetMemberClusterApiServerUrls(kubeconfig, RecoverFlags.MemberClusters); err != nil {
 			return err
 		}
 	}

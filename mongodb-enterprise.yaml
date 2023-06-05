@@ -219,7 +219,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator:1.19.1"
+          image: "quay.io/mongodb/mongodb-enterprise-operator:1.20.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -251,32 +251,34 @@ spec:
               value: Always
             # Database
             - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
-              value: quay.io/mongodb/mongodb-enterprise-database
+              value: quay.io/mongodb/mongodb-enterprise-database-ubi
             - name: INIT_DATABASE_IMAGE_REPOSITORY
-              value: quay.io/mongodb/mongodb-enterprise-init-database
+              value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.0.15
+              value: 1.0.17
             - name: DATABASE_VERSION
               value: 2.0.2
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
-              value: quay.io/mongodb/mongodb-enterprise-ops-manager
+              value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
-              value: quay.io/mongodb/mongodb-enterprise-init-ops-manager
+              value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.0.10
+              value: 1.0.11
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
-              value: quay.io/mongodb/mongodb-enterprise-init-appdb
+              value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.0.15
+              value: 1.0.17
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "quay.io/mongodb/mongodb-agent:12.0.15.7646-1"
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.21.7698-1"
             - name: MONGODB_IMAGE
-              value: mongodb-enterprise-appdb-database
+              value: mongodb-enterprise-server
             - name: MONGODB_REPO_URL
               value: quay.io/mongodb
+            - name: MDB_IMAGE_TYPE
+              value: ubi8
             - name: PERFORM_FAILOVER
               value: 'true'
