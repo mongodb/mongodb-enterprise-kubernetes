@@ -37,7 +37,7 @@ spec:
           name: admin-user
 
     # Configures the list of S3 Oplog Store Configs
-    s3OpLogStores:
+    s3OplogStores:
       - name: my-s3-oplog-store
         # the name of the secret which contains aws credentials
         s3SecretRef:
