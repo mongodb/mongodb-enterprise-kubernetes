@@ -19,27 +19,74 @@ spec:
 
   persistent: true
   configSrvPodSpec:
-    # For podAffinity and nodeAffinity see Kubernetes Docs
-    # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-    podAntiAffinityTopologyKey: kubernetes.io/hostname
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: security
-            operator: In
-            values:
-            - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
+    podTemplate:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: security
+                    operator: In
+                    values:
+                      - S1
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            topologyKey: nodeId
   mongosPodSpec:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 1
-        preference:
-          matchExpressions:
-          - key: another-node-label-key
-            operator: In
-            values:
-            - another-node-label-value
+    podTemplate:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: security
+                    operator: In
+                    values:
+                      - S1
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            topologyKey: nodeId
   shardPodSpec:
-    podAntiAffinityTopologyKey: rackId
+    podTemplate:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: security
+                    operator: In
+                    values:
+                      - S1
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/e2e-az-name
+                    operator: In
+                    values:
+                      - e2e-az1
+                      - e2e-az2
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            topologyKey: nodeId
