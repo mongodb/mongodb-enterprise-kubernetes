@@ -411,7 +411,7 @@ func getMemberRules() []rbacv1.PolicyRule {
 			APIGroups: []string{"apps"},
 		},
 		{
-			Verbs:     []string{"get", "list", "watch"},
+			Verbs:     []string{"get", "list", "watch", "delete", "deletecollection"},
 			Resources: []string{"pods"},
 			APIGroups: []string{""},
 		},

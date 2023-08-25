@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eou pipefail
+set -Eeou pipefail
 
 #
 # mdb_operator_diagnostic_data.sh
@@ -100,7 +100,7 @@ dump_all() {
     kubectl -n "${namespace}" get pods | grep -E "^${mdb_resource}-+"
 
     echo "+ Saving Pods state to ${mdb_resource}-N.logs"
-    pods_in_namespace=$(kubectl get pods --namespace nnguyen-evg-mdb-ns-a --selector=controller=mongodb-enterprise-operator --no-headers -o custom-columns=":metadata.name")
+    pods_in_namespace=$(kubectl get pods --namespace "${namespace}" --selector=controller=mongodb-enterprise-operator --no-headers -o custom-columns=":metadata.name")
 
     mdb_container_name="mongodb-enterprise-database"
     for pod in ${pods_in_namespace}; do
