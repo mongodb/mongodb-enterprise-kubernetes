@@ -137,7 +137,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator-multi-cluster
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.21.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.22.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
