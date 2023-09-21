@@ -216,7 +216,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.21.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.22.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -254,7 +254,7 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.0.18
+              value: 1.0.19
             - name: DATABASE_VERSION
               value: 2.0.2
             # Ops Manager
@@ -283,8 +283,8 @@ spec:
               value: 'true'
             - name: RELATED_IMAGE_MONGODB_ENTERPRISE_DATABASE_IMAGE_2_0_2
               value: "quay.io/mongodb/mongodb-enterprise-database-ubi:2.0.2"
-            - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_0_18
-              value: "quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.0.18"
+            - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_0_19
+              value: "quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.0.19"
             - name: RELATED_IMAGE_INIT_OPS_MANAGER_IMAGE_REPOSITORY_1_0_12
               value: "quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi:1.0.12"
             - name: RELATED_IMAGE_INIT_APPDB_IMAGE_REPOSITORY_1_0_18
@@ -389,6 +389,8 @@ spec:
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.16"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_17
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.17"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_18
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.18"
       # since the official server images end with a different suffix we can re-use the same $mongodbImageEnv
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_4_0_ubi8
               value: "quay.io/mongodb/mongodb-enterprise-server:4.4.0-ubi8"

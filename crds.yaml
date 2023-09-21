@@ -2011,29 +2011,75 @@ spec:
               applicationDatabase:
                 properties:
                   additionalMongodConfig:
-                    description: 'AdditionalMongodConfig is additional configuration
+                    description: 'AdditionalMongodConfig are additional configurations
                       that can be passed to each data-bearing mongod at runtime. Uses
                       the same structure as the mongod configuration file: https://docs.mongodb.com/manual/reference/configuration-options/'
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   agent:
-                    description: specify startup flags for the AutomationAgent and
-                      MonitoringAgent
+                    description: specify configuration like startup flags and automation
+                      config settings for the AutomationAgent and MonitoringAgent
                     properties:
                       logLevel:
                         type: string
+                      logRotate:
+                        description: LogRotate if enabled, will enable LogRotate for
+                          all processes.
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: set to 'true' to have the Automation Agent
+                              rotate the audit files along with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: Maximum percentage of the total disk space
+                              these log files should take up. The string needs to
+                              be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: Maximum size for an individual log file before
+                              rotation. The string needs to be able to be converted
+                              to float64. Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
                       maxLogFileDurationHours:
                         type: integer
                       startupOptions:
                         additionalProperties:
                           type: string
                         type: object
+                      systemLog:
+                        description: SystemLog configures system log of mongod
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
+                        type: object
                     type: object
                   automationConfig:
                     description: AutomationConfigOverride holds any fields that will
                       be merged on top of the Automation Config that the operator
-                      creates for the AppDB. Currently only the process.disabled field
-                      is recognized.
+                      creates for the AppDB. Currently only the process.disabled and
+                      logRotate field is recognized.
                     properties:
                       processes:
                         items:
@@ -2042,6 +2088,43 @@ spec:
                           properties:
                             disabled:
                               type: boolean
+                            logRotate:
+                              description: CrdLogRotate is the crd definition of LogRotate
+                                including fields in strings while the agent supports
+                                them as float64
+                              properties:
+                                includeAuditLogsWithMongoDBLogs:
+                                  description: set to 'true' to have the Automation
+                                    Agent rotate the audit files along with mongodb
+                                    log files
+                                  type: boolean
+                                numTotal:
+                                  description: maximum number of log files to have
+                                    total
+                                  type: integer
+                                numUncompressed:
+                                  description: maximum number of log files to leave
+                                    uncompressed
+                                  type: integer
+                                percentOfDiskspace:
+                                  description: Maximum percentage of the total disk
+                                    space these log files should take up. The string
+                                    needs to be able to be converted to float64
+                                  type: string
+                                sizeThresholdMB:
+                                  description: Maximum size for an individual log
+                                    file before rotation. The string needs to be able
+                                    to be converted to float64. Fractional values
+                                    of MB are supported.
+                                  type: string
+                                timeThresholdHrs:
+                                  description: maximum hours for an individual log
+                                    file before rotation
+                                  type: integer
+                              required:
+                              - sizeThresholdMB
+                              - timeThresholdHrs
+                              type: object
                             name:
                               type: string
                           required:
@@ -2206,8 +2289,9 @@ spec:
                     minimum: 3
                     type: integer
                   monitoringAgent:
-                    description: specify startup flags for just the MonitoringAgent.
-                      These take precedence over the flags set in AutomationAgent
+                    description: Specify configuration like startup flags just for
+                      the MonitoringAgent. These take precedence over the flags set
+                      in AutomationAgent
                     properties:
                       logLevel:
                         type: string
