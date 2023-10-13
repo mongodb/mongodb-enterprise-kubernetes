@@ -647,13 +647,6 @@ spec:
                         type: object
                       modes:
                         items:
-                          enum:
-                          - X509
-                          - SCRAM
-                          - SCRAM-SHA-1
-                          - MONGODB-CR
-                          - SCRAM-SHA-256
-                          - LDAP
                           type: string
                         type: array
                       requireClientTLSAuthentication:
@@ -882,19 +875,6 @@ spec:
                   is specified at cluster level under "clusterSpecList" that takes
                   precedence over the global one
                 properties:
-                  metadata:
-                    description: StatefulSetMetadataWrapper is a wrapper around Labels
-                      and Annotations
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        type: object
-                    type: object
                   spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -1259,19 +1239,6 @@ spec:
                         StatefulSet that should be merged into the operator created
                         one.
                       properties:
-                        metadata:
-                          description: StatefulSetMetadataWrapper is a wrapper around
-                            Labels and Annotations
-                          properties:
-                            annotations:
-                              additionalProperties:
-                                type: string
-                              type: object
-                            labels:
-                              additionalProperties:
-                                type: string
-                              type: object
-                          type: object
                         spec:
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -1514,13 +1481,6 @@ spec:
                         type: object
                       modes:
                         items:
-                          enum:
-                          - X509
-                          - SCRAM
-                          - SCRAM-SHA-1
-                          - MONGODB-CR
-                          - SCRAM-SHA-256
-                          - LDAP
                           type: string
                         type: array
                       requireClientTLSAuthentication:
@@ -1616,19 +1576,6 @@ spec:
                   is specified at cluster level under "clusterSpecList" that takes
                   precedence over the global one
                 properties:
-                  metadata:
-                    description: StatefulSetMetadataWrapper is a wrapper around Labels
-                      and Annotations
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        type: object
-                    type: object
                   spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -2011,75 +1958,29 @@ spec:
               applicationDatabase:
                 properties:
                   additionalMongodConfig:
-                    description: 'AdditionalMongodConfig are additional configurations
+                    description: 'AdditionalMongodConfig is additional configuration
                       that can be passed to each data-bearing mongod at runtime. Uses
                       the same structure as the mongod configuration file: https://docs.mongodb.com/manual/reference/configuration-options/'
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   agent:
-                    description: specify configuration like startup flags and automation
-                      config settings for the AutomationAgent and MonitoringAgent
+                    description: specify startup flags for the AutomationAgent and
+                      MonitoringAgent
                     properties:
                       logLevel:
                         type: string
-                      logRotate:
-                        description: LogRotate if enabled, will enable LogRotate for
-                          all processes.
-                        properties:
-                          includeAuditLogsWithMongoDBLogs:
-                            description: set to 'true' to have the Automation Agent
-                              rotate the audit files along with mongodb log files
-                            type: boolean
-                          numTotal:
-                            description: maximum number of log files to have total
-                            type: integer
-                          numUncompressed:
-                            description: maximum number of log files to leave uncompressed
-                            type: integer
-                          percentOfDiskspace:
-                            description: Maximum percentage of the total disk space
-                              these log files should take up. The string needs to
-                              be able to be converted to float64
-                            type: string
-                          sizeThresholdMB:
-                            description: Maximum size for an individual log file before
-                              rotation. The string needs to be able to be converted
-                              to float64. Fractional values of MB are supported.
-                            type: string
-                          timeThresholdHrs:
-                            description: maximum hours for an individual log file
-                              before rotation
-                            type: integer
-                        required:
-                        - sizeThresholdMB
-                        - timeThresholdHrs
-                        type: object
                       maxLogFileDurationHours:
                         type: integer
                       startupOptions:
                         additionalProperties:
                           type: string
                         type: object
-                      systemLog:
-                        description: SystemLog configures system log of mongod
-                        properties:
-                          destination:
-                            type: string
-                          logAppend:
-                            type: boolean
-                          path:
-                            type: string
-                        required:
-                        - destination
-                        - logAppend
-                        - path
-                        type: object
                     type: object
                   automationConfig:
                     description: AutomationConfigOverride holds any fields that will
                       be merged on top of the Automation Config that the operator
-                      creates for the AppDB. Currently only the process.disabled and
-                      logRotate field is recognized.
+                      creates for the AppDB. Currently only the process.disabled field
+                      is recognized.
                     properties:
                       processes:
                         items:
@@ -2088,43 +1989,6 @@ spec:
                           properties:
                             disabled:
                               type: boolean
-                            logRotate:
-                              description: CrdLogRotate is the crd definition of LogRotate
-                                including fields in strings while the agent supports
-                                them as float64
-                              properties:
-                                includeAuditLogsWithMongoDBLogs:
-                                  description: set to 'true' to have the Automation
-                                    Agent rotate the audit files along with mongodb
-                                    log files
-                                  type: boolean
-                                numTotal:
-                                  description: maximum number of log files to have
-                                    total
-                                  type: integer
-                                numUncompressed:
-                                  description: maximum number of log files to leave
-                                    uncompressed
-                                  type: integer
-                                percentOfDiskspace:
-                                  description: Maximum percentage of the total disk
-                                    space these log files should take up. The string
-                                    needs to be able to be converted to float64
-                                  type: string
-                                sizeThresholdMB:
-                                  description: Maximum size for an individual log
-                                    file before rotation. The string needs to be able
-                                    to be converted to float64. Fractional values
-                                    of MB are supported.
-                                  type: string
-                                timeThresholdHrs:
-                                  description: maximum hours for an individual log
-                                    file before rotation
-                                  type: integer
-                              required:
-                              - sizeThresholdMB
-                              - timeThresholdHrs
-                              type: object
                             name:
                               type: string
                           required:
@@ -2145,97 +2009,6 @@ spec:
                     type: object
                   clusterDomain:
                     type: string
-                  clusterSpecList:
-                    items:
-                      description: ClusterSpecItem is the mongodb multi-cluster spec
-                        that is specific to a particular Kubernetes cluster, this
-                        maps to the statefulset created in each cluster
-                      properties:
-                        clusterName:
-                          description: ClusterName is name of the cluster where the
-                            MongoDB Statefulset will be scheduled, the name should
-                            have a one on one mapping with the service-account created
-                            in the central cluster to talk to the workload clusters.
-                          type: string
-                        exposedExternally:
-                          description: 'DEPRECATED: use ExternalAccessConfiguration
-                            instead'
-                          type: boolean
-                        externalAccess:
-                          description: ExternalAccessConfiguration provides external
-                            access configuration for Multi-Cluster.
-                          properties:
-                            externalDomain:
-                              description: An external domain that is used for exposing
-                                MongoDB to the outside world.
-                              type: string
-                            externalService:
-                              description: Provides a way to override the default
-                                (NodePort) Service
-                              properties:
-                                annotations:
-                                  additionalProperties:
-                                    type: string
-                                  description: A map of annotations that shall be
-                                    added to the externally available Service.
-                                  type: object
-                                spec:
-                                  description: A wrapper for the Service spec object.
-                                  type: object
-                                  x-kubernetes-preserve-unknown-fields: true
-                              type: object
-                          type: object
-                        memberConfig:
-                          description: MemberConfig
-                          items:
-                            properties:
-                              priority:
-                                type: string
-                              tags:
-                                additionalProperties:
-                                  type: string
-                                type: object
-                              votes:
-                                type: integer
-                            type: object
-                          type: array
-                          x-kubernetes-preserve-unknown-fields: true
-                        members:
-                          description: Amount of members for this MongoDB Replica
-                            Set
-                          type: integer
-                        service:
-                          description: this is an optional service, it will get the
-                            name "<rsName>-service" in case not provided
-                          type: string
-                        statefulSet:
-                          description: StatefulSetConfiguration holds the optional
-                            custom StatefulSet that should be merged into the operator
-                            created one.
-                          properties:
-                            metadata:
-                              description: StatefulSetMetadataWrapper is a wrapper
-                                around Labels and Annotations
-                              properties:
-                                annotations:
-                                  additionalProperties:
-                                    type: string
-                                  type: object
-                                labels:
-                                  additionalProperties:
-                                    type: string
-                                  type: object
-                              type: object
-                            spec:
-                              type: object
-                              x-kubernetes-preserve-unknown-fields: true
-                          required:
-                          - spec
-                          type: object
-                      required:
-                      - members
-                      type: object
-                    type: array
                   connectivity:
                     properties:
                       replicaSetHorizons:
@@ -2289,9 +2062,8 @@ spec:
                     minimum: 3
                     type: integer
                   monitoringAgent:
-                    description: Specify configuration like startup flags just for
-                      the MonitoringAgent. These take precedence over the flags set
-                      in AutomationAgent
+                    description: specify startup flags for just the MonitoringAgent.
+                      These take precedence over the flags set in AutomationAgent
                     properties:
                       logLevel:
                         type: string
@@ -2531,13 +2303,6 @@ spec:
                             type: object
                           modes:
                             items:
-                              enum:
-                              - X509
-                              - SCRAM
-                              - SCRAM-SHA-1
-                              - MONGODB-CR
-                              - SCRAM-SHA-256
-                              - LDAP
                               type: string
                             type: array
                           requireClientTLSAuthentication:
@@ -2630,12 +2395,7 @@ spec:
                     type: object
                   service:
                     description: this is an optional service, it will get the name
-                      "<rsName>-svc" in case not provided
-                    type: string
-                  topology:
-                    enum:
-                    - SingleCluster
-                    - MultiCluster
+                      "<rsName>-service" in case not provided
                     type: string
                   type:
                     enum:
@@ -2814,40 +2574,12 @@ spec:
                             type: string
                           type: array
                         customCertificate:
-                          description: 'Set this to "true" to use the appDBCa as a
-                            CA to access S3. Deprecated: This has been replaced by
-                            CustomCertificateSecretRefs, In the future all custom
-                            certificates, which includes the appDBCa for s3Config
-                            should be configured in CustomCertificateSecretRefs instead.'
+                          description: Set this to "true" when you have custom certificates
+                            for your S3 buckets
                           type: boolean
-                        customCertificateSecretRefs:
-                          description: CustomCertificateSecretRefs is a list of valid
-                            Certificate Authority certificate secrets that apply to
-                            the associated S3 bucket.
-                          items:
-                            description: SecretKeySelector selects a key of a Secret.
-                            properties:
-                              key:
-                                description: The key of the secret to select from.  Must
-                                  be a valid secret key.
-                                type: string
-                              name:
-                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                                  TODO: Add other useful fields. apiVersion, kind,
-                                  uid?'
-                                type: string
-                              optional:
-                                description: Specify whether the Secret or its key
-                                  must be defined
-                                type: boolean
-                            required:
-                            - key
-                            type: object
-                            x-kubernetes-map-type: atomic
-                          type: array
                         irsaEnabled:
-                          description: 'This is only set to "true" when a user is
-                            running in EKS and is using AWS IRSA to configure S3 snapshot
+                          description: 'This is only set to "true" when user is running
+                            in EKS and is using AWS IRSA to configure S3 snapshot
                             store. For more details refer this: https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/'
                           type: boolean
                         mongodbResourceRef:
@@ -2900,40 +2632,12 @@ spec:
                             type: string
                           type: array
                         customCertificate:
-                          description: 'Set this to "true" to use the appDBCa as a
-                            CA to access S3. Deprecated: This has been replaced by
-                            CustomCertificateSecretRefs, In the future all custom
-                            certificates, which includes the appDBCa for s3Config
-                            should be configured in CustomCertificateSecretRefs instead.'
+                          description: Set this to "true" when you have custom certificates
+                            for your S3 buckets
                           type: boolean
-                        customCertificateSecretRefs:
-                          description: CustomCertificateSecretRefs is a list of valid
-                            Certificate Authority certificate secrets that apply to
-                            the associated S3 bucket.
-                          items:
-                            description: SecretKeySelector selects a key of a Secret.
-                            properties:
-                              key:
-                                description: The key of the secret to select from.  Must
-                                  be a valid secret key.
-                                type: string
-                              name:
-                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                                  TODO: Add other useful fields. apiVersion, kind,
-                                  uid?'
-                                type: string
-                              optional:
-                                description: Specify whether the Secret or its key
-                                  must be defined
-                                type: boolean
-                            required:
-                            - key
-                            type: object
-                            x-kubernetes-map-type: atomic
-                          type: array
                         irsaEnabled:
-                          description: 'This is only set to "true" when a user is
-                            running in EKS and is using AWS IRSA to configure S3 snapshot
+                          description: 'This is only set to "true" when user is running
+                            in EKS and is using AWS IRSA to configure S3 snapshot
                             store. For more details refer this: https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/'
                           type: boolean
                         mongodbResourceRef:
@@ -2982,19 +2686,6 @@ spec:
                       StatefulSet that should be merged into the operator created
                       one.
                     properties:
-                      metadata:
-                        description: StatefulSetMetadataWrapper is a wrapper around
-                          Labels and Annotations
-                        properties:
-                          annotations:
-                            additionalProperties:
-                              type: string
-                            type: object
-                          labels:
-                            additionalProperties:
-                              type: string
-                            type: object
-                        type: object
                       spec:
                         type: object
                         x-kubernetes-preserve-unknown-fields: true
@@ -3082,19 +2773,6 @@ spec:
               statefulSet:
                 description: Configure custom StatefulSet configuration
                 properties:
-                  metadata:
-                    description: StatefulSetMetadataWrapper is a wrapper around Labels
-                      and Annotations
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        type: object
-                    type: object
                   spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true

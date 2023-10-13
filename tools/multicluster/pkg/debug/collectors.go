@@ -28,11 +28,6 @@ var (
 	OpsManagerSchemeGVR    = schema.GroupVersionResource{Group: "mongodb.com", Version: "v1", Resource: "opsmanagers"}
 )
 
-const (
-	redColor   = "\033[31m"
-	resetColor = "\033[0m"
-)
-
 type Filter interface {
 	Accept(object runtime.Object) bool
 }
@@ -64,9 +59,8 @@ func (a *WithOwningReference) Accept(object runtime.Object) bool {
 }
 
 type RawFile struct {
-	Name          string
-	ContainerName string
-	content       []byte
+	Name    string
+	content []byte
 }
 
 type Collector interface {
@@ -212,26 +206,18 @@ func (s *LogsCollector) Collect(ctx context.Context, kubeClient common.KubeClien
 		return nil, nil, err
 	}
 	var logsToCollect []RawFile
-	for podIdx := range pods.Items {
-		for containerIdx := range pods.Items[podIdx].Spec.Containers {
-			logsToCollect = append(logsToCollect, RawFile{
-				Name:          pods.Items[podIdx].Name,
-				ContainerName: pods.Items[podIdx].Spec.Containers[containerIdx].Name,
-			})
-		}
+	for i := range pods.Items {
+		logsToCollect = append(logsToCollect, RawFile{
+			Name: pods.Items[i].Name,
+		})
 	}
 	for i := range logsToCollect {
 		podName := logsToCollect[i].Name
 		PodLogsConnection := kubeClient.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
 			Follow:    false,
 			TailLines: pointer.Int64(100),
-			Container: logsToCollect[i].ContainerName,
 		})
-		LogStream, err := PodLogsConnection.Stream(ctx)
-		if err != nil {
-			fmt.Printf(redColor+"[%T] error from %s/%s, ignoring: %s\n"+resetColor, s, namespace, podName, err)
-			continue
-		}
+		LogStream, _ := PodLogsConnection.Stream(ctx)
 		reader := bufio.NewScanner(LogStream)
 		var line string
 		for reader.Scan() {
@@ -361,11 +347,6 @@ func Collect(ctx context.Context, kubeClient common.KubeClient, context string, 
 
 	for _, collector := range collectors {
 		collectedKubeObjects, collectedRawObjects, err := collector.Collect(ctx, kubeClient, namespace, filter, anonymizer)
-		errorString := ""
-		if err != nil {
-			errorString = fmt.Sprintf(redColor+" error: %s"+resetColor, err)
-		}
-		fmt.Printf("[%T] collected %d kubeObjects, %d rawObjects%s\n", collector, len(collectedKubeObjects), len(collectedRawObjects), errorString)
 		result.kubeResources = append(result.kubeResources, collectedKubeObjects...)
 		result.rawObjects = append(result.rawObjects, collectedRawObjects...)
 		if err != nil {

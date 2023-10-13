@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ghodss/yaml"
@@ -38,14 +37,14 @@ func WriteToFile(path string, collectionResults ...CollectionResult) (string, st
 			if err != nil {
 				return "", "", err
 			}
-			fileName := fmt.Sprintf("%s/%s-%s-%s-%s.yaml", path, cleanContext(collectionResult.context), collectionResult.namespace, kubeType, meta.GetName())
+			fileName := fmt.Sprintf("%s/%s-%s-%s-%s.yaml", path, collectionResult.context, collectionResult.namespace, kubeType, meta.GetName())
 			err = os.WriteFile(fileName, data, os.ModePerm)
 			if err != nil {
 				return "", "", err
 			}
 		}
 		for _, obj := range collectionResult.rawObjects {
-			fileName := fmt.Sprintf("%s/%s-%s-%s-%s-%s.txt", path, cleanContext(collectionResult.context), collectionResult.namespace, "txt", obj.ContainerName, obj.Name)
+			fileName := fmt.Sprintf("%s/%s-%s-%s-%s.txt", path, collectionResult.context, collectionResult.namespace, "txt", obj.Name)
 			err = os.WriteFile(fileName, obj.content, os.ModePerm)
 			if err != nil {
 				return "", "", err
@@ -126,8 +125,4 @@ func getType(obj runtime.Object) (string, error) {
 		return "", err
 	}
 	return v.Type().String(), nil
-}
-
-func cleanContext(context string) string {
-	return strings.Replace(context, "/", "-", -1)
 }

@@ -219,7 +219,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.22.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator:1.20.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -241,7 +241,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: NAMESPACE
+            - name: CURRENT_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
@@ -255,7 +255,7 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.0.19
+              value: 1.0.17
             - name: DATABASE_VERSION
               value: 2.0.2
             # Ops Manager
@@ -264,16 +264,16 @@ spec:
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.0.12
+              value: 1.0.11
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.0.18
+              value: 1.0.17
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.25.7724-1"
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.21.7698-1"
             - name: MONGODB_IMAGE
               value: mongodb-enterprise-server
             - name: MONGODB_REPO_URL
