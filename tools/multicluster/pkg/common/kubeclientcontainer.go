@@ -6,12 +6,14 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
+	v1alpha19 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1alpha1"
 	v1beta16 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1beta1"
 	"k8s.io/client-go/kubernetes/typed/apiserverinternal/v1alpha1"
 	v12 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	v1beta17 "k8s.io/client-go/kubernetes/typed/apps/v1beta1"
 	"k8s.io/client-go/kubernetes/typed/apps/v1beta2"
 	v17 "k8s.io/client-go/kubernetes/typed/authentication/v1"
+	v1alpha20 "k8s.io/client-go/kubernetes/typed/authentication/v1alpha1"
 	v1beta18 "k8s.io/client-go/kubernetes/typed/authentication/v1beta1"
 	v18 "k8s.io/client-go/kubernetes/typed/authorization/v1"
 	v1beta19 "k8s.io/client-go/kubernetes/typed/authorization/v1beta1"
@@ -34,7 +36,9 @@ import (
 	v1alpha16 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1alpha1"
 	v1beta114 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta1"
 	v1beta22 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta2"
+	"k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta3"
 	v113 "k8s.io/client-go/kubernetes/typed/networking/v1"
+	v1alpha18 "k8s.io/client-go/kubernetes/typed/networking/v1alpha1"
 	v1beta113 "k8s.io/client-go/kubernetes/typed/networking/v1beta1"
 	v112 "k8s.io/client-go/kubernetes/typed/node/v1"
 	v1alpha15 "k8s.io/client-go/kubernetes/typed/node/v1alpha1"
@@ -44,6 +48,7 @@ import (
 	v15 "k8s.io/client-go/kubernetes/typed/rbac/v1"
 	v1alpha13 "k8s.io/client-go/kubernetes/typed/rbac/v1alpha1"
 	v1beta112 "k8s.io/client-go/kubernetes/typed/rbac/v1beta1"
+	v1alpha17 "k8s.io/client-go/kubernetes/typed/resource/v1alpha1"
 	v14 "k8s.io/client-go/kubernetes/typed/scheduling/v1"
 	v1alpha14 "k8s.io/client-go/kubernetes/typed/scheduling/v1alpha1"
 	v1beta13 "k8s.io/client-go/kubernetes/typed/scheduling/v1beta1"
@@ -67,6 +72,26 @@ type KubeClientContainer struct {
 	staticClient  kubernetes.Interface
 	dynamicClient dynamic.Interface
 	restConfig    *rest.Config
+}
+
+func (k *KubeClientContainer) AdmissionregistrationV1alpha1() v1alpha19.AdmissionregistrationV1alpha1Interface {
+	return k.staticClient.AdmissionregistrationV1alpha1()
+}
+
+func (k *KubeClientContainer) AuthenticationV1alpha1() v1alpha20.AuthenticationV1alpha1Interface {
+	return k.staticClient.AuthenticationV1alpha1()
+}
+
+func (k *KubeClientContainer) FlowcontrolV1beta3() v1beta3.FlowcontrolV1beta3Interface {
+	return k.staticClient.FlowcontrolV1beta3()
+}
+
+func (k *KubeClientContainer) NetworkingV1alpha1() v1alpha18.NetworkingV1alpha1Interface {
+	return k.staticClient.NetworkingV1alpha1()
+}
+
+func (k *KubeClientContainer) ResourceV1alpha1() v1alpha17.ResourceV1alpha1Interface {
+	return k.staticClient.ResourceV1alpha1()
 }
 
 func (k *KubeClientContainer) Discovery() discovery.DiscoveryInterface {
