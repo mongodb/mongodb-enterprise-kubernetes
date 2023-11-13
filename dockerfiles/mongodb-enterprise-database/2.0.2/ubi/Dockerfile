@@ -49,6 +49,7 @@ RUN microdnf install -y --disableplugin=subscription-manager \
         findutils
 
 
+RUN microdnf remove perl-IO-Socket-SSL
 
 RUN ln -s /usr/lib64/libsasl2.so.3 /usr/lib64/libsasl2.so.2
 

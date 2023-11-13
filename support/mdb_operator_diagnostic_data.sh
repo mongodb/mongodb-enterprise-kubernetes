@@ -195,17 +195,17 @@ mkdir -p "${log_dir}" &>/dev/null
 
 if [ -n "${CENTRAL_CLUSTER}" ]; then
   if [ -z "${MEMBER_CLUSTERS}" ]; then
-    echo "central_cluster is set but no member_clusters"
+    echo "CENTRAL_CLUSTER is set but no MEMBER_CLUSTERS"
     exit 1
   else
-    echo "starting with the central_cluster!"
+    echo "starting with the CENTRAL_CLUSTER!"
     kubectl config use-context "${CENTRAL_CLUSTER}"
   fi
 fi
 
 if [ -n "${MEMBER_CLUSTERS}" ]; then
   if [ -z "${CENTRAL_CLUSTER}" ]; then
-    echo "member_clusters is set but no central_cluster"
+    echo "MEMBER_CLUSTERS is set but no CENTRAL_CLUSTER"
     exit 1
   fi
 fi
