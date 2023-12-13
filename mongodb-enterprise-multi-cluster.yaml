@@ -82,13 +82,13 @@ metadata:
   namespace: mongodb
 rules:
   - apiGroups:
-      - ''
+      - ""
     resources:
       - secrets
     verbs:
       - get
   - apiGroups:
-      - ''
+      - ""
     resources:
       - pods
     verbs:
@@ -177,31 +177,31 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.0.16
+              value: 1.23.0
             - name: DATABASE_VERSION
-              value: 2.0.2
+              value: 1.23.0
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.0.10
+              value: 1.23.0
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.0.16
+              value: 1.23.0
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.15.7646-1"
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.28.7763-1"
             - name: MONGODB_IMAGE
               value: mongodb-enterprise-appdb-database-ubi
             - name: MONGODB_REPO_URL
               value: quay.io/mongodb
             - name: PERFORM_FAILOVER
-              value: 'true'
+              value: "true"
       volumes:
         - name: kube-config-volume
           secret:
