@@ -18,7 +18,6 @@ RUN microdnf install -y  --disableplugin=subscription-manager curl \
     && microdnf upgrade -y  \
     && rm -rf /var/lib/apt/lists/*
 
-RUN microdnf remove perl-IO-Socket-SSL
 RUN mkdir -p /agent \
     && mkdir -p /var/lib/mongodb-mms-automation \
       && mkdir -p /var/log/mongodb-mms-automation/ \
