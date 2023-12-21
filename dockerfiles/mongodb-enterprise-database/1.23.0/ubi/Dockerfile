@@ -6,7 +6,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 LABEL name="MongoDB Enterprise Database" \
-      version="2.0.2" \
+      version="1.23.0" \
       summary="MongoDB Enterprise Database Image" \
       description="MongoDB Enterprise Database Image" \
       vendor="MongoDB" \

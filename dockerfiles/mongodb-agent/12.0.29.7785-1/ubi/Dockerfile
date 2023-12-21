@@ -13,8 +13,9 @@ LABEL name="MongoDB Agent" \
       release="1" \
       maintainer="support@mongodb.com"
 
-RUN microdnf install -y  --disableplugin=subscription-manager curl \
-    hostname nss_wrapper tar gzip procps\
+RUN microdnf install -y --disableplugin=subscription-manager --setopt=install_weak_deps=0 nss_wrapper
+RUN microdnf install -y --disableplugin=subscription-manager curl \
+    hostname tar gzip procps\
     && microdnf upgrade -y  \
     && rm -rf /var/lib/apt/lists/*
 
