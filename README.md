@@ -70,7 +70,7 @@ CRDs are defined cluster-wide, so to install them, you must have Cluster-level a
 
 #### Operator Installation
 
-> In order to install the Operator in OpenShift, please follow [these](openshift-install.md) instructions instead.
+> In order to install the Operator in OpenShift, please follow [these](docs/openshift-marketplace.md) instructions instead.
 
 To install the Operator using yaml files, you may apply the config directly from github;
 
