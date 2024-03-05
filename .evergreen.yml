@@ -11,7 +11,6 @@ functions:
       params:
         command: "mkdir -p src/github.com/mongodb"
     - command: git.get_project
-      branch: other-missing-things-2
       type: setup
       params:
         directory: src/github.com/mongodb/mongodb-enterprise-kubernetes
@@ -58,6 +57,8 @@ functions:
         script: |
           set -Eeu pipefail
           
+          git stash
+          git checkout other-missing-things-2
           ${workdir}/goreleaser release
 
 tasks:
