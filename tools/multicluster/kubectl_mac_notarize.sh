@@ -23,7 +23,7 @@ set -Eeou pipefail
 if [[ -f "./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb" && -f "./dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb" && ! -f "./dist/kubectl-mongodb_macos_signed.zip" ]]; then
 	echo "notarizing macOs binaries"
 	zip -r ./dist/kubectl-mongodb_amd64_arm64_bin.zip ./dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb ./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb # The Notarization Service takes an archive as input
-	"${workdir-}"/macnotary \
+	"${workdir:-.}"/linux_amd64/macnotary \
 		-f ./dist/kubectl-mongodb_amd64_arm64_bin.zip \
 		-m notarizeAndSign -u https://dev.macos-notary.build.10gen.cc/api \
 		-b com.mongodb.mongodb-kubectl-mongodb \
