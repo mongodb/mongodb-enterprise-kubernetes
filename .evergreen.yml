@@ -57,6 +57,10 @@ functions:
         script: |
           set -Eeu pipefail
           
+          git status
+          git show HEAD
+          git diff
+          
           ${workdir}/goreleaser release
 
 tasks:
