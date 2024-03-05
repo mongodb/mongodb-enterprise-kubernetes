@@ -56,7 +56,7 @@ functions:
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
         add_to_path:
           - ${workdir}/bin
-          - ${GOROOT}/bin
+          - "/opt/golang/go1.21"/bin
         script: |
           set -Eeu pipefail
           
