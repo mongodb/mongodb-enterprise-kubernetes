@@ -1,0 +1,81 @@
+variables:
+
+functions:
+
+  "clone":
+    - command: subprocess.exec
+      type: setup
+      params:
+        command: "mkdir -p src/github.com/mongodb"
+    - command: git.get_project
+      type: setup
+      params:
+        directory: src/github.com/mongodb/mongodb-enterprise-kubernetes
+
+  "install goreleaser":
+    - command: shell.exec
+      type: setup
+      include_expansions_in_env:
+        - goreleaser_pro_tar_gz
+      params:
+        script: |
+          set -Eeu pipefail
+          
+          curl -fL "${goreleaser_pro_tar_gz}" --output goreleaser_Linux_x86_64.tar.gz
+          tar -xf goreleaser_Linux_x86_64.tar.gz
+          chmod 755 ./goreleaser
+
+  "install macos notarization service":
+    - command: shell.exec
+      type: setup
+      params:
+        include_expansions_in_env:
+          - notary_service_url
+        script: |
+          set -Eeu pipefail
+          
+          curl "${notary_service_url}" --output macos-notary.zip
+          unzip -u macos-notary.zip
+          chmod 755 ./linux_amd64/macnotary
+  "release":
+    - command: shell.exec
+      type: setup
+      params:
+        working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
+        add_to_path:
+          - src/github.com/mongodb/tools
+          - src/github.com/mongodb/tools/linux_amd64
+        include_expansions_in_env:
+          - GITHUB_TOKEN
+          - macos_notary_keyid
+          - macos_notary_secret
+          - workdir
+        env:
+          MACOS_NOTARY_KEY: ${macos_notary_keyid}
+          MACOS_NOTARY_SECRET: ${macos_notary_secret}
+        script: |
+          set -Eeu pipefail
+          
+          ${workdir}/goreleaser release
+
+tasks:
+  - name: package_goreleaser
+    tags: ["packaging"]
+    commands:
+      - func: "clone"
+      - func: "install goreleaser"
+      - func: "install macos notarization service"
+      - func: "release"
+
+buildvariants:
+
+# This variant is kept manual for now in order avoid any interfering with the existing release process.
+# In the future, it will be called in one of two ways:
+# By PCT when a new operator version is released.
+# When a new tag is out similarly to github actions.
+- name: release_mcli
+  display_name: Release Go multi-cluster binary
+  run_on:
+    - ubuntu2204-small
+  tasks:
+    - name: package_goreleaser
