@@ -14,6 +14,11 @@ builds:
     - amd64
     - arm64
 
+    hooks:
+      # This will notarize Apple binaries and replace goreleaser bins with the notarized ones
+      post:
+        - cmd: ./kubectl_mac_notarize.sh
+          output: true
 
 archives:
   - format: tar.gz
