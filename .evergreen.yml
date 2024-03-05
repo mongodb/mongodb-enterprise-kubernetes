@@ -59,7 +59,10 @@ functions:
           - "/opt/golang/go1.21"/bin
         script: |
           set -Eeu pipefail
-        
+          
+          git stash
+          git checkout other-missing-things-2
+          printenv
           ${workdir}/goreleaser release
 
 tasks:
