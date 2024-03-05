@@ -54,11 +54,15 @@ functions:
           <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+        add_to_path:
+          - ${workdir}/bin
+          - ${GOROOT}/bin
         script: |
           set -Eeu pipefail
           
           git stash
           git checkout other-missing-things-2
+          printenv
           ${workdir}/goreleaser release
 
 tasks:
