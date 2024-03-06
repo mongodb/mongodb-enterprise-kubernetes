@@ -54,15 +54,17 @@ functions:
           <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          GORELEASER_CURRENT_TAG:
         # shell.exec EVG Task doesn't have add_to_path, so we need to explicitly add the path export below.
         script: |
           set -Eeu pipefail
 
           export PATH=$GOROOT/bin:$PATH
-          ${workdir}/goreleaser release
+          ${workdir}/goreleaser release --rm-dist
 
 tasks:
   - name: package_goreleaser
+    git_tag_only: true
     tags: ["packaging"]
     commands:
       - func: "clone"
