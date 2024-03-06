@@ -50,11 +50,12 @@ functions:
           - macos_notary_keyid
           - macos_notary_secret
           - workdir
+          - triggered_by_git_tag
         env:
           <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
-          GORELEASER_CURRENT_TAG:
+          GORELEASER_CURRENT_TAG: ${triggered_by_git_tag}
         # shell.exec EVG Task doesn't have add_to_path, so we need to explicitly add the path export below.
         script: |
           set -Eeu pipefail
