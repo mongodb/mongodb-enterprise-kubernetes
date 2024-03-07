@@ -20,7 +20,7 @@ set -Eeou pipefail
 # This depends on binaries being generated in a goreleaser manner and gon being set up.
 # goreleaser should already take care of calling this script as a hook.
 
-if [[ -f "./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb" && -f "./dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb" && ! -f "./dist/kubectl-mongodb_macos_signed.zip" ]]; then
+if [[ -f "./dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb" && -f "./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb" && ! -f "./dist/kubectl-mongodb_macos_signed.zip" ]]; then
 	echo "notarizing macOs binaries"
 	zip -r ./dist/kubectl-mongodb_amd64_arm64_bin.zip ./dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb ./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb # The Notarization Service takes an archive as input
 	"${workdir:-.}"/linux_amd64/macnotary \
@@ -30,6 +30,6 @@ if [[ -f "./dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb" && -f "./dist/kub
 		-o ./dist/kubectl-mongodb_macos_signed.zip
 
 	echo "replacing original files"
-	unzip -oj ./dist/kubectl-mongodb_macos_signed.zip dist/macos_darwin_amd64_v1/kubectl-mongodb -d ./dist/macos_darwin_amd64_v1/
-	unzip -oj ./dist/kubectl-mongodb_macos_signed.zip dist/macos_darwin_arm64/kubectl-mongodb -d ./dist/macos_darwin_arm64/
+	unzip -oj ./dist/kubectl-mongodb_macos_signed.zip dist/kubectl-mongodb_darwin_amd64_v1/kubectl-mongodb -d ./dist/kubectl-mongodb_darwin_amd64_v1/
+	unzip -oj ./dist/kubectl-mongodb_macos_signed.zip dist/kubectl-mongodb_darwin_arm64/kubectl-mongodb -d ./dist/kubectl-mongodb_darwin_arm64/
 fi

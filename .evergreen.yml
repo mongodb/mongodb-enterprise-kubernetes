@@ -1,5 +1,8 @@
 variables:
-
+  - &go_env
+    XDG_CONFIG_HOME: ${go_base_path}${workdir}
+    GO111MODULE: "on"
+    GOROOT: "/opt/golang/go1.21"
 functions:
 
   "clone":
@@ -42,24 +45,27 @@ functions:
       type: setup
       params:
         working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
-        add_to_path:
-          - src/github.com/mongodb/tools
-          - src/github.com/mongodb/tools/linux_amd64
         include_expansions_in_env:
           - GITHUB_TOKEN
           - macos_notary_keyid
           - macos_notary_secret
           - workdir
+          - triggered_by_git_tag
         env:
+          <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          GORELEASER_CURRENT_TAG: ${triggered_by_git_tag}
+        # shell.exec EVG Task doesn't have add_to_path, so we need to explicitly add the path export below.
         script: |
           set -Eeu pipefail
-          
-          ${workdir}/goreleaser release
+
+          export PATH=$GOROOT/bin:$PATH
+          ${workdir}/goreleaser release --rm-dist
 
 tasks:
   - name: package_goreleaser
+    git_tag_only: true
     tags: ["packaging"]
     commands:
       - func: "clone"
