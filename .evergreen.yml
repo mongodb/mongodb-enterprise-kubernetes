@@ -1,10 +1,13 @@
+# 15m timeout for all the tasks
+exec_timeout_secs: 900
+
 variables:
   - &go_env
     XDG_CONFIG_HOME: ${go_base_path}${workdir}
     GO111MODULE: "on"
     GOROOT: "/opt/golang/go1.21"
-functions:
 
+functions:
   "clone":
     - command: subprocess.exec
       type: setup
@@ -14,13 +17,13 @@ functions:
       type: setup
       params:
         directory: src/github.com/mongodb/mongodb-enterprise-kubernetes
-
+        
   "install goreleaser":
     - command: shell.exec
       type: setup
-      include_expansions_in_env:
-        - goreleaser_pro_tar_gz
       params:
+        include_expansions_in_env:
+          - goreleaser_pro_tar_gz
         script: |
           set -Eeu pipefail
           
