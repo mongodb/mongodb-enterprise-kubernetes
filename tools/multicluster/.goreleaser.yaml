@@ -13,12 +13,16 @@ builds:
     goarch:
     - amd64
     - arm64
-
     hooks:
-      # This will notarize Apple binaries and replace goreleaser bins with the notarized ones
       post:
-        - cmd: ./kubectl_mac_notarize.sh
-          output: true
+        - cmd: ./sign.sh {{ .Path }}
+          env:
+            - GRS_USERNAME={{ .Env.GRS_USERNAME }}
+            - GARASIGN_PASSWORD={{ .Env.GARASIGN_PASSWORD }}
+            - PKCS11_URI={{ .Env.PKCS11_URI }}
+            - ARTIFACTORY_USERNAME=mongodb-enterprise-kubernetes-operator
+            - ARTIFACTORY_PASSWORD={{ .Env.ARTIFACTORY_PASSWORD }}
+        - cmd: ./verify.sh {{ .Path }} && echo "VERIFIED OK"
 
 archives:
   - format: tar.gz
@@ -34,6 +38,8 @@ release:
   prerelease: auto
   draft: true
   name_template: "MongoDB Enterprise CLI {{ .Version  }}"
+  extra_files:
+    - glob: dist/*.sig
 
 git:
   tag_sort: -version:creatordate

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -euo pipefail
+
+ARTIFACT=$1
+SIGNATURE="${ARTIFACT}.sig"
+
+TMPDIR=${TMPDIR:-/tmp}
+SIGNING_ENVFILE="${TMPDIR}/signing-envfile"
+
+GRS_USERNAME=${GRS_USERNAME}
+GARASIGN_PASSWORD=${GARASIGN_PASSWORD}
+PKCS11_URI=${PKCS11_URI}
+ARTIFACTORY_PASSWORD=${ARTIFACTORY_PASSWORD}
+ARTIFACTORY_USERNAME=${ARTIFACTORY_USERNAME}
+
+echo "Signing artifact ${ARTIFACT} and saving signature to ${SIGNATURE}"
+
+{
+  echo "GRS_CONFIG_USER1_USERNAME=${GRS_USERNAME}";
+  echo "GRS_CONFIG_USER1_PASSWORD=${GARASIGN_PASSWORD}";
+  echo "PKCS11_URI=${PKCS11_URI}";
+} > "${SIGNING_ENVFILE}"
+
+echo "Logging in artifactory.corp"
+echo ${ARTIFACTORY_PASSWORD} | docker login --password-stdin --username ${ARTIFACTORY_USERNAME} artifactory.corp.mongodb.com
+
+echo "Signing artifact"
+echo "Envfile is ${SIGNING_ENVFILE}"
+docker run \
+  --env-file="${SIGNING_ENVFILE}" \
+  --rm \
+  -v $(pwd):$(pwd) \
+  -w $(pwd) \
+  artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-cosign \
+  cosign sign-blob --key "${PKCS11_URI}" --output-signature ${SIGNATURE} ${ARTIFACT} --yes
