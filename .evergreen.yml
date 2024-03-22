@@ -54,6 +54,11 @@ functions:
           - macos_notary_secret
           - workdir
           - triggered_by_git_tag
+          - GRS_USERNAME
+          - GRS_PASSWORD
+          - ARTIFACTORY_USERNAME
+          - ARTIFACTORY_PASSWORD
+          - PKCS11_URI
         env:
           <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
@@ -65,7 +70,7 @@ functions:
 
           export PATH=$GOROOT/bin:$PATH
           # Avoid race conditions on signing and notarizing with parallelism=1
-          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1
+          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1 --skip-validate
 
 tasks:
   - name: package_goreleaser
