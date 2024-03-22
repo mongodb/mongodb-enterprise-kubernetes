@@ -18,7 +18,7 @@ builds:
         - cmd: ./sign.sh {{ .Path }}
           env:
             - GRS_USERNAME={{ .Env.GRS_USERNAME }}
-            - GARASIGN_PASSWORD={{ .Env.GARASIGN_PASSWORD }}
+            - GRS_PASSWORD={{ .Env.GRS_PASSWORD }}
             - PKCS11_URI={{ .Env.PKCS11_URI }}
             - ARTIFACTORY_USERNAME=mongodb-enterprise-kubernetes-operator
             - ARTIFACTORY_PASSWORD={{ .Env.ARTIFACTORY_PASSWORD }}
