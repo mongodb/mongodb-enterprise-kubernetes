@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Verify the signature of a binary with the operator's public key
+# goreleaser takes care of calling this script as a hook.
+
 ARTIFACT=$1
 SIGNATURE="${ARTIFACT}.sig"
 
@@ -12,4 +15,14 @@ KEY_FILE="${TMPDIR}/host-public.key"
 curl -o ${KEY_FILE} "${HOSTED_SIGN_PUBKEY}"
 echo "Verifying signature ${SIGNATURE} of artifact ${ARTIFACT}"
 echo "Keyfile is ${KEY_FILE}"
-cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
+
+#When working locally, this command can be used instead of Docker
+#cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
+
+docker run \
+  --rm \
+  -v $(pwd):$(pwd) \
+  -v ${KEY_FILE}:${KEY_FILE} \
+  -w $(pwd) \
+  artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-cosign \
+  cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
