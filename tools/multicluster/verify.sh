@@ -16,8 +16,8 @@ curl -o ${KEY_FILE} "${HOSTED_SIGN_PUBKEY}"
 echo "Verifying signature ${SIGNATURE} of artifact ${ARTIFACT}"
 echo "Keyfile is ${KEY_FILE}"
 
-#When working locally, this command can be used instead of Docker
-#cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
+# When working locally, the following command can be used instead of Docker
+# cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
 
 docker run \
   --rm \
@@ -26,3 +26,6 @@ docker run \
   -w $(pwd) \
   artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-cosign \
   cosign verify-blob --key ${KEY_FILE} --signature ${SIGNATURE} ${ARTIFACT}
+
+# Without below line, Evergreen fails at archiving with "open dist/kubectl-[...]/kubectl-mongodb.sig: permission denied
+sudo chmod 666 ${SIGNATURE}
