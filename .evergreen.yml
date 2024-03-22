@@ -45,7 +45,6 @@ functions:
           chmod 755 ./linux_amd64/macnotary
   "release":
     - command: shell.exec
-      type: setup
       params:
         working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
         include_expansions_in_env:
