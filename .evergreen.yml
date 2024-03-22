@@ -69,7 +69,7 @@ functions:
 
           export PATH=$GOROOT/bin:$PATH
           # Avoid race conditions on signing and notarizing with parallelism=1
-          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1 --skip-validate
+          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1
 
 tasks:
   - name: package_goreleaser
