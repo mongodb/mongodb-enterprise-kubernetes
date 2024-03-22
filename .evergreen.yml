@@ -64,7 +64,8 @@ functions:
           set -Eeu pipefail
 
           export PATH=$GOROOT/bin:$PATH
-          ${workdir}/goreleaser release --rm-dist
+          # Avoid race conditions on signing and notarizing with parallelism=1
+          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1
 
 tasks:
   - name: package_goreleaser

@@ -23,6 +23,8 @@ builds:
             - ARTIFACTORY_USERNAME=mongodb-enterprise-kubernetes-operator
             - ARTIFACTORY_PASSWORD={{ .Env.ARTIFACTORY_PASSWORD }}
         - cmd: ./verify.sh {{ .Path }} && echo "VERIFIED OK"
+        - cmd: ./kubectl_mac_notarize.sh
+          output: true
 
 archives:
   - format: tar.gz
