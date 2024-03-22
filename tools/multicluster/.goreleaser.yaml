@@ -29,6 +29,10 @@ builds:
 archives:
   - format: tar.gz
     name_template: "kubectl-mongodb_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      # Include signature files in each archive along with the binary, strip_parent avoid nested folders
+      - src: "./dist/kubectl-mongodb_{{ .Os }}_{{ .Arch }}*{{ .Amd64 }}/kubectl-mongodb.sig"
+        strip_parent: true
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -40,8 +44,6 @@ release:
   prerelease: auto
   draft: true
   name_template: "MongoDB Enterprise CLI {{ .Version  }}"
-  extra_files:
-    - glob: dist/*.sig
 
 git:
   tag_sort: -version:creatordate
