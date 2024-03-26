@@ -14,6 +14,8 @@ SIGNING_ENVFILE="${TMPDIR}/signing-envfile"
 GRS_USERNAME=${GRS_USERNAME}
 GRS_PASSWORD=${GRS_PASSWORD}
 PKCS11_URI=${PKCS11_URI}
+ARTIFACTORY_URL=${ARTIFACTORY_URL}
+SIGNING_IMAGE_URI=${SIGNING_IMAGE_URI}
 ARTIFACTORY_PASSWORD=${ARTIFACTORY_PASSWORD}
 ARTIFACTORY_USERNAME=${ARTIFACTORY_USERNAME}
 
@@ -26,7 +28,7 @@ echo "Signing artifact ${ARTIFACT} and saving signature to ${SIGNATURE}"
 } > "${SIGNING_ENVFILE}"
 
 echo "Logging in artifactory.corp"
-echo ${ARTIFACTORY_PASSWORD} | docker login --password-stdin --username ${ARTIFACTORY_USERNAME} artifactory.corp.mongodb.com
+echo ${ARTIFACTORY_PASSWORD} | docker login --password-stdin --username ${ARTIFACTORY_USERNAME} ${ARTIFACTORY_URL}
 
 echo "Signing artifact"
 echo "Envfile is ${SIGNING_ENVFILE}"
@@ -35,5 +37,5 @@ docker run \
   --rm \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
-  artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-cosign \
+  ${SIGNING_IMAGE_URI} \
   cosign sign-blob --key "${PKCS11_URI}" --output-signature ${SIGNATURE} ${ARTIFACT} --yes

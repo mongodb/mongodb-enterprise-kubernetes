@@ -55,6 +55,8 @@ functions:
           - triggered_by_git_tag
           - GRS_USERNAME
           - GRS_PASSWORD
+          - ARTIFACTORY_URL
+          - SIGNING_IMAGE_URI
           - ARTIFACTORY_USERNAME
           - ARTIFACTORY_PASSWORD
           - PKCS11_URI

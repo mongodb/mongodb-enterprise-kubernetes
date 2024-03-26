@@ -22,6 +22,8 @@ builds:
             - GRS_USERNAME={{ .Env.GRS_USERNAME }}
             - GRS_PASSWORD={{ .Env.GRS_PASSWORD }}
             - PKCS11_URI={{ .Env.PKCS11_URI }}
+            - ARTIFACTORY_URL={{ .Env.ARTIFACTORY_URL }}
+            - SIGNING_IMAGE_URI={{ .Env.SIGNING_IMAGE_URI }}
             - ARTIFACTORY_USERNAME=mongodb-enterprise-kubernetes-operator
             - ARTIFACTORY_PASSWORD={{ .Env.ARTIFACTORY_PASSWORD }}
         - cmd: ./verify.sh {{ .Path }} && echo "VERIFIED OK"
