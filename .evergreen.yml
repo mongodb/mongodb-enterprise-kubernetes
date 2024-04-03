@@ -22,8 +22,6 @@ functions:
     - command: shell.exec
       type: setup
       params:
-        include_expansions_in_env:
-          - goreleaser_pro_tar_gz
         script: |
           set -Eeu pipefail
           
