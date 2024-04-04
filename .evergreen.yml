@@ -1,10 +1,13 @@
+# 15m timeout for all the tasks
+exec_timeout_secs: 900
+
 variables:
   - &go_env
     XDG_CONFIG_HOME: ${go_base_path}${workdir}
     GO111MODULE: "on"
     GOROOT: "/opt/golang/go1.21"
-functions:
 
+functions:
   "clone":
     - command: subprocess.exec
       type: setup
@@ -14,12 +17,10 @@ functions:
       type: setup
       params:
         directory: src/github.com/mongodb/mongodb-enterprise-kubernetes
-
+        
   "install goreleaser":
     - command: shell.exec
       type: setup
-      include_expansions_in_env:
-        - goreleaser_pro_tar_gz
       params:
         script: |
           set -Eeu pipefail
@@ -42,7 +43,6 @@ functions:
           chmod 755 ./linux_amd64/macnotary
   "release":
     - command: shell.exec
-      type: setup
       params:
         working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
         include_expansions_in_env:
@@ -51,6 +51,13 @@ functions:
           - macos_notary_secret
           - workdir
           - triggered_by_git_tag
+          - GRS_USERNAME
+          - GRS_PASSWORD
+          - ARTIFACTORY_URL
+          - SIGNING_IMAGE_URI
+          - ARTIFACTORY_USERNAME
+          - ARTIFACTORY_PASSWORD
+          - PKCS11_URI
         env:
           <<: *go_env
           MACOS_NOTARY_KEY: ${macos_notary_keyid}
@@ -61,7 +68,8 @@ functions:
           set -Eeu pipefail
 
           export PATH=$GOROOT/bin:$PATH
-          ${workdir}/goreleaser release --rm-dist
+          # Avoid race conditions on signing and notarizing with parallelism=1
+          ${workdir}/goreleaser release --clean --timeout 300s --parallelism 1
 
 tasks:
   - name: package_goreleaser
