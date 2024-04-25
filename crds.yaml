@@ -875,7 +875,7 @@ spec:
                 type: array
               statefulSet:
                 description: StatefulSetConfiguration provides the statefulset override
-                  for each of the cluster's statefulset if  "StatefulSetConfiguration"
+                  for each of the cluster's statefulset if "StatefulSetConfiguration"
                   is specified at cluster level under "clusterSpecList" that takes
                   precedence over the global one
                 properties:
@@ -1603,7 +1603,7 @@ spec:
                 type: object
               statefulSet:
                 description: StatefulSetConfiguration provides the statefulset override
-                  for each of the cluster's statefulset if  "StatefulSetConfiguration"
+                  for each of the cluster's statefulset if "StatefulSetConfiguration"
                   is specified at cluster level under "clusterSpecList" that takes
                   precedence over the global one
                 properties:
@@ -2125,8 +2125,16 @@ spec:
                           - name
                           type: object
                         type: array
-                    required:
-                    - processes
+                      replicaSet:
+                        properties:
+                          settings:
+                            description: MapWrapper is a wrapper for a map to be used
+                              by other structs. The CRD generator does not support
+                              map[string]interface{} on the top level and hence we
+                              need to work around this with a wrapping struct.
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
                     type: object
                   cloudManager:
                     properties:
@@ -3001,6 +3009,180 @@ spec:
                   which should be used instead'
                 format: hostname
                 type: string
+              clusterSpecList:
+                items:
+                  description: ClusterSpecOMItem defines members cluster details for
+                    Ops Manager multi-cluster deployment.
+                  properties:
+                    backup:
+                      description: Backup contains settings to override from top-level
+                        `spec.backup` for this member cluster. If the value is not
+                        set here, then the value is taken from `spec.backup`.
+                      properties:
+                        assignmentLabels:
+                          description: Assignment Labels set in the Ops Manager
+                          items:
+                            type: string
+                          type: array
+                        headDB:
+                          description: HeadDB specifies configuration options for
+                            the HeadDB
+                          properties:
+                            labelSelector:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                            storage:
+                              type: string
+                            storageClass:
+                              type: string
+                          type: object
+                        jvmParameters:
+                          items:
+                            type: string
+                          type: array
+                        members:
+                          description: Members indicate the number of backup daemon
+                            pods to create.
+                          minimum: 0
+                          type: integer
+                        statefulSet:
+                          description: StatefulSetConfiguration specified optional
+                            overrides for backup datemon statefulset.
+                          properties:
+                            metadata:
+                              description: StatefulSetMetadataWrapper is a wrapper
+                                around Labels and Annotations
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                              type: object
+                            spec:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          required:
+                          - spec
+                          type: object
+                      type: object
+                    clusterDomain:
+                      description: Cluster domain to override the default *.svc.cluster.local
+                        if the default cluster domain has been changed on a cluster
+                        level.
+                      format: hostname
+                      type: string
+                    clusterName:
+                      description: ClusterName is name of the cluster where the Ops
+                        Manager Statefulset will be scheduled. The operator is using
+                        ClusterName to find API credentials in `mongodb-enterprise-operator-member-list`
+                        config map to use for this member cluster. If the credentials
+                        are not found, then the member cluster is considered unreachable
+                        and ignored in the reconcile process.
+                      type: string
+                    configuration:
+                      additionalProperties:
+                        type: string
+                      description: The configuration properties passed to Ops Manager
+                        and Backup Daemon in this cluster. If specified (not empty)
+                        then this field overrides `spec.configuration` field entirely.
+                        If not specified, then `spec.configuration` field is used
+                        for the Ops Manager and Backup Daemon instances in this cluster.
+                      type: object
+                    externalConnectivity:
+                      description: MongoDBOpsManagerExternalConnectivity if sets allows
+                        for the creation of a Service for accessing Ops Manager instances
+                        in this member cluster from outside the Kubernetes cluster.
+                        If specified (even if provided empty) then this field overrides
+                        `spec.externalConnectivity` field entirely. If not specified,
+                        then `spec.externalConnectivity` field is used for the Ops
+                        Manager and Backup Daemon instances in this cluster.
+                      properties:
+                        annotations:
+                          additionalProperties:
+                            type: string
+                          description: Annotations is a list of annotations to be
+                            directly passed to the Service object.
+                          type: object
+                        clusterIP:
+                          description: ClusterIP IP that will be assigned to this
+                            Service when creating a ClusterIP type Service
+                          type: string
+                        externalTrafficPolicy:
+                          description: ExternalTrafficPolicy mechanism to preserve
+                            the client source IP. Only supported on GCE and Google
+                            Kubernetes Engine.
+                          enum:
+                          - Cluster
+                          - Local
+                          type: string
+                        loadBalancerIP:
+                          description: LoadBalancerIP IP that will be assigned to
+                            this LoadBalancer.
+                          type: string
+                        port:
+                          description: Port in which this `Service` will listen to,
+                            this applies to `NodePort`.
+                          format: int32
+                          type: integer
+                        type:
+                          description: Type of the `Service` to be created.
+                          enum:
+                          - LoadBalancer
+                          - NodePort
+                          - ClusterIP
+                          type: string
+                      required:
+                      - type
+                      type: object
+                    jvmParameters:
+                      description: JVM parameters to pass to Ops Manager and Backup
+                        Daemon instances in this member cluster. If specified (not
+                        empty) then this field overrides `spec.jvmParameters` field
+                        entirely. If not specified, then `spec.jvmParameters` field
+                        is used for the Ops Manager and Backup Daemon instances in
+                        this cluster.
+                      items:
+                        type: string
+                      type: array
+                    members:
+                      description: Number of Ops Manager instances in this member
+                        cluster.
+                      type: integer
+                    statefulSet:
+                      description: Configure custom StatefulSet configuration to override
+                        in Ops Manager's statefulset in this member cluster. If specified
+                        (even if provided empty) then this field overrides `spec.externalConnectivity`
+                        field entirely. If not specified, then `spec.externalConnectivity`
+                        field is used for the Ops Manager and Backup Daemon instances
+                        in this cluster.
+                      properties:
+                        metadata:
+                          description: StatefulSetMetadataWrapper is a wrapper around
+                            Labels and Annotations
+                          properties:
+                            annotations:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                          type: object
+                        spec:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - spec
+                      type: object
+                  required:
+                  - members
+                  type: object
+                type: array
               configuration:
                 additionalProperties:
                   type: string
@@ -3018,6 +3200,10 @@ spec:
                     description: Annotations is a list of annotations to be directly
                       passed to the Service object.
                     type: object
+                  clusterIP:
+                    description: ClusterIP IP that will be assigned to this Service
+                      when creating a ClusterIP type Service
+                    type: string
                   externalTrafficPolicy:
                     description: ExternalTrafficPolicy mechanism to preserve the client
                       source IP. Only supported on GCE and Google Kubernetes Engine.
@@ -3038,6 +3224,47 @@ spec:
                     enum:
                     - LoadBalancer
                     - NodePort
+                    - ClusterIP
+                    type: string
+                required:
+                - type
+                type: object
+              internalConnectivity:
+                description: InternalConnectivity if set allows for overriding the
+                  settings of the default service used for internal connectivity to
+                  the OpsManager servers.
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    description: Annotations is a list of annotations to be directly
+                      passed to the Service object.
+                    type: object
+                  clusterIP:
+                    description: ClusterIP IP that will be assigned to this Service
+                      when creating a ClusterIP type Service
+                    type: string
+                  externalTrafficPolicy:
+                    description: ExternalTrafficPolicy mechanism to preserve the client
+                      source IP. Only supported on GCE and Google Kubernetes Engine.
+                    enum:
+                    - Cluster
+                    - Local
+                    type: string
+                  loadBalancerIP:
+                    description: LoadBalancerIP IP that will be assigned to this LoadBalancer.
+                    type: string
+                  port:
+                    description: Port in which this `Service` will listen to, this
+                      applies to `NodePort`.
+                    format: int32
+                    type: integer
+                  type:
+                    description: Type of the `Service` to be created.
+                    enum:
+                    - LoadBalancer
+                    - NodePort
+                    - ClusterIP
                     type: string
                 required:
                 - type
@@ -3047,6 +3274,17 @@ spec:
                 items:
                   type: string
                 type: array
+              opsManagerURL:
+                description: OpsManagerURL specified the URL with which the operator
+                  and AppDB monitoring agent should access Ops Manager instance (or
+                  instances). When not set, the operator is using FQDN of Ops Manager's
+                  headless service `{name}-svc.{namespace}.svc.cluster.local` to connect
+                  to the instance. If that URL cannot be used, then URL in this field
+                  should be provided for the operator to connect to Ops Manager instances.
+                  It defaults (and if not set) to SingleCluster. If MultiCluster specified,
+                  then clusterSpecList field is mandatory and at least one member
+                  cluster has to be specified.
+                type: string
               replicas:
                 minimum: 1
                 type: integer
@@ -3090,6 +3328,15 @@ spec:
                 required:
                 - spec
                 type: object
+              topology:
+                description: Topology sets the desired cluster topology of Ops Manager
+                  deployment. It defaults (and if not set) to SingleCluster. If MultiCluster
+                  specified, then clusterSpecList field is mandatory and at least
+                  one member cluster has to be specified.
+                enum:
+                - SingleCluster
+                - MultiCluster
+                type: string
               version:
                 type: string
             required:
@@ -3107,6 +3354,15 @@ spec:
                     required:
                     - statusName
                     type: object
+                  clusterStatusList:
+                    items:
+                      properties:
+                        clusterName:
+                          type: string
+                        members:
+                          type: integer
+                      type: object
+                    type: array
                   configServerCount:
                     type: integer
                   lastTransition:
@@ -3167,6 +3423,15 @@ spec:
                 type: object
               backup:
                 properties:
+                  clusterStatusList:
+                    items:
+                      properties:
+                        clusterName:
+                          type: string
+                        replicas:
+                          type: integer
+                      type: object
+                    type: array
                   lastTransition:
                     type: string
                   message:
@@ -3214,6 +3479,15 @@ spec:
                 type: object
               opsManager:
                 properties:
+                  clusterStatusList:
+                    items:
+                      properties:
+                        clusterName:
+                          type: string
+                        replicas:
+                          type: integer
+                      type: object
+                    type: array
                   lastTransition:
                     type: string
                   message:

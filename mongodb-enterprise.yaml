@@ -1,12 +1,5 @@
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: mongodb-enterprise-operator
-  namespace: mongodb
----
-# Source: enterprise-operator/templates/operator-roles.yaml
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -106,6 +99,7 @@ rules:
       - mongodb
       - mongodb/finalizers
       - mongodbusers
+      - mongodbusers/finalizers
       - opsmanagers
       - opsmanagers/finalizers
       - mongodbmulticluster
@@ -129,11 +123,6 @@ subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-operator
     namespace: mongodb
-
-# This ClusterRoleBinding is necessary in order to use validating
-# webhooks—these will prevent you from applying a variety of invalid resource
-# definitions. The validating webhooks are optional so this can be removed if
-# necessary.
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
@@ -193,6 +182,13 @@ subjects:
     name: mongodb-enterprise-appdb
     namespace: mongodb
 ---
+# Source: enterprise-operator/templates/operator-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
 # Source: enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -219,7 +215,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.24.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.25.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -237,6 +233,8 @@ spec:
           env:
             - name: OPERATOR_ENV
               value: prod
+            - name: MDB_DEFAULT_ARCHITECTURE
+              value: non-static
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -255,25 +253,27 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.24.0
+              value: 1.25.0
             - name: DATABASE_VERSION
-              value: 1.24.0
+              value: 1.25.0
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.24.0
+              value: 1.25.0
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.24.0
+              value: 1.25.0
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.29.7785-1"
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.0.8502-1"
+            - name: MDB_AGENT_IMAGE_REPOSITORY
+              value: "quay.io/mongodb/mongodb-agent-ubi"
             - name: MONGODB_IMAGE
               value: mongodb-enterprise-server
             - name: MONGODB_REPO_URL
