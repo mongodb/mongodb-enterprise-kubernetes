@@ -1,53 +1,5 @@
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: mongodb-enterprise-operator
-  namespace: mongodb
----
-# Source: enterprise-operator/templates/operator-roles.yaml
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator-mongodb-webhook
-rules:
-  - apiGroups:
-      - "admissionregistration.k8s.io"
-    resources:
-      - validatingwebhookconfigurations
-    verbs:
-      - get
-      - create
-      - update
-      - delete
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
----
-# Source: enterprise-operator/templates/operator-roles.yaml
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: mongodb-enterprise-operator-mongodb-webhook-binding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: mongodb-enterprise-operator-mongodb-webhook
-subjects:
-  - kind: ServiceAccount
-    name: mongodb-enterprise-operator
-    namespace: mongodb
----
-# Source: enterprise-operator/templates/operator-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -55,7 +7,7 @@ metadata:
   namespace: mongodb
 rules:
   - apiGroups:
-      - ""
+      - ''
     resources:
       - services
     verbs:
@@ -66,7 +18,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ""
+      - ''
     resources:
       - secrets
       - configmaps
@@ -89,7 +41,7 @@ rules:
       - delete
       - update
   - apiGroups:
-      - ""
+      - ''
     resources:
       - pods
     verbs:
@@ -101,11 +53,12 @@ rules:
   - apiGroups:
       - mongodb.com
     verbs:
-      - "*"
+      - '*'
     resources:
       - mongodb
       - mongodb/finalizers
       - mongodbusers
+      - mongodbusers/finalizers
       - opsmanagers
       - opsmanagers/finalizers
       - mongodbmulticluster
@@ -129,11 +82,6 @@ subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-operator
     namespace: mongodb
-
-# This ClusterRoleBinding is necessary in order to use validating
-# webhooks—these will prevent you from applying a variety of invalid resource
-# definitions. The validating webhooks are optional so this can be removed if
-# necessary.
 ---
 # Source: enterprise-operator/templates/database-roles.yaml
 apiVersion: v1
@@ -164,13 +112,13 @@ metadata:
   namespace: mongodb
 rules:
   - apiGroups:
-      - ""
+      - ''
     resources:
       - secrets
     verbs:
       - get
   - apiGroups:
-      - ""
+      - ''
     resources:
       - pods
     verbs:
@@ -216,7 +164,7 @@ spec:
       serviceAccountName: mongodb-enterprise-operator
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.24.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.25.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -234,6 +182,8 @@ spec:
           env:
             - name: OPERATOR_ENV
               value: prod
+            - name: MDB_DEFAULT_ARCHITECTURE
+              value: non-static
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -243,7 +193,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: MANAGED_SECURITY_CONTEXT
-              value: "true"
+              value: 'true'
             - name: CLUSTER_CLIENT_TIMEOUT
               value: "10"
             - name: IMAGE_PULL_POLICY
@@ -254,25 +204,27 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.24.0
+              value: 1.25.0
             - name: DATABASE_VERSION
-              value: 1.24.0
+              value: 1.25.0
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.24.0
+              value: 1.25.0
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.24.0
+              value: 1.25.0
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.29.7785-1"
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.0.8502-1"
+            - name: MDB_AGENT_IMAGE_REPOSITORY
+              value: "quay.io/mongodb/mongodb-agent-ubi"
             - name: MONGODB_IMAGE
               value: mongodb-enterprise-server
             - name: MONGODB_REPO_URL
@@ -280,19 +232,31 @@ spec:
             - name: MDB_IMAGE_TYPE
               value: ubi8
             - name: PERFORM_FAILOVER
-              value: "true"
-            - name: RELATED_IMAGE_MONGODB_ENTERPRISE_DATABASE_IMAGE_1_24_0
-              value: "quay.io/mongodb/mongodb-enterprise-database-ubi:1.24.0"
-            - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_24_0
-              value: "quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.24.0"
-            - name: RELATED_IMAGE_INIT_OPS_MANAGER_IMAGE_REPOSITORY_1_24_0
-              value: "quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi:1.24.0"
-            - name: RELATED_IMAGE_INIT_APPDB_IMAGE_REPOSITORY_1_24_0
-              value: "quay.io/mongodb/mongodb-enterprise-init-appdb-ubi:1.24.0"
-            - name: RELATED_IMAGE_AGENT_IMAGE_11_12_0_7388_1
-              value: "quay.io/mongodb/mongodb-agent-ubi:11.12.0.7388-1"
-            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_4_7554_1
-              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.4.7554-1"
+              value: 'true'
+            - name: MDB_WEBHOOK_REGISTER_CONFIGURATION
+              value: "false"
+            - name: RELATED_IMAGE_MONGODB_ENTERPRISE_DATABASE_IMAGE_1_25_0
+              value: "quay.io/mongodb/mongodb-enterprise-database-ubi:1.25.0"
+            - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_25_0
+              value: "quay.io/mongodb/mongodb-enterprise-init-database-ubi:1.25.0"
+            - name: RELATED_IMAGE_INIT_OPS_MANAGER_IMAGE_REPOSITORY_1_25_0
+              value: "quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi:1.25.0"
+            - name: RELATED_IMAGE_INIT_APPDB_IMAGE_REPOSITORY_1_25_0
+              value: "quay.io/mongodb/mongodb-enterprise-init-appdb-ubi:1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_0_8465_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.0.8465-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_0_8502_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.0.8502-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_1_8507_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.1.8507-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_1_8507_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.1.8507-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_2_8531_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.2.8531-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_3_8550_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.3.8550-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_4_8567_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.4.8567-1_1.25.0"
             - name: RELATED_IMAGE_AGENT_IMAGE_12_0_15_7646_1
               value: "quay.io/mongodb/mongodb-agent-ubi:12.0.15.7646-1"
             - name: RELATED_IMAGE_AGENT_IMAGE_12_0_21_7698_1
@@ -305,8 +269,20 @@ spec:
               value: "quay.io/mongodb/mongodb-agent-ubi:12.0.28.7763-1"
             - name: RELATED_IMAGE_AGENT_IMAGE_12_0_29_7785_1
               value: "quay.io/mongodb/mongodb-agent-ubi:12.0.29.7785-1"
-            - name: RELATED_IMAGE_AGENT_IMAGE_107_0_0_8465_1
-              value: "quay.io/mongodb/mongodb-agent-ubi:107.0.0.8465-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_29_7785_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.29.7785-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_30_7791_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.30.7791-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_30_7791_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.30.7791-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_31_7825_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.31.7825-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_12_0_4_7554_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:12.0.4.7554-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_13_10_0_8620_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:13.10.0.8620-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_13_15_0_8788_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:13.15.0.8788-1_1.25.0"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_0
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.0"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_1
@@ -351,7 +327,21 @@ spec:
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.20"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_21
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.21"
-            # since the official server images end with a different suffix we can re-use the same $mongodbImageEnv
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_22
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.22"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_23
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.23"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_0
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.0"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_1
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.1"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_2
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.2"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_3
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.3"
+            - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_4
+              value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.4"
+      # since the official server images end with a different suffix we can re-use the same $mongodbImageEnv
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_4_0_ubi8
               value: "quay.io/mongodb/mongodb-enterprise-server:4.4.0-ubi8"
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_4_1_ubi8
@@ -446,7 +436,7 @@ spec:
               value: "quay.io/mongodb/mongodb-enterprise-server:6.0.4-ubi8"
             - name: RELATED_IMAGE_MONGODB_IMAGE_6_0_5_ubi8
               value: "quay.io/mongodb/mongodb-enterprise-server:6.0.5-ubi8"
-            # mongodbLegacyAppDb will be deleted in 1.23 release
+      # mongodbLegacyAppDb will be deleted in 1.23 release
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_2_11_ent
               value: "quay.io/mongodb/mongodb-enterprise-appdb-database-ubi:4.2.11-ent"
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_2_2_ent
