@@ -2,30 +2,30 @@
 
 set -eux
 
-# change the clusternames as per your need
-export CTX_CLUSTER1=gke_k8s-rdas_us-east1-b_member-1a
-export CTX_CLUSTER2=gke_k8s-rdas_us-east1-c_member-2a
-export CTX_CLUSTER3=gke_k8s-rdas_us-west1-a_member-3a
-export VERSION=1.10.3
+# define here or provide the cluster names externally
+export CTX_CLUSTER1=${CTX_CLUSTER1}
+export CTX_CLUSTER2=${CTX_CLUSTER2}
+export CTX_CLUSTER3=${CTX_CLUSTER3}
+export ISTIO_VERSION=${ISTIO_VERSION}
 
-# download Istio 1.10.3 under the path
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${VERSION} sh -
+# download Istio under the path
+curl -L https://istio.io/downloadIstio | sh -
 
 # checks if external IP has been assigned to a service object, in our case we are interested in east-west gateway
 function_check_external_ip_assigned() {
  while : ; do
-   ip=$(kubectl --context="$1" get svc istio-eastwestgateway -n istio-system --output jsonpath='{.status.loadBalancer.ingress[0].ip}')  
+   ip=$(kubectl --context="$1" get svc istio-eastwestgateway -n istio-system --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
    if [ -n "$ip" ]
-   then 
+   then
      echo "external ip assigned $ip"
      break
-   else 
+   else
      echo "waiting for external ip to be assigned"
    fi
 done
 }
 
-cd istio-${VERSION}
+cd istio-${ISTIO_VERSION}
 mkdir -p certs
 pushd certs
 
@@ -184,5 +184,5 @@ bin/istioctl x create-remote-secret \
 
   # cleanup: delete the istio repo at the end
 cd ..
-rm -r istio-${VERSION}
-rm -f cluster1.yaml cluster2.yaml cluster3.yaml 
+rm -r istio-${ISTIO_VERSION}
+rm -f cluster1.yaml cluster2.yaml cluster3.yaml
