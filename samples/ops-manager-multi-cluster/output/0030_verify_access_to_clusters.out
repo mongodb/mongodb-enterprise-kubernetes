@@ -1,15 +1,15 @@
 Nodes in cluster gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
 NAME                                       STATUS   ROLES    AGE   VERSION
-gke-k8s-mdb-0-default-pool-5b24ddae-3411   Ready    <none>   29s   v1.27.8-gke.1067004
-gke-k8s-mdb-0-default-pool-5b24ddae-6mfx   Ready    <none>   29s   v1.27.8-gke.1067004
-gke-k8s-mdb-0-default-pool-5b24ddae-vdr3   Ready    <none>   29s   v1.27.8-gke.1067004
+gke-k8s-mdb-0-default-pool-ca015d80-0c57   Ready    <none>   81s   v1.28.7-gke.1026000
+gke-k8s-mdb-0-default-pool-ca015d80-21jq   Ready    <none>   81s   v1.28.7-gke.1026000
+gke-k8s-mdb-0-default-pool-ca015d80-bmz1   Ready    <none>   81s   v1.28.7-gke.1026000
 
 Nodes in cluster gke_scratch-kubernetes-team_europe-central2-b_k8s-mdb-1
 NAME                                       STATUS   ROLES    AGE   VERSION
-gke-k8s-mdb-1-default-pool-0c16803f-8sfb   Ready    <none>   74s   v1.27.8-gke.1067004
-gke-k8s-mdb-1-default-pool-0c16803f-m1vt   Ready    <none>   75s   v1.27.8-gke.1067004
-gke-k8s-mdb-1-default-pool-0c16803f-zgqh   Ready    <none>   75s   v1.27.8-gke.1067004
+gke-k8s-mdb-1-default-pool-cc17b242-79fg   Ready    <none>   37s   v1.28.7-gke.1026000
+gke-k8s-mdb-1-default-pool-cc17b242-lhbp   Ready    <none>   36s   v1.28.7-gke.1026000
+gke-k8s-mdb-1-default-pool-cc17b242-vqrp   Ready    <none>   39s   v1.28.7-gke.1026000
 
 Nodes in cluster gke_scratch-kubernetes-team_europe-central2-c_k8s-mdb-2
 NAME                                       STATUS   ROLES    AGE   VERSION
-gke-k8s-mdb-2-default-pool-8bd66c68-kn8d   Ready    <none>   37s   v1.27.8-gke.1067004
+gke-k8s-mdb-2-default-pool-8610a023-cx5k   Ready    <none>   26s   v1.28.7-gke.1026000
