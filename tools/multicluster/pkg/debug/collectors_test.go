@@ -18,6 +18,7 @@ import (
 )
 
 func TestCollectors(t *testing.T) {
+	ctx := context.Background()
 	//given
 	collectors := []Collector{
 		&MongoDBCommunityCollector{},
@@ -38,11 +39,11 @@ func TestCollectors(t *testing.T) {
 	namespace := "test"
 	testObjectNames := "test"
 
-	kubeClient := kubeClientWithTestingResources(namespace, testObjectNames)
+	kubeClient := kubeClientWithTestingResources(ctx, namespace, testObjectNames)
 
 	//when
 	for _, collector := range collectors {
-		kubeObjects, rawObjects, err := collector.Collect(context.TODO(), kubeClient, namespace, filter, anonymizer)
+		kubeObjects, rawObjects, err := collector.Collect(ctx, kubeClient, namespace, filter, anonymizer)
 
 		//then
 		assert.NoError(t, err)
@@ -51,7 +52,7 @@ func TestCollectors(t *testing.T) {
 	}
 }
 
-func kubeClientWithTestingResources(namespace, testObjectNames string) *common.KubeClientContainer {
+func kubeClientWithTestingResources(ctx context.Context, namespace, testObjectNames string) *common.KubeClientContainer {
 	resources := []runtime.Object{
 		&v12.Pod{
 			ObjectMeta: metav1.ObjectMeta{
@@ -161,11 +162,11 @@ func kubeClientWithTestingResources(namespace, testObjectNames string) *common.K
 	}
 	dynamicFake := fake2.NewSimpleDynamicClientWithCustomListKinds(scheme, dynamicLists)
 
-	dynamicFake.Resource(MongoDBMultiClusterGVR).Create(context.TODO(), &MongoDBMultiClusterResource, metav1.CreateOptions{})
-	dynamicFake.Resource(MongoDBCommunityGVR).Create(context.TODO(), &MongoDBCommunityResource, metav1.CreateOptions{})
-	dynamicFake.Resource(MongoDBGVR).Create(context.TODO(), &MongoDBResource, metav1.CreateOptions{})
-	dynamicFake.Resource(MongoDBUsersGVR).Create(context.TODO(), &MongoDBUserResource, metav1.CreateOptions{})
-	dynamicFake.Resource(OpsManagerSchemeGVR).Create(context.TODO(), &OpsManagerResource, metav1.CreateOptions{})
+	dynamicFake.Resource(MongoDBMultiClusterGVR).Create(ctx, &MongoDBMultiClusterResource, metav1.CreateOptions{})
+	dynamicFake.Resource(MongoDBCommunityGVR).Create(ctx, &MongoDBCommunityResource, metav1.CreateOptions{})
+	dynamicFake.Resource(MongoDBGVR).Create(ctx, &MongoDBResource, metav1.CreateOptions{})
+	dynamicFake.Resource(MongoDBUsersGVR).Create(ctx, &MongoDBUserResource, metav1.CreateOptions{})
+	dynamicFake.Resource(OpsManagerSchemeGVR).Create(ctx, &OpsManagerResource, metav1.CreateOptions{})
 
 	kubeClient := common.NewKubeClientContainer(nil, fake.NewSimpleClientset(resources...), dynamicFake)
 	return kubeClient
