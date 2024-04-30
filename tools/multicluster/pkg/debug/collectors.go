@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"k8s.io/utils/ptr"
+
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 
@@ -16,7 +18,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/utils/pointer"
 )
 
 var (
@@ -224,7 +225,7 @@ func (s *LogsCollector) Collect(ctx context.Context, kubeClient common.KubeClien
 		podName := logsToCollect[i].Name
 		PodLogsConnection := kubeClient.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
 			Follow:    false,
-			TailLines: pointer.Int64(100),
+			TailLines: ptr.To(int64(100)),
 			Container: logsToCollect[i].ContainerName,
 		})
 		LogStream, err := PodLogsConnection.Stream(ctx)
