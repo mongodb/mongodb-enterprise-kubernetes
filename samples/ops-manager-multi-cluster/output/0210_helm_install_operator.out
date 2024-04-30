@@ -1,6 +1,6 @@
 Release "mongodb-enterprise-operator-multi-cluster" does not exist. Installing it now.
 NAME: mongodb-enterprise-operator-multi-cluster
-LAST DEPLOYED: Tue Apr 30 13:21:43 2024
+LAST DEPLOYED: Tue Apr 30 19:40:26 2024
 NAMESPACE: mongodb-operator
 STATUS: deployed
 REVISION: 1
@@ -10,8 +10,8 @@ dummy: value
 multiCluster:
   clusters:
   - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
-  - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
-  - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
+  - gke_scratch-kubernetes-team_europe-central2-b_k8s-mdb-1
+  - gke_scratch-kubernetes-team_europe-central2-c_k8s-mdb-2
 namespace: mongodb-operator
 operator:
   createOperatorServiceAccount: false
@@ -50,8 +50,8 @@ multiCluster:
   clusterClientTimeout: 10
   clusters:
   - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
-  - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
-  - gke_scratch-kubernetes-team_europe-central2-a_k8s-mdb-0
+  - gke_scratch-kubernetes-team_europe-central2-b_k8s-mdb-1
+  - gke_scratch-kubernetes-team_europe-central2-c_k8s-mdb-2
   kubeConfigSecretName: mongodb-enterprise-operator-multi-cluster-kubeconfig
   performFailOver: true
 namespace: mongodb-operator
