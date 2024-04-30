@@ -37,21 +37,20 @@ RUN microdnf install -y --disableplugin=subscription-manager curl \
 COPY --from=base /data/mongodb_tools_ubi.tgz /tools/mongodb_tools.tgz
 COPY --from=base /data/mongodb_agent_ubi.tgz /agent/mongodb_agent.tgz
 
-RUN tar xfz /tools/mongodb_tools.tgz --directory /tools \
-    && rm /tools/mongodb_tools.tgz
-
+RUN tar xfz /tools/mongodb_tools.tgz
+RUN mv mongodb-database-tools-*/bin/* /tools
+RUN chmod +x /tools/*
+RUN rm /tools/mongodb_tools.tgz
+RUN rm -rf /mongodb-database-tools-*
 
 RUN tar xfz /agent/mongodb_agent.tgz
-RUN ls /agent
 RUN mv mongodb-mms-automation-agent-*/mongodb-mms-automation-agent /agent/mongodb-agent
-RUN ls /agent
 RUN chmod +x /agent/mongodb-agent
-RUN mkdir -p /var/lib/automation/config
-RUN ls /var/lib/automation/config
-RUN chmod -R +r /var/lib/automation/config
-RUN ls /var/lib/automation/config
 RUN rm /agent/mongodb_agent.tgz
-RUN rm -r mongodb-mms-automation-agent-*
+RUN rm -rf mongodb-mms-automation-agent-*
+
+RUN mkdir -p /var/lib/automation/config
+RUN chmod -R +r /var/lib/automation/config
 
 USER 2000
 
