@@ -4,9 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
@@ -59,6 +65,12 @@ users:
     client-key-data: ZHNqaA==
 `
 
+func init() {
+	// we lower this to not make unit tests fast
+	PollingInterval = time.Millisecond
+	PollingTimeout = time.Second * 1
+}
+
 func testFlags(t *testing.T, cleanup bool) Flags {
 	memberClusters := []string{"member-cluster-0", "member-cluster-1", "member-cluster-2"}
 	kubeconfig, err := clientcmd.Load([]byte(testKubeconfig))
@@ -68,173 +80,187 @@ func testFlags(t *testing.T, cleanup bool) Flags {
 	assert.NoError(t, err)
 
 	return Flags{
-		MemberClusterApiServerUrls: memberClusterApiServerUrls,
-		MemberClusters:             memberClusters,
-		ServiceAccount:             "test-service-account",
-		CentralCluster:             "central-cluster",
-		MemberClusterNamespace:     "member-namespace",
-		CentralClusterNamespace:    "central-namespace",
-		Cleanup:                    cleanup,
-		ClusterScoped:              false,
-		OperatorName:               "mongodb-enterprise-operator",
+		MemberClusterApiServerUrls:  memberClusterApiServerUrls,
+		MemberClusters:              memberClusters,
+		ServiceAccount:              "test-service-account",
+		CentralCluster:              "central-cluster",
+		MemberClusterNamespace:      "member-namespace",
+		CentralClusterNamespace:     "central-namespace",
+		Cleanup:                     cleanup,
+		ClusterScoped:               false,
+		OperatorName:                "mongodb-enterprise-operator",
+		CreateServiceAccountSecrets: true,
 	}
 
 }
 
 func TestNamespaces_GetsCreated_WhenTheyDoNotExit(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
 	assert.NoError(t, err)
 
-	assertMemberClusterNamespacesExist(t, clientMap, flags)
-	assertCentralClusterNamespacesExist(t, clientMap, flags)
+	assertMemberClusterNamespacesExist(t, ctx, clientMap, flags)
+	assertCentralClusterNamespacesExist(t, ctx, clientMap, flags)
 }
 
 func TestExistingNamespaces_DoNotCause_AlreadyExistsErrors(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags, namespaceResourceType)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags, namespaceResourceType)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
 	assert.NoError(t, err)
 
-	assertMemberClusterNamespacesExist(t, clientMap, flags)
-	assertCentralClusterNamespacesExist(t, clientMap, flags)
+	assertMemberClusterNamespacesExist(t, ctx, clientMap, flags)
+	assertCentralClusterNamespacesExist(t, ctx, clientMap, flags)
 }
 
 func TestServiceAccount_GetsCreate_WhenTheyDoNotExit(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertServiceAccountsExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertServiceAccountsExist(t, ctx, clientMap, flags)
 }
 
 func TestExistingServiceAccounts_DoNotCause_AlreadyExistsErrors(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags, serviceAccountResourceType)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags, serviceAccountResourceType)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertServiceAccountsExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertServiceAccountsExist(t, ctx, clientMap, flags)
 }
 
 func TestDatabaseRoles_GetCreated(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 	flags.ClusterScoped = true
 	flags.InstallDatabaseRoles = true
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertDatabaseRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertDatabaseRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestRoles_GetsCreated_WhenTheyDoesNotExit(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertMemberRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertMemberRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestExistingRoles_DoNotCause_AlreadyExistsErrors(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags, roleResourceType)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags, roleResourceType)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertMemberRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertMemberRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestClusterRoles_DoNotGetCreated_WhenNotSpecified(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 	flags.ClusterScoped = false
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertMemberRolesExist(t, clientMap, flags)
-	assertCentralRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertMemberRolesExist(t, ctx, clientMap, flags)
+	assertCentralRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestClusterRoles_GetCreated_WhenSpecified(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 	flags.ClusterScoped = true
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertMemberRolesDoNotExist(t, clientMap, flags)
-	assertMemberClusterRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertMemberRolesDoNotExist(t, ctx, clientMap, flags)
+	assertMemberClusterRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestCentralCluster_GetsRegularRoleCreated_WhenClusterScoped_IsSpecified(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 	flags.ClusterScoped = true
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
 	assert.NoError(t, err)
 }
 
 func TestCentralCluster_GetsRegularRoleCreated_WhenNonClusterScoped_IsSpecified(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 	flags.ClusterScoped = false
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-	assert.NoError(t, err)
-	assertCentralRolesExist(t, clientMap, flags)
+	require.NoError(t, err)
+	assertCentralRolesExist(t, ctx, clientMap, flags)
 }
 
 func TestPerformCleanup(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, true)
 	flags.ClusterScoped = true
 
-	clientMap := getClientResources(flags)
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
 	t.Run("Resources get created with labels", func(t *testing.T) {
-		assertMemberClusterRolesExist(t, clientMap, flags)
-		assertMemberClusterNamespacesExist(t, clientMap, flags)
-		assertCentralClusterNamespacesExist(t, clientMap, flags)
-		assertServiceAccountsExist(t, clientMap, flags)
+		assertMemberClusterRolesExist(t, ctx, clientMap, flags)
+		assertMemberClusterNamespacesExist(t, ctx, clientMap, flags)
+		assertCentralClusterNamespacesExist(t, ctx, clientMap, flags)
+		assertServiceAccountsExist(t, ctx, clientMap, flags)
 	})
 
-	err = performCleanup(context.TODO(), clientMap, flags)
-	assert.NoError(t, err)
+	err = performCleanup(ctx, clientMap, flags)
+	require.NoError(t, err)
 
 	t.Run("Resources with labels are removed", func(t *testing.T) {
-		assertMemberRolesDoNotExist(t, clientMap, flags)
-		assertMemberClusterRolesDoNotExist(t, clientMap, flags)
-		assertCentralRolesDoNotExist(t, clientMap, flags)
+		assertMemberRolesDoNotExist(t, ctx, clientMap, flags)
+		assertMemberClusterRolesDoNotExist(t, ctx, clientMap, flags)
+		assertCentralRolesDoNotExist(t, ctx, clientMap, flags)
 	})
 
 	t.Run("Namespaces are preserved", func(t *testing.T) {
-		assertMemberClusterNamespacesExist(t, clientMap, flags)
-		assertCentralClusterNamespacesExist(t, clientMap, flags)
+		assertMemberClusterNamespacesExist(t, ctx, clientMap, flags)
+		assertCentralClusterNamespacesExist(t, ctx, clientMap, flags)
 	})
 
 }
 
 func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
+	clientMap := getClientResources(ctx, flags)
 
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
-	kubeConfig, err := readKubeConfig(clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
+	kubeConfig, err := readKubeConfig(ctx, clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "Config", kubeConfig.Kind)
@@ -244,7 +270,7 @@ func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *tes
 
 	for i, kubeConfigCluster := range kubeConfig.Clusters {
 		assert.Equal(t, flags.MemberClusters[i], kubeConfigCluster.Name, "Name of cluster should be set to the member clusters.")
-		expectedCaBytes, err := readSecretKey(clientMap[flags.MemberClusters[i]], fmt.Sprintf("%s-token", flags.ServiceAccount), flags.MemberClusterNamespace, "ca.crt")
+		expectedCaBytes, err := readSecretKey(ctx, clientMap[flags.MemberClusters[i]], fmt.Sprintf("%s-token-secret", flags.ServiceAccount), flags.CentralClusterNamespace, "ca.crt")
 
 		assert.NoError(t, err)
 		assert.Contains(t, string(expectedCaBytes), flags.MemberClusters[i])
@@ -253,7 +279,7 @@ func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *tes
 	}
 
 	for i, user := range kubeConfig.Users {
-		tokenBytes, err := readSecretKey(clientMap[flags.MemberClusters[i]], fmt.Sprintf("%s-token", flags.ServiceAccount), flags.MemberClusterNamespace, "token")
+		tokenBytes, err := readSecretKey(ctx, clientMap[flags.MemberClusters[i]], fmt.Sprintf("%s-token-secret", flags.ServiceAccount), flags.CentralClusterNamespace, "token")
 		assert.NoError(t, err)
 		assert.Equal(t, flags.MemberClusters[i], user.Name, "User name should be the name of the cluster.")
 		assert.Equal(t, string(tokenBytes), user.User.Token, "Token from the service account secret should be set.")
@@ -262,42 +288,45 @@ func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *tes
 }
 
 func TestKubeConfigSecret_IsCreated_InCentralCluster(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
+	clientMap := getClientResources(ctx, flags)
 
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
 	centralClusterClient := clientMap[flags.CentralCluster]
-	kubeConfigSecret, err := centralClusterClient.CoreV1().Secrets(flags.CentralClusterNamespace).Get(context.TODO(), KubeConfigSecretName, metav1.GetOptions{})
+	kubeConfigSecret, err := centralClusterClient.CoreV1().Secrets(flags.CentralClusterNamespace).Get(ctx, KubeConfigSecretName, metav1.GetOptions{})
 
 	assert.NoError(t, err)
 	assert.NotNil(t, kubeConfigSecret)
 }
 
 func TestKubeConfigSecret_IsNotCreated_InMemberClusters(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
+	clientMap := getClientResources(ctx, flags)
 
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
 	for _, memberCluster := range flags.MemberClusters {
 		memberClient := clientMap[memberCluster]
-		kubeConfigSecret, err := memberClient.CoreV1().Secrets(flags.CentralClusterNamespace).Get(context.TODO(), KubeConfigSecretName, metav1.GetOptions{})
+		kubeConfigSecret, err := memberClient.CoreV1().Secrets(flags.CentralClusterNamespace).Get(ctx, KubeConfigSecretName, metav1.GetOptions{})
 		assert.True(t, errors.IsNotFound(err))
 		assert.Nil(t, kubeConfigSecret)
 	}
 }
 
 func TestChangingOneServiceAccountToken_ChangesOnlyThatEntry_InKubeConfig(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
-	clientMap := getClientResources(flags)
+	clientMap := getClientResources(ctx, flags)
 
-	err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
-	kubeConfigBefore, err := readKubeConfig(clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
+	kubeConfigBefore, err := readKubeConfig(ctx, clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
 	assert.NoError(t, err)
 
 	firstClusterClient := clientMap[flags.MemberClusters[0]]
@@ -305,8 +334,8 @@ func TestChangingOneServiceAccountToken_ChangesOnlyThatEntry_InKubeConfig(t *tes
 	// simulate a service account token changing, re-running the script should leave the other clusters unchanged.
 	newServiceAccountToken := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-token", flags.ServiceAccount),
-			Namespace: flags.MemberClusterNamespace,
+			Name:      fmt.Sprintf("%s-token-secret", flags.ServiceAccount),
+			Namespace: flags.CentralClusterNamespace,
 		},
 		Data: map[string][]byte{
 			"token":  []byte("new-token-data"),
@@ -314,13 +343,14 @@ func TestChangingOneServiceAccountToken_ChangesOnlyThatEntry_InKubeConfig(t *tes
 		},
 	}
 
-	_, err = firstClusterClient.CoreV1().Secrets(flags.MemberClusterNamespace).Update(context.TODO(), &newServiceAccountToken, metav1.UpdateOptions{})
+	_, err = firstClusterClient.CoreV1().Secrets(flags.CentralClusterNamespace).Update(ctx, &newServiceAccountToken, metav1.UpdateOptions{})
 	assert.NoError(t, err)
 
-	err = EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-	assert.NoError(t, err)
+	flags.CreateServiceAccountSecrets = false
+	err = EnsureMultiClusterResources(ctx, flags, clientMap)
+	require.NoError(t, err)
 
-	kubeConfigAfter, err := readKubeConfig(clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
+	kubeConfigAfter, err := readKubeConfig(ctx, clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
 	assert.NoError(t, err)
 
 	assert.NotEqual(t, kubeConfigBefore.Users[0], kubeConfigAfter.Users[0], "Cluster 0 users should have been modified.")
@@ -359,15 +389,18 @@ func TestGetMemberClusterApiServerUrls(t *testing.T) {
 }
 
 func TestMemberClusterUris(t *testing.T) {
+	ctx := context.Background()
 	t.Run("Uses server values set in CommonFlags", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
 		flags := testFlags(t, false)
 		flags.MemberClusterApiServerUrls = []string{"cluster1-url", "cluster2-url", "cluster3-url"}
-		clientMap := getClientResources(flags)
+		clientMap := getClientResources(ctx, flags)
 
-		err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
-		assert.NoError(t, err)
+		err := EnsureMultiClusterResources(ctx, flags, clientMap)
+		require.NoError(t, err)
 
-		kubeConfig, err := readKubeConfig(clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
+		kubeConfig, err := readKubeConfig(ctx, clientMap[flags.CentralCluster], flags.CentralClusterNamespace)
 		assert.NoError(t, err)
 
 		for i, c := range kubeConfig.Clusters {
@@ -379,17 +412,18 @@ func TestMemberClusterUris(t *testing.T) {
 }
 
 func TestReplaceClusterMembersConfigMap(t *testing.T) {
+	ctx := context.Background()
 	flags := testFlags(t, false)
 
-	clientMap := getClientResources(flags)
+	clientMap := getClientResources(ctx, flags)
 	client := clientMap[flags.CentralCluster]
 
 	{
 		flags.MemberClusters = []string{"member-1", "member-2", "member-3", "member-4"}
-		err := ReplaceClusterMembersConfigMap(context.Background(), client, flags)
+		err := ReplaceClusterMembersConfigMap(ctx, client, flags)
 		assert.NoError(t, err)
 
-		cm, err := client.CoreV1().ConfigMaps(flags.CentralClusterNamespace).Get(context.Background(), DefaultOperatorConfigMapName, metav1.GetOptions{})
+		cm, err := client.CoreV1().ConfigMaps(flags.CentralClusterNamespace).Get(ctx, DefaultOperatorConfigMapName, metav1.GetOptions{})
 		assert.NoError(t, err)
 
 		expected := map[string]string{}
@@ -401,8 +435,8 @@ func TestReplaceClusterMembersConfigMap(t *testing.T) {
 
 	{
 		flags.MemberClusters = []string{"member-1", "member-2"}
-		err := ReplaceClusterMembersConfigMap(context.Background(), client, flags)
-		cm, err := client.CoreV1().ConfigMaps(flags.CentralClusterNamespace).Get(context.Background(), DefaultOperatorConfigMapName, metav1.GetOptions{})
+		err := ReplaceClusterMembersConfigMap(ctx, client, flags)
+		cm, err := client.CoreV1().ConfigMaps(flags.CentralClusterNamespace).Get(ctx, DefaultOperatorConfigMapName, metav1.GetOptions{})
 		assert.NoError(t, err)
 
 		expected := map[string]string{}
@@ -419,6 +453,7 @@ func TestReplaceClusterMembersConfigMap(t *testing.T) {
 // samples/multi-cluster-cli-gitops/resources/rbac directory. By default, this test is not executed. If you indent to run
 // it, please set EXPORT_RBAC_SAMPLES variable to "true".
 func TestPrintingOutRolesServiceAccountsAndRoleBindings(t *testing.T) {
+	ctx := context.Background()
 	if os.Getenv("EXPORT_RBAC_SAMPLES") != "true" {
 		t.Skip("Skipping as EXPORT_RBAC_SAMPLES is false")
 	}
@@ -429,78 +464,78 @@ func TestPrintingOutRolesServiceAccountsAndRoleBindings(t *testing.T) {
 
 	{
 		sb := &strings.Builder{}
-		clientMap := getClientResources(flags)
-		err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+		clientMap := getClientResources(ctx, flags)
+		err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-		cr, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+		cr, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		crb, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+		crb, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		sa, err := clientMap[flags.CentralCluster].CoreV1().ServiceAccounts(flags.CentralClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		sa, err := clientMap[flags.CentralCluster].CoreV1().ServiceAccounts(flags.CentralClusterNamespace).List(ctx, metav1.ListOptions{})
 
 		sb = marshalToYaml(t, sb, "Central Cluster, cluster-scoped resources", "rbac.authorization.k8s.io/v1", "ClusterRole", cr.Items)
 		sb = marshalToYaml(t, sb, "Central Cluster, cluster-scoped resources", "rbac.authorization.k8s.io/v1", "ClusterRoleBinding", crb.Items)
 		sb = marshalToYaml(t, sb, "Central Cluster, cluster-scoped resources", "v1", "ServiceAccount", sa.Items)
 
-		os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/cluster_scoped_central_cluster.yaml", []byte(sb.String()), os.ModePerm)
+		_ = os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/cluster_scoped_central_cluster.yaml", []byte(sb.String()), os.ModePerm)
 	}
 
 	{
 		sb := &strings.Builder{}
-		clientMap := getClientResources(flags)
-		err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+		clientMap := getClientResources(ctx, flags)
+		err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-		cr, err := clientMap[flags.MemberClusters[0]].RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+		cr, err := clientMap[flags.MemberClusters[0]].RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		crb, err := clientMap[flags.MemberClusters[0]].RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+		crb, err := clientMap[flags.MemberClusters[0]].RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		sa, err := clientMap[flags.MemberClusters[0]].CoreV1().ServiceAccounts(flags.MemberClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		sa, err := clientMap[flags.MemberClusters[0]].CoreV1().ServiceAccounts(flags.MemberClusterNamespace).List(ctx, metav1.ListOptions{})
 
 		sb = marshalToYaml(t, sb, "Member Cluster, cluster-scoped resources", "rbac.authorization.k8s.io/v1", "ClusterRole", cr.Items)
 		sb = marshalToYaml(t, sb, "Member Cluster, cluster-scoped resources", "rbac.authorization.k8s.io/v1", "ClusterRoleBinding", crb.Items)
 		sb = marshalToYaml(t, sb, "Member Cluster, cluster-scoped resources", "v1", "ServiceAccount", sa.Items)
 
-		os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/cluster_scoped_member_cluster.yaml", []byte(sb.String()), os.ModePerm)
+		_ = os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/cluster_scoped_member_cluster.yaml", []byte(sb.String()), os.ModePerm)
 	}
 
 	{
 		sb := &strings.Builder{}
 		flags.ClusterScoped = false
 
-		clientMap := getClientResources(flags)
-		err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+		clientMap := getClientResources(ctx, flags)
+		err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-		r, err := clientMap[flags.CentralCluster].RbacV1().Roles(flags.CentralClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		r, err := clientMap[flags.CentralCluster].RbacV1().Roles(flags.CentralClusterNamespace).List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		rb, err := clientMap[flags.CentralCluster].RbacV1().RoleBindings(flags.CentralClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		rb, err := clientMap[flags.CentralCluster].RbacV1().RoleBindings(flags.CentralClusterNamespace).List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		sa, err := clientMap[flags.CentralCluster].CoreV1().ServiceAccounts(flags.CentralClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		sa, err := clientMap[flags.CentralCluster].CoreV1().ServiceAccounts(flags.CentralClusterNamespace).List(ctx, metav1.ListOptions{})
 
 		sb = marshalToYaml(t, sb, "Central Cluster, namespace-scoped resources", "rbac.authorization.k8s.io/v1", "Role", r.Items)
 		sb = marshalToYaml(t, sb, "Central Cluster, namespace-scoped resources", "rbac.authorization.k8s.io/v1", "RoleBinding", rb.Items)
 		sb = marshalToYaml(t, sb, "Central Cluster, namespace-scoped resources", "v1", "ServiceAccount", sa.Items)
 
-		os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/namespace_scoped_central_cluster.yaml", []byte(sb.String()), os.ModePerm)
+		_ = os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/namespace_scoped_central_cluster.yaml", []byte(sb.String()), os.ModePerm)
 	}
 
 	{
 		sb := &strings.Builder{}
 		flags.ClusterScoped = false
 
-		clientMap := getClientResources(flags)
-		err := EnsureMultiClusterResources(context.TODO(), flags, clientMap)
+		clientMap := getClientResources(ctx, flags)
+		err := EnsureMultiClusterResources(ctx, flags, clientMap)
 
-		r, err := clientMap[flags.MemberClusters[0]].RbacV1().Roles(flags.MemberClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		r, err := clientMap[flags.MemberClusters[0]].RbacV1().Roles(flags.MemberClusterNamespace).List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		rb, err := clientMap[flags.MemberClusters[0]].RbacV1().RoleBindings(flags.MemberClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		rb, err := clientMap[flags.MemberClusters[0]].RbacV1().RoleBindings(flags.MemberClusterNamespace).List(ctx, metav1.ListOptions{})
 		assert.NoError(t, err)
-		sa, err := clientMap[flags.MemberClusters[0]].CoreV1().ServiceAccounts(flags.MemberClusterNamespace).List(context.TODO(), metav1.ListOptions{})
+		sa, err := clientMap[flags.MemberClusters[0]].CoreV1().ServiceAccounts(flags.MemberClusterNamespace).List(ctx, metav1.ListOptions{})
 
 		sb = marshalToYaml(t, sb, "Member Cluster, namespace-scoped resources", "rbac.authorization.k8s.io/v1", "Role", r.Items)
 		sb = marshalToYaml(t, sb, "Member Cluster, namespace-scoped resources", "rbac.authorization.k8s.io/v1", "RoleBinding", rb.Items)
 		sb = marshalToYaml(t, sb, "Member Cluster, namespace-scoped resources", "v1", "ServiceAccount", sa.Items)
 
-		os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/namespace_scoped_member_cluster.yaml", []byte(sb.String()), os.ModePerm)
+		_ = os.WriteFile("../../samples/multi-cluster-cli-gitops/resources/rbac/namespace_scoped_member_cluster.yaml", []byte(sb.String()), os.ModePerm)
 	}
 }
 
@@ -509,9 +544,9 @@ func marshalToYaml[T interface{}](t *testing.T, sb *strings.Builder, comment str
 	for _, cr := range items {
 		sb.WriteString(fmt.Sprintf("apiVersion: %s\n", apiVersion))
 		sb.WriteString(fmt.Sprintf("kind: %s\n", kind))
-		bytes, err := yaml.Marshal(cr)
+		marshalledBytes, err := yaml.Marshal(cr)
 		assert.NoError(t, err)
-		sb.WriteString(string(bytes))
+		sb.WriteString(string(marshalledBytes))
 		sb.WriteString("\n---\n")
 	}
 	return sb
@@ -561,10 +596,10 @@ func TestConvertToSet(t *testing.T) {
 }
 
 // assertMemberClusterNamespacesExist asserts the Namespace in the member clusters exists.
-func assertMemberClusterNamespacesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
+func assertMemberClusterNamespacesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
-		ns, err := client.CoreV1().Namespaces().Get(context.TODO(), flags.MemberClusterNamespace, metav1.GetOptions{})
+		ns, err := client.CoreV1().Namespaces().Get(ctx, flags.MemberClusterNamespace, metav1.GetOptions{})
 		assert.NoError(t, err)
 		assert.NotNil(t, ns)
 		assert.Equal(t, flags.MemberClusterNamespace, ns.Name)
@@ -572,62 +607,62 @@ func assertMemberClusterNamespacesExist(t *testing.T, clientMap map[string]KubeC
 	}
 }
 
-// assertCentralClusterNamespacesExist asserts the Namespace in the central cluster exists..
-func assertCentralClusterNamespacesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
+// assertCentralClusterNamespacesExist asserts the Namespace in the central cluster exists.
+func assertCentralClusterNamespacesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
 	client := clientMap[flags.CentralCluster]
-	ns, err := client.CoreV1().Namespaces().Get(context.TODO(), flags.CentralClusterNamespace, metav1.GetOptions{})
-	assert.NoError(t, err)
+	ns, err := client.CoreV1().Namespaces().Get(ctx, flags.CentralClusterNamespace, metav1.GetOptions{})
+	require.NoError(t, err)
 	assert.NotNil(t, ns)
 	assert.Equal(t, flags.CentralClusterNamespace, ns.Name)
 	assert.Equal(t, ns.Labels, multiClusterLabels())
 }
 
 // assertServiceAccountsAreCorrect asserts the ServiceAccounts are created as expected.
-func assertServiceAccountsExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
+func assertServiceAccountsExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
-		sa, err := client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(context.TODO(), flags.ServiceAccount, metav1.GetOptions{})
-		assert.NoError(t, err)
+		sa, err := client.CoreV1().ServiceAccounts(flags.CentralClusterNamespace).Get(ctx, flags.ServiceAccount, metav1.GetOptions{})
+		require.NoError(t, err)
 		assert.NotNil(t, sa)
 		assert.Equal(t, flags.ServiceAccount, sa.Name)
 		assert.Equal(t, sa.Labels, multiClusterLabels())
 	}
 
 	client := clientMap[flags.CentralCluster]
-	sa, err := client.CoreV1().ServiceAccounts(flags.CentralClusterNamespace).Get(context.TODO(), flags.ServiceAccount, metav1.GetOptions{})
-	assert.NoError(t, err)
+	sa, err := client.CoreV1().ServiceAccounts(flags.CentralClusterNamespace).Get(ctx, flags.ServiceAccount, metav1.GetOptions{})
+	require.NoError(t, err)
 	assert.NotNil(t, sa)
 	assert.Equal(t, flags.ServiceAccount, sa.Name)
 	assert.Equal(t, sa.Labels, multiClusterLabels())
 }
 
 // assertDatabaseRolesExist asserts the DatabaseRoles are created as expected.
-func assertDatabaseRolesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
+func assertDatabaseRolesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
 
 		// appDB service account
-		sa, err := client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(context.TODO(), AppdbServiceAccount, metav1.GetOptions{})
-		assert.NoError(t, err)
-		assert.NotNil(t, sa)
+		sa, err := client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(ctx, AppdbServiceAccount, metav1.GetOptions{})
+		require.NoError(t, err)
+		require.NotNil(t, sa)
 		assert.Equal(t, sa.Labels, multiClusterLabels())
 
 		// database pods service account
-		sa, err = client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(context.TODO(), DatabasePodsServiceAccount, metav1.GetOptions{})
-		assert.NoError(t, err)
-		assert.NotNil(t, sa)
+		sa, err = client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(ctx, DatabasePodsServiceAccount, metav1.GetOptions{})
+		require.NoError(t, err)
+		require.NotNil(t, sa)
 		assert.Equal(t, sa.Labels, multiClusterLabels())
 
 		// ops manager service account
-		sa, err = client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(context.TODO(), OpsManagerServiceAccount, metav1.GetOptions{})
-		assert.NoError(t, err)
-		assert.NotNil(t, sa)
+		sa, err = client.CoreV1().ServiceAccounts(flags.MemberClusterNamespace).Get(ctx, OpsManagerServiceAccount, metav1.GetOptions{})
+		require.NoError(t, err)
+		require.NotNil(t, sa)
 		assert.Equal(t, sa.Labels, multiClusterLabels())
 
 		// appdb role
-		r, err := client.RbacV1().Roles(flags.MemberClusterNamespace).Get(context.TODO(), AppdbRole, metav1.GetOptions{})
-		assert.NoError(t, err)
-		assert.NotNil(t, r)
+		r, err := client.RbacV1().Roles(flags.MemberClusterNamespace).Get(ctx, AppdbRole, metav1.GetOptions{})
+		require.NoError(t, err)
+		require.NotNil(t, r)
 		assert.Equal(t, r.Labels, multiClusterLabels())
 		assert.Equal(t, []rbacv1.PolicyRule{
 			{
@@ -643,9 +678,9 @@ func assertDatabaseRolesExist(t *testing.T, clientMap map[string]KubeClient, fla
 		}, r.Rules)
 
 		// appdb rolebinding
-		rb, err := client.RbacV1().RoleBindings(flags.MemberClusterNamespace).Get(context.TODO(), AppdbRoleBinding, metav1.GetOptions{})
-		assert.NoError(t, err)
-		assert.NotNil(t, r)
+		rb, err := client.RbacV1().RoleBindings(flags.MemberClusterNamespace).Get(ctx, AppdbRoleBinding, metav1.GetOptions{})
+		require.NoError(t, err)
+		require.NotNil(t, r)
 		assert.Equal(t, rb.Labels, multiClusterLabels())
 		assert.Equal(t, []rbacv1.Subject{
 			{
@@ -661,20 +696,20 @@ func assertDatabaseRolesExist(t *testing.T, clientMap map[string]KubeClient, fla
 }
 
 // assertMemberClusterRolesExist should be used when member cluster cluster roles should exist.
-func assertMemberClusterRolesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertClusterRoles(t, clientMap, flags, true, memberCluster)
+func assertMemberClusterRolesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertClusterRoles(t, ctx, clientMap, flags, true, clusterTypeMember)
 }
 
 // assertMemberClusterRolesDoNotExist should be used when member cluster cluster roles should not exist.
-func assertMemberClusterRolesDoNotExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertClusterRoles(t, clientMap, flags, false, centralCluster)
+func assertMemberClusterRolesDoNotExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertClusterRoles(t, ctx, clientMap, flags, false, clusterTypeCentral)
 }
 
 // assertClusterRoles should be used to assert the existence of member cluster cluster roles. The boolean
 // shouldExist should be true for roles existing, and false for cluster roles not existing.
-func assertClusterRoles(t *testing.T, clientMap map[string]KubeClient, flags Flags, shouldExist bool, clusterType clusterType) {
+func assertClusterRoles(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool, clusterType clusterType) {
 	var expectedClusterRole rbacv1.ClusterRole
-	if clusterType == centralCluster {
+	if clusterType == clusterTypeCentral {
 		expectedClusterRole = buildCentralEntityClusterRole()
 	} else {
 		expectedClusterRole = buildMemberEntityClusterRole()
@@ -682,7 +717,7 @@ func assertClusterRoles(t *testing.T, clientMap map[string]KubeClient, flags Fla
 
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
-		role, err := client.RbacV1().ClusterRoles().Get(context.TODO(), expectedClusterRole.Name, metav1.GetOptions{})
+		role, err := client.RbacV1().ClusterRoles().Get(ctx, expectedClusterRole.Name, metav1.GetOptions{})
 		if shouldExist {
 			assert.NoError(t, err)
 			assert.NotNil(t, role)
@@ -693,7 +728,7 @@ func assertClusterRoles(t *testing.T, clientMap map[string]KubeClient, flags Fla
 		}
 	}
 
-	clusterRole, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().Get(context.TODO(), expectedClusterRole.Name, metav1.GetOptions{})
+	clusterRole, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().Get(ctx, expectedClusterRole.Name, metav1.GetOptions{})
 	if shouldExist {
 		assert.Nil(t, err)
 		assert.NotNil(t, clusterRole)
@@ -703,23 +738,23 @@ func assertClusterRoles(t *testing.T, clientMap map[string]KubeClient, flags Fla
 }
 
 // assertMemberRolesExist should be used when member cluster roles should exist.
-func assertMemberRolesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertMemberRolesAreCorrect(t, clientMap, flags, true)
+func assertMemberRolesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertMemberRolesAreCorrect(t, ctx, clientMap, flags, true)
 }
 
 // assertMemberRolesDoNotExist should be used when member cluster roles should not exist.
-func assertMemberRolesDoNotExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertMemberRolesAreCorrect(t, clientMap, flags, false)
+func assertMemberRolesDoNotExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertMemberRolesAreCorrect(t, ctx, clientMap, flags, false)
 }
 
 // assertMemberRolesAreCorrect should be used to assert the existence of member cluster roles. The boolean
 // shouldExist should be true for roles existing, and false for roles not existing.
-func assertMemberRolesAreCorrect(t *testing.T, clientMap map[string]KubeClient, flags Flags, shouldExist bool) {
+func assertMemberRolesAreCorrect(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool) {
 	expectedRole := buildMemberEntityRole(flags.MemberClusterNamespace)
 
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
-		role, err := client.RbacV1().Roles(flags.MemberClusterNamespace).Get(context.TODO(), expectedRole.Name, metav1.GetOptions{})
+		role, err := client.RbacV1().Roles(flags.MemberClusterNamespace).Get(ctx, expectedRole.Name, metav1.GetOptions{})
 		if shouldExist {
 			assert.NoError(t, err)
 			assert.NotNil(t, role)
@@ -732,29 +767,29 @@ func assertMemberRolesAreCorrect(t *testing.T, clientMap map[string]KubeClient, 
 }
 
 // assertCentralRolesExist should be used when central cluster roles should exist.
-func assertCentralRolesExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertCentralRolesAreCorrect(t, clientMap, flags, true)
+func assertCentralRolesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertCentralRolesAreCorrect(t, ctx, clientMap, flags, true)
 }
 
 // assertCentralRolesDoNotExist should be used when central cluster roles should not exist.
-func assertCentralRolesDoNotExist(t *testing.T, clientMap map[string]KubeClient, flags Flags) {
-	assertCentralRolesAreCorrect(t, clientMap, flags, false)
+func assertCentralRolesDoNotExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
+	assertCentralRolesAreCorrect(t, ctx, clientMap, flags, false)
 }
 
 // assertCentralRolesAreCorrect should be used to assert the existence of central cluster roles. The boolean
 // shouldExist should be true for roles existing, and false for roles not existing.
-func assertCentralRolesAreCorrect(t *testing.T, clientMap map[string]KubeClient, flags Flags, shouldExist bool) {
+func assertCentralRolesAreCorrect(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool) {
 	client := clientMap[flags.CentralCluster]
 
 	// should never have a cluster role
 	clusterRole := buildCentralEntityClusterRole()
-	cr, err := client.RbacV1().ClusterRoles().Get(context.TODO(), clusterRole.Name, metav1.GetOptions{})
+	cr, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 
 	assert.True(t, errors.IsNotFound(err))
 	assert.Nil(t, cr)
 
 	expectedRole := buildCentralEntityRole(flags.CentralClusterNamespace)
-	role, err := client.RbacV1().Roles(flags.CentralClusterNamespace).Get(context.TODO(), expectedRole.Name, metav1.GetOptions{})
+	role, err := client.RbacV1().Roles(flags.CentralClusterNamespace).Get(ctx, expectedRole.Name, metav1.GetOptions{})
 
 	if shouldExist {
 		assert.NoError(t, err, "should always create a role for central cluster")
@@ -776,79 +811,59 @@ var (
 	roleResourceType           resourceType = "Role"
 )
 
-// createResourcesForCluster returns the resources specified based on the provided resourceTypes.
-// this function is used to populate subsets of resources for the unit tests.
-func createResourcesForCluster(centralCluster bool, flags Flags, clusterName string, resourceTypes ...resourceType) []runtime.Object {
-	var namespace = flags.MemberClusterNamespace
-	if centralCluster {
-		namespace = flags.CentralCluster
-	}
-
-	resources := make([]runtime.Object, 0)
-
-	// always create the service account token secret as this gets created by
-	// kubernetes, we can just assume it is always there for tests.
-	resources = append(resources, &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-token", flags.ServiceAccount),
-			Namespace: namespace,
-		},
-		Data: map[string][]byte{
-			"ca.crt": []byte(fmt.Sprintf("ca-cert-data-%s", clusterName)),
-			"token":  []byte(fmt.Sprintf("%s-token-data", clusterName)),
-		},
-	})
-
-	if containsResourceType(resourceTypes, namespaceResourceType) {
-		resources = append(resources, &corev1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:   namespace,
-				Labels: multiClusterLabels(),
-			},
-		})
-	}
-
-	if containsResourceType(resourceTypes, serviceAccountResourceType) {
-		resources = append(resources, &corev1.ServiceAccount{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:   flags.ServiceAccount,
-				Labels: multiClusterLabels(),
-			},
-			Secrets: []corev1.ObjectReference{
-				{
-					Name:      flags.ServiceAccount + "-token",
-					Namespace: namespace,
-				},
-			},
-		})
-	}
-
-	if containsResourceType(resourceTypes, roleResourceType) {
-		role := buildMemberEntityRole(namespace)
-		resources = append(resources, &role)
-	}
-
-	if containsResourceType(resourceTypes, roleBindingResourceType) {
-		role := buildMemberEntityRole(namespace)
-		roleBinding := buildRoleBinding(role, namespace)
-		resources = append(resources, &roleBinding)
-	}
-
-	return resources
-}
-
 // getClientResources returns a map of cluster name to fake.Clientset
-func getClientResources(flags Flags, resourceTypes ...resourceType) map[string]KubeClient {
+func getClientResources(ctx context.Context, flags Flags, resourceTypes ...resourceType) map[string]KubeClient {
 	clientMap := make(map[string]KubeClient)
 
 	for _, clusterName := range flags.MemberClusters {
-		resources := createResourcesForCluster(false, flags, clusterName, resourceTypes...)
-		clientMap[clusterName] = NewKubeClientContainer(nil, fake.NewSimpleClientset(resources...), nil)
+		if clusterName == flags.CentralCluster {
+			continue
+		}
+		clientMap[clusterName] = NewKubeClientContainer(nil, newFakeClientset(ctx, clusterName, nil), nil)
 	}
-	resources := createResourcesForCluster(true, flags, flags.CentralCluster, resourceTypes...)
-	clientMap[flags.CentralCluster] = NewKubeClientContainer(nil, fake.NewSimpleClientset(resources...), nil)
+	clientMap[flags.CentralCluster] = NewKubeClientContainer(nil, newFakeClientset(ctx, flags.CentralCluster, nil), nil)
 
 	return clientMap
+}
+
+func newFakeClientset(ctx context.Context, clusterName string, resources []runtime.Object) *fake.Clientset {
+	clientset := fake.NewSimpleClientset(resources...)
+	informerFactory := informers.NewSharedInformerFactory(clientset, time.Second)
+	secretInformer := informerFactory.Core().V1().Secrets().Informer()
+	_, err := secretInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			s := obj.(*corev1.Secret).DeepCopy()
+			// simulate populating the service account secret token data into the secret
+			// it's done automatically by k8s
+			onSecretCreate(s, clusterName, clientset, ctx)
+		},
+	})
+
+	informerFactory.Start(ctx.Done())
+	informerFactory.WaitForCacheSync(ctx.Done())
+
+	if err != nil {
+		panic(fmt.Errorf("%w", err))
+	}
+
+	return clientset
+}
+
+func onSecretCreate(s *corev1.Secret, clusterName string, clientset *fake.Clientset, ctx context.Context) {
+	// simulate populating the service account secret token data into the secret
+	// it's done automatically by k8s
+	if s.Type == corev1.SecretTypeServiceAccountToken {
+		// random delay to ensure the code is polling for the data set by k8s
+		time.Sleep(time.Millisecond * time.Duration(1+rand.Intn(5)))
+		if s.Data == nil {
+			s.Data = map[string][]byte{}
+		}
+		s.Data["ca.crt"] = []byte(fmt.Sprintf("ca.crt: %s", clusterName))
+		s.Data["token"] = []byte(fmt.Sprintf("token: %s", clusterName))
+		if _, err := clientset.CoreV1().Secrets(s.Namespace).Update(ctx, s, metav1.UpdateOptions{}); err != nil {
+			panic(err)
+		}
+	}
 }
 
 // containsResourceType returns true if r is in resourceTypes, otherwise false.
@@ -862,8 +877,8 @@ func containsResourceType(resourceTypes []resourceType, r resourceType) bool {
 }
 
 // readSecretKey reads a key from a Secret in the given namespace with the given name.
-func readSecretKey(client KubeClient, secretName, namespace, key string) ([]byte, error) {
-	tokenSecret, err := client.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+func readSecretKey(ctx context.Context, client KubeClient, secretName, namespace, key string) ([]byte, error) {
+	tokenSecret, err := client.CoreV1().Secrets(namespace).Get(ctx, secretName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -871,8 +886,8 @@ func readSecretKey(client KubeClient, secretName, namespace, key string) ([]byte
 }
 
 // readKubeConfig reads the KubeConfig file from the secret in the given cluster and namespace.
-func readKubeConfig(client KubeClient, namespace string) (KubeConfigFile, error) {
-	kubeConfigSecret, err := client.CoreV1().Secrets(namespace).Get(context.TODO(), KubeConfigSecretName, metav1.GetOptions{})
+func readKubeConfig(ctx context.Context, client KubeClient, namespace string) (KubeConfigFile, error) {
+	kubeConfigSecret, err := client.CoreV1().Secrets(namespace).Get(ctx, KubeConfigSecretName, metav1.GetOptions{})
 	if err != nil {
 		return KubeConfigFile{}, err
 	}

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strings"
 
 	"github.com/10gen/ops-manager-kubernetes/multi/pkg/common"
@@ -24,6 +25,7 @@ func init() {
 	setupCmd.Flags().BoolVar(&setupFlags.ClusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
 	setupCmd.Flags().BoolVar(&setupFlags.InstallDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
 	setupCmd.Flags().BoolVar(&setupFlags.CreateServiceAccountSecrets, "create-service-account-secrets", true, "Create service account token secrets. [optional default: true]")
+	setupCmd.Flags().StringVar(&setupFlags.ImagePullSecrets, "image-pull-secrets", "", "Name of the secret for imagePullSecrets to set in created service accounts")
 	setupCmd.Flags().StringVar(&common.MemberClustersApiServers, "member-clusters-api-servers", "", "Comma separated list of api servers addresses. [optional, default will take addresses from KUBECONFIG env var]")
 }
 
@@ -38,10 +40,15 @@ Example:
 kubectl-mongodb multicluster setup --central-cluster="operator-cluster" --member-clusters="cluster-1,cluster-2,cluster-3" --member-cluster-namespace=mongodb --central-cluster-namespace=mongodb --create-service-account-secrets --install-database-roles
 
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := parseSetupFlags(args); err != nil {
+	Run: func(cmd *cobra.Command, _ []string) {
+		if err := parseSetupFlags(); err != nil {
 			fmt.Printf("error parsing flags: %s\n", err)
 			os.Exit(1)
+		}
+
+		buildInfo, ok := debug.ReadBuildInfo()
+		if ok {
+			fmt.Println(getBuildInfoString(buildInfo))
 		}
 
 		clientMap, err := common.CreateClientMap(setupFlags.MemberClusters, setupFlags.CentralCluster, common.LoadKubeConfigFilePath(), common.GetKubernetesClient)
@@ -65,7 +72,7 @@ kubectl-mongodb multicluster setup --central-cluster="operator-cluster" --member
 
 var setupFlags = common.Flags{}
 
-func parseSetupFlags(args []string) error {
+func parseSetupFlags() error {
 
 	if common.AnyAreEmpty(common.MemberClusters, setupFlags.ServiceAccount, setupFlags.CentralCluster, setupFlags.MemberClusterNamespace, setupFlags.CentralClusterNamespace) {
 		return xerrors.Errorf("non empty values are required for [service-account, member-clusters, central-cluster, member-cluster-namespace, central-cluster-namespace]")
