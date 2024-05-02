@@ -4,7 +4,6 @@ variables:
     GO111MODULE: "on"
     GOROOT: "/opt/golang/go1.21"
 functions:
-
   "clone":
     - command: subprocess.exec
       type: setup
@@ -23,7 +22,7 @@ functions:
       params:
         script: |
           set -Eeu pipefail
-          
+
           curl -fL "${goreleaser_pro_tar_gz}" --output goreleaser_Linux_x86_64.tar.gz
           tar -xf goreleaser_Linux_x86_64.tar.gz
           chmod 755 ./goreleaser
@@ -36,7 +35,7 @@ functions:
           - notary_service_url
         script: |
           set -Eeu pipefail
-          
+
           curl "${notary_service_url}" --output macos-notary.zip
           unzip -u macos-notary.zip
           chmod 755 ./linux_amd64/macnotary
@@ -47,6 +46,12 @@ functions:
         working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
         include_expansions_in_env:
           - GITHUB_TOKEN
+          - GRS_USERNAME
+          - GRS_PASSWORD
+          - PKCS11_URI
+          - ARTIFACTORY_URL
+          - ARTIFACTORY_PASSWORD
+          - SIGNING_IMAGE_URI
           - macos_notary_keyid
           - macos_notary_secret
           - workdir
@@ -74,14 +79,10 @@ tasks:
       - func: "release"
 
 buildvariants:
-
-# This variant is kept manual for now in order avoid any interfering with the existing release process.
-# In the future, it will be called in one of two ways:
-# By PCT when a new operator version is released.
-# When a new tag is out similarly to github actions.
-- name: release_mcli
-  display_name: Release Go multi-cluster binary
-  run_on:
-    - ubuntu2204-small
-  tasks:
-    - name: package_goreleaser
+  # This variant is run when a new tag is out similar to github actions.
+  - name: release_mcli
+    display_name: Release Go multi-cluster binary
+    run_on:
+      - ubuntu2204-small
+    tasks:
+      - name: package_goreleaser
