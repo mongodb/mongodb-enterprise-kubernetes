@@ -79,10 +79,7 @@ tasks:
       - func: "release"
 
 buildvariants:
-  # This variant is kept manual for now in order avoid any interfering with the existing release process.
-  # In the future, it will be called in one of two ways:
-  # By PCT when a new operator version is released.
-  # When a new tag is out similarly to github actions.
+  # This variant is run when a new tag is out similar to github actions.
   - name: release_mcli
     display_name: Release Go multi-cluster binary
     run_on:
