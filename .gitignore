@@ -1,5 +1,4 @@
 .idea
 *.iml
 .DS_Store
-.evergreen.yml
 tools/multicluster/linux_amd64/*

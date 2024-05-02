@@ -66,11 +66,11 @@ functions:
           set -Eeu pipefail
 
           export PATH=$GOROOT/bin:$PATH
-          ${workdir}/goreleaser release --rm-dist --skip=validate
+          ${workdir}/goreleaser release --rm-dist
 
 tasks:
   - name: package_goreleaser
-    #git_tag_only: true
+    git_tag_only: true
     tags: ["packaging"]
     commands:
       - func: "clone"
