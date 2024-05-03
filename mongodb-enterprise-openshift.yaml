@@ -1,5 +1,46 @@
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook
+rules:
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - validatingwebhookconfigurations
+    verbs:
+      - get
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+---
+# Source: enterprise-operator/templates/operator-roles.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-webhook-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+  - kind: ServiceAccount
+    name: mongodb-enterprise-operator
+    namespace: mongodb
+---
+# Source: enterprise-operator/templates/operator-roles.yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -233,8 +274,6 @@ spec:
               value: ubi8
             - name: PERFORM_FAILOVER
               value: 'true'
-            - name: MDB_WEBHOOK_REGISTER_CONFIGURATION
-              value: "false"
             - name: RELATED_IMAGE_MONGODB_ENTERPRISE_DATABASE_IMAGE_1_25_0
               value: "quay.io/mongodb/mongodb-enterprise-database-ubi:1.25.0"
             - name: RELATED_IMAGE_INIT_DATABASE_IMAGE_REPOSITORY_1_25_0
