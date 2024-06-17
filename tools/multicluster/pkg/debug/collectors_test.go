@@ -19,7 +19,7 @@ import (
 
 func TestCollectors(t *testing.T) {
 	ctx := context.Background()
-	//given
+	// given
 	collectors := []Collector{
 		&MongoDBCommunityCollector{},
 		&MongoDBCollector{},
@@ -41,11 +41,11 @@ func TestCollectors(t *testing.T) {
 
 	kubeClient := kubeClientWithTestingResources(ctx, namespace, testObjectNames)
 
-	//when
+	// when
 	for _, collector := range collectors {
 		kubeObjects, rawObjects, err := collector.Collect(ctx, kubeClient, namespace, filter, anonymizer)
 
-		//then
+		// then
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(kubeObjects))
 		assert.Equal(t, 0, len(rawObjects))

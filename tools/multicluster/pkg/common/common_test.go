@@ -91,7 +91,6 @@ func testFlags(t *testing.T, cleanup bool) Flags {
 		OperatorName:                "mongodb-enterprise-operator",
 		CreateServiceAccountSecrets: true,
 	}
-
 }
 
 func TestNamespaces_GetsCreated_WhenTheyDoNotExit(t *testing.T) {
@@ -249,7 +248,6 @@ func TestPerformCleanup(t *testing.T) {
 		assertMemberClusterNamespacesExist(t, ctx, clientMap, flags)
 		assertCentralClusterNamespacesExist(t, ctx, clientMap, flags)
 	})
-
 }
 
 func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *testing.T) {
@@ -284,7 +282,6 @@ func TestCreateKubeConfig_IsComposedOf_ServiceAccountTokens_InAllClusters(t *tes
 		assert.Equal(t, flags.MemberClusters[i], user.Name, "User name should be the name of the cluster.")
 		assert.Equal(t, string(tokenBytes), user.User.Token, "Token from the service account secret should be set.")
 	}
-
 }
 
 func TestKubeConfigSecret_IsCreated_InCentralCluster(t *testing.T) {
@@ -446,7 +443,6 @@ func TestReplaceClusterMembersConfigMap(t *testing.T) {
 
 		assert.Equal(t, cm.Data, expected)
 	}
-
 }
 
 // TestPrintingOutRolesServiceAccountsAndRoleBindings is not an ordinary test. It updates the RBAC samples in the

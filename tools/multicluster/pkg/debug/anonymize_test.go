@@ -8,33 +8,33 @@ import (
 )
 
 func TestNoOpAnonymizer_AnonymizeSecret(t *testing.T) {
-	//given
+	// given
 	text := "test"
 	anonymizer := NoOpAnonymizer{}
 
-	//when
+	// when
 	result := anonymizer.AnonymizeSecret(&v1.Secret{
 		Data: map[string][]byte{
 			text: []byte(text),
 		},
 	})
 
-	//then
+	// then
 	assert.Equal(t, text, string(result.Data[text]))
 }
 
 func TestSensitiveDataAnonymizer_AnonymizeSecret(t *testing.T) {
-	//given
+	// given
 	text := "test"
 	anonymizer := SensitiveDataAnonymizer{}
 
-	//when
+	// when
 	result := anonymizer.AnonymizeSecret(&v1.Secret{
 		Data: map[string][]byte{
 			text: []byte(text),
 		},
 	})
 
-	//then
+	// then
 	assert.Equal(t, MASKED_TEXT, string(result.Data[text]))
 }

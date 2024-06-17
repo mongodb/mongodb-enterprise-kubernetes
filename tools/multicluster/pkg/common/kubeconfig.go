@@ -65,7 +65,6 @@ func GetKubernetesClient(context, kubeConfigPath string) (KubeClient, error) {
 		&clientcmd.ConfigOverrides{
 			CurrentContext: context,
 		}).ClientConfig()
-
 	if err != nil {
 		return nil, xerrors.Errorf("failed to create client config: %w", err)
 	}
