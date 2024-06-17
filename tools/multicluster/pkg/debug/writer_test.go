@@ -13,12 +13,12 @@ import (
 )
 
 func TestWriteToFile(t *testing.T) {
-	//setup
+	// setup
 	uniqueTempDir, err := os.MkdirTemp(os.TempDir(), "*-TestWriteToFile")
 	assert.NoError(t, err)
 	defer os.RemoveAll(uniqueTempDir)
 
-	//given
+	// given
 	testNamespace := "testNamespace"
 	testContext := "testContext"
 	testError := fmt.Errorf("test")
@@ -45,12 +45,12 @@ func TestWriteToFile(t *testing.T) {
 	}
 	outputFiles := []string{"testContext-testNamespace-txt-testContainer-testFile.txt", "testContext-testNamespace-v1.Secret-test-secret.yaml"}
 
-	//when
+	// when
 	path, compressedFile, err := WriteToFile(uniqueTempDir, collectionResult)
 	defer os.RemoveAll(path) // This is fine as in case of an empty path, this does nothing
 	defer os.RemoveAll(compressedFile)
 
-	//then
+	// then
 	assert.NoError(t, err)
 	assert.NotNil(t, path)
 	assert.NotNil(t, compressedFile)

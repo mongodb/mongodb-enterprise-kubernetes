@@ -62,7 +62,6 @@ kubectl-mongodb multicluster recover --central-cluster="operator-cluster" --memb
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
 	},
 }
 

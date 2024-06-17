@@ -25,11 +25,15 @@ type clusterType string
 // The Service Account token secrets from the member clusters are merged into a KubeConfig file which is then
 // created in the central cluster.
 
-var MemberClusters string
-var MemberClustersApiServers string
+var (
+	MemberClusters           string
+	MemberClustersApiServers string
+)
 
-var PollingInterval = time.Millisecond * 100
-var PollingTimeout = time.Second * 5
+var (
+	PollingInterval = time.Millisecond * 100
+	PollingTimeout  = time.Second * 5
+)
 
 const (
 	clusterTypeCentral clusterType = "CENTRAL"
@@ -134,7 +138,6 @@ func cleanupClusterResources(ctx context.Context, clientset KubeClient, clusterN
 
 	// clean up secrets
 	secretList, err := clientset.CoreV1().Secrets(namespace).List(ctx, listOpts)
-
 	if err != nil {
 		return err
 	}
@@ -150,7 +153,6 @@ func cleanupClusterResources(ctx context.Context, clientset KubeClient, clusterN
 
 	// clean up service accounts
 	serviceAccountList, err := clientset.CoreV1().ServiceAccounts(namespace).List(ctx, listOpts)
-
 	if err != nil {
 		return err
 	}
@@ -376,7 +378,8 @@ func getCentralRules() []rbacv1.PolicyRule {
 				"mongodbmulticluster", "mongodbmulticluster/finalizers", "mongodbmulticluster/status",
 				"mongodbusers", "mongodbusers/status",
 				"opsmanagers", "opsmanagers/finalizers", "opsmanagers/status",
-				"mongodb", "mongodb/finalizers", "mongodb/status"},
+				"mongodb", "mongodb/finalizers", "mongodb/status",
+			},
 			APIGroups: []string{"mongodb.com"},
 		},
 	}
@@ -410,6 +413,7 @@ func buildCentralEntityClusterRole() rbacv1.ClusterRole {
 		Rules: rules,
 	}
 }
+
 func getMemberRules() []rbacv1.PolicyRule {
 	return []rbacv1.PolicyRule{
 		{
@@ -892,7 +896,6 @@ func copyDatabaseRoles(ctx context.Context, src, dst KubeClient, namespace strin
 		if err := copySecret(ctx, src, dst, namespace, appdbSA.ImagePullSecrets[0].Name); err != nil {
 			fmt.Printf("failed creating image pull secret %s: %s\n", appdbSA.ImagePullSecrets[0].Name, err)
 		}
-
 	}
 	if len(dbpodsSA.ImagePullSecrets) > 0 {
 		if err := copySecret(ctx, src, dst, namespace, dbpodsSA.ImagePullSecrets[0].Name); err != nil {
@@ -923,7 +926,6 @@ func copyDatabaseRoles(ctx context.Context, src, dst KubeClient, namespace strin
 	}, metav1.CreateOptions{})
 	if !errors.IsAlreadyExists(err) && err != nil {
 		return xerrors.Errorf("error creating service account: %w", err)
-
 	}
 	_, err = dst.CoreV1().ServiceAccounts(namespace).Create(ctx, &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{

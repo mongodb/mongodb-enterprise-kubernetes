@@ -76,12 +76,12 @@ type KubeClientContainer struct {
 }
 
 func (k *KubeClientContainer) CertificatesV1alpha1() certificatesv1alpha1.CertificatesV1alpha1Interface {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (k *KubeClientContainer) ResourceV1alpha2() resourcev1alpha2.ResourceV1alpha2Interface {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -166,7 +166,7 @@ func (k *KubeClientContainer) BatchV1() batchv1.BatchV1Interface {
 }
 
 func (k *KubeClientContainer) BatchV1beta1() batchv1beta1.BatchV1beta1Interface {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 

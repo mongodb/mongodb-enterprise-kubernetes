@@ -66,14 +66,12 @@ kubectl-mongodb multicluster setup --central-cluster="operator-cluster" --member
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
 	},
 }
 
 var setupFlags = common.Flags{}
 
 func parseSetupFlags() error {
-
 	if common.AnyAreEmpty(common.MemberClusters, setupFlags.ServiceAccount, setupFlags.CentralCluster, setupFlags.MemberClusterNamespace, setupFlags.CentralClusterNamespace) {
 		return xerrors.Errorf("non empty values are required for [service-account, member-clusters, central-cluster, member-cluster-namespace, central-cluster-namespace]")
 	}

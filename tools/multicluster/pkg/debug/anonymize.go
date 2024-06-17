@@ -23,7 +23,7 @@ var _ Anonymizer = &SensitiveDataAnonymizer{}
 type SensitiveDataAnonymizer struct{}
 
 func (n *SensitiveDataAnonymizer) AnonymizeSecret(secret *v1.Secret) *v1.Secret {
-	for key, _ := range secret.Data {
+	for key := range secret.Data {
 		secret.Data[key] = []byte(MASKED_TEXT)
 	}
 	return secret

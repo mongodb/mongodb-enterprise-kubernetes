@@ -48,7 +48,7 @@ metadata:
   namespace: mongodb
 rules:
   - apiGroups:
-      - ""
+      - ''
     resources:
       - services
     verbs:
@@ -59,7 +59,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ""
+      - ''
     resources:
       - secrets
       - configmaps
@@ -82,7 +82,7 @@ rules:
       - delete
       - update
   - apiGroups:
-      - ""
+      - ''
     resources:
       - pods
     verbs:
@@ -94,7 +94,7 @@ rules:
   - apiGroups:
       - mongodb.com
     verbs:
-      - "*"
+      - '*'
     resources:
       - mongodb
       - mongodb/finalizers
@@ -153,13 +153,13 @@ metadata:
   namespace: mongodb
 rules:
   - apiGroups:
-      - ""
+      - ''
     resources:
       - secrets
     verbs:
       - get
   - apiGroups:
-      - ""
+      - ''
     resources:
       - pods
     verbs:
@@ -285,7 +285,9 @@ spec:
             - name: MDB_IMAGE_TYPE
               value: ubi8
             - name: PERFORM_FAILOVER
-              value: "true"
+              value: 'true'
+            - name: MDB_MAX_CONCURRENT_RECONCILES
+              value: "1"
       volumes:
         - name: kube-config-volume
           secret:
