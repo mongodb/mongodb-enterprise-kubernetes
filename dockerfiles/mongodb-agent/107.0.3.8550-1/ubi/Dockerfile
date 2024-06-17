@@ -3,7 +3,7 @@ FROM ${imagebase} as base
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 
-ARG agent_version
+ARG version
 
 LABEL name="MongoDB Agent" \
       version="${agent_version}" \

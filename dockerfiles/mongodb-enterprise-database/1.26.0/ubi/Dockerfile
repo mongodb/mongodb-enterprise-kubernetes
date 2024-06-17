@@ -6,7 +6,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 
 LABEL name="MongoDB Enterprise Database" \
-      version="2.0.2" \
+      version="1.26.0" \
       summary="MongoDB Enterprise Database Image" \
       description="MongoDB Enterprise Database Image" \
       vendor="MongoDB" \
@@ -25,9 +25,9 @@ ENV MMS_LOG_DIR /var/log/mongodb-mms-automation
 RUN microdnf update -y && rm -rf /var/cache/yum
 
 # these are the packages needed for the agent
+RUN microdnf install -y --disableplugin=subscription-manager --setopt=install_weak_deps=0 nss_wrapper
 RUN microdnf install -y --disableplugin=subscription-manager \
         hostname \
-        nss_wrapper \
         procps
 
 
