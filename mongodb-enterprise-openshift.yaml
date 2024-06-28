@@ -182,6 +182,13 @@ subjects:
     name: mongodb-enterprise-appdb
     namespace: mongodb
 ---
+# Source: enterprise-operator/templates/operator-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
 # Source: enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -350,12 +357,12 @@ spec:
               value: "quay.io/mongodb/mongodb-agent-ubi:12.0.31.7825-1_1.26.0"
             - name: RELATED_IMAGE_AGENT_IMAGE_13_10_0_8620_1
               value: "quay.io/mongodb/mongodb-agent-ubi:13.10.0.8620-1"
-            - name: RELATED_IMAGE_AGENT_IMAGE_13_17_0_8870_1
-              value: "quay.io/mongodb/mongodb-agent-ubi:13.17.0.8870-1"
-            - name: RELATED_IMAGE_AGENT_IMAGE_13_17_0_8870_1_1_25_0
-              value: "quay.io/mongodb/mongodb-agent-ubi:13.17.0.8870-1_1.25.0"
-            - name: RELATED_IMAGE_AGENT_IMAGE_13_17_0_8870_1_1_26_0
-              value: "quay.io/mongodb/mongodb-agent-ubi:13.17.0.8870-1_1.26.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_13_19_0_8937_1
+              value: "quay.io/mongodb/mongodb-agent-ubi:13.19.0.8937-1"
+            - name: RELATED_IMAGE_AGENT_IMAGE_13_19_0_8937_1_1_25_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:13.19.0.8937-1_1.25.0"
+            - name: RELATED_IMAGE_AGENT_IMAGE_13_19_0_8937_1_1_26_0
+              value: "quay.io/mongodb/mongodb-agent-ubi:13.19.0.8937-1_1.26.0"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_0
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:6.0.0"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_6_0_1
@@ -418,7 +425,7 @@ spec:
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.6"
             - name: RELATED_IMAGE_OPS_MANAGER_IMAGE_REPOSITORY_7_0_7
               value: "quay.io/mongodb/mongodb-enterprise-ops-manager-ubi:7.0.7"
-      # since the official server images end with a different suffix we can re-use the same $mongodbImageEnv
+            # since the official server images end with a different suffix we can re-use the same $mongodbImageEnv
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_4_0_ubi8
               value: "quay.io/mongodb/mongodb-enterprise-server:4.4.0-ubi8"
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_4_1_ubi8
@@ -513,7 +520,7 @@ spec:
               value: "quay.io/mongodb/mongodb-enterprise-server:6.0.4-ubi8"
             - name: RELATED_IMAGE_MONGODB_IMAGE_6_0_5_ubi8
               value: "quay.io/mongodb/mongodb-enterprise-server:6.0.5-ubi8"
-      # mongodbLegacyAppDb will be deleted in 1.23 release
+            # mongodbLegacyAppDb will be deleted in 1.23 release
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_2_11_ent
               value: "quay.io/mongodb/mongodb-enterprise-appdb-database-ubi:4.2.11-ent"
             - name: RELATED_IMAGE_MONGODB_IMAGE_4_2_2_ent
