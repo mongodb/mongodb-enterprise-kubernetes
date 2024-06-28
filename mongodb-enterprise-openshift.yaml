@@ -182,6 +182,13 @@ subjects:
     name: mongodb-enterprise-appdb
     namespace: mongodb
 ---
+# Source: enterprise-operator/templates/operator-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-enterprise-operator
+  namespace: mongodb
+---
 # Source: enterprise-operator/templates/operator.yaml
 apiVersion: apps/v1
 kind: Deployment
