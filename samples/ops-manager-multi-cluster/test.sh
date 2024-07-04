@@ -11,6 +11,7 @@ run 0010_create_gke_cluster_0.sh &
 run 0010_create_gke_cluster_1.sh &
 run 0010_create_gke_cluster_2.sh &
 wait
+run 0011_gcloud_set_current_project.sh
 run 0020_get_gke_credentials.sh
 run_for_output 0030_verify_access_to_clusters.sh
 
@@ -38,6 +39,7 @@ run_for_output 0090_check_cluster_connectivity_verify_pod_2_0_from_cluster_0.sh
 run 0100_check_cluster_connectivity_cleanup.sh
 
 run_for_output 0200_kubectl_mongodb_configure_multi_cluster.sh
+run_for_output 0205_helm_configure_repo.sh
 run_for_output 0210_helm_install_operator.sh
 run_for_output 0211_check_operator_deployment.sh
 
