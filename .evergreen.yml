@@ -22,7 +22,6 @@ functions:
       params:
         script: |
           set -Eeu pipefail
-
           curl -fL "${goreleaser_pro_tar_gz}" --output goreleaser_Linux_x86_64.tar.gz
           tar -xf goreleaser_Linux_x86_64.tar.gz
           chmod 755 ./goreleaser
@@ -35,7 +34,7 @@ functions:
           - notary_service_url
         script: |
           set -Eeu pipefail
-
+          
           curl "${notary_service_url}" --output macos-notary.zip
           unzip -u macos-notary.zip
           chmod 755 ./linux_amd64/macnotary
@@ -79,10 +78,10 @@ tasks:
       - func: "release"
 
 buildvariants:
-  # This variant is run when a new tag is out similar to github actions.
-  - name: release_mcli
-    display_name: Release Go multi-cluster binary
-    run_on:
-      - ubuntu2204-small
-    tasks:
-      - name: package_goreleaser
+# This variant is run when a new tag is out similar to github actions.
+- name: release_mcli
+  display_name: Release Go multi-cluster binary
+  run_on:
+    - ubuntu2204-small
+  tasks:
+    - name: package_goreleaser

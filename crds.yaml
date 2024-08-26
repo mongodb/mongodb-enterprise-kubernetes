@@ -67,13 +67,191 @@ spec:
                 x-kubernetes-preserve-unknown-fields: true
               agent:
                 properties:
+                  backupAgent:
+                    properties:
+                      logRotate:
+                        description: LogRotate configures log rotation for the BackupAgent
+                          processes
+                        properties:
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              OM only supports ints
+                            type: integer
+                          timeThresholdHrs:
+                            description: Number of hours after which this MongoDB
+                              Agent rotates the log file.
+                            type: integer
+                        type: object
+                    type: object
                   logLevel:
                     type: string
+                  logRotate:
+                    description: DEPRECATED please use mongod.logRotate
+                    properties:
+                      includeAuditLogsWithMongoDBLogs:
+                        description: |-
+                          set to 'true' to have the Automation Agent rotate the audit files along
+                          with mongodb log files
+                        type: boolean
+                      numTotal:
+                        description: maximum number of log files to have total
+                        type: integer
+                      numUncompressed:
+                        description: maximum number of log files to leave uncompressed
+                        type: integer
+                      percentOfDiskspace:
+                        description: |-
+                          Maximum percentage of the total disk space these log files should take up.
+                          The string needs to be able to be converted to float64
+                        type: string
+                      sizeThresholdMB:
+                        description: |-
+                          Maximum size for an individual log file before rotation.
+                          The string needs to be able to be converted to float64.
+                          Fractional values of MB are supported.
+                        type: string
+                      timeThresholdHrs:
+                        description: maximum hours for an individual log file before
+                          rotation
+                        type: integer
+                    required:
+                    - sizeThresholdMB
+                    - timeThresholdHrs
+                    type: object
                   maxLogFileDurationHours:
                     type: integer
+                  mongod:
+                    description: AgentLoggingMongodConfig contain settings for the
+                      mongodb processes configured by the agent
+                    properties:
+                      auditlogRotate:
+                        description: LogRotate configures audit log rotation for the
+                          mongodb processes
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
+                      logRotate:
+                        description: LogRotate configures log rotation for the mongodb
+                          processes
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
+                      systemLog:
+                        description: SystemLog configures system log of mongod
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
+                        type: object
+                    type: object
+                  monitoringAgent:
+                    properties:
+                      logRotate:
+                        description: LogRotate configures log rotation for the BackupAgent
+                          processes
+                        properties:
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              OM only supports ints
+                            type: integer
+                          timeThresholdHrs:
+                            description: Number of hours after which this MongoDB
+                              Agent rotates the log file.
+                            type: integer
+                        type: object
+                    type: object
+                  readinessProbe:
+                    properties:
+                      environmentVariables:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
                   startupOptions:
                     additionalProperties:
                       type: string
+                    description: |-
+                      StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                      log rotation settings as defined here:
+                    type: object
+                  systemLog:
+                    description: DEPRECATED please use mongod.systemLog
+                    properties:
+                      destination:
+                        type: string
+                      logAppend:
+                        type: boolean
+                      path:
+                        type: string
+                    required:
+                    - destination
+                    - logAppend
+                    - path
                     type: object
                 type: object
               backup:
@@ -226,14 +404,197 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   agent:
+                    description: |-
+                      Configuring logRotation is not allowed under this section.
+                      Please use the most top level resource fields for this; spec.Agent
                     properties:
+                      backupAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
                       logLevel:
                         type: string
+                      logRotate:
+                        description: DEPRECATED please use mongod.logRotate
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
                       maxLogFileDurationHours:
                         type: integer
+                      mongod:
+                        description: AgentLoggingMongodConfig contain settings for
+                          the mongodb processes configured by the agent
+                        properties:
+                          auditlogRotate:
+                            description: LogRotate configures audit log rotation for
+                              the mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          systemLog:
+                            description: SystemLog configures system log of mongod
+                            properties:
+                              destination:
+                                type: string
+                              logAppend:
+                                type: boolean
+                              path:
+                                type: string
+                            required:
+                            - destination
+                            - logAppend
+                            - path
+                            type: object
+                        type: object
+                      monitoringAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
+                      readinessProbe:
+                        properties:
+                          environmentVariables:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
                       startupOptions:
                         additionalProperties:
                           type: string
+                        description: |-
+                          StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                          log rotation settings as defined here:
+                        type: object
+                      systemLog:
+                        description: DEPRECATED please use mongod.systemLog
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
                         type: object
                     type: object
                 type: object
@@ -379,14 +740,197 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   agent:
+                    description: |-
+                      Configuring logRotation is not allowed under this section.
+                      Please use the most top level resource fields for this; spec.Agent
                     properties:
+                      backupAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
                       logLevel:
                         type: string
+                      logRotate:
+                        description: DEPRECATED please use mongod.logRotate
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
                       maxLogFileDurationHours:
                         type: integer
+                      mongod:
+                        description: AgentLoggingMongodConfig contain settings for
+                          the mongodb processes configured by the agent
+                        properties:
+                          auditlogRotate:
+                            description: LogRotate configures audit log rotation for
+                              the mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          systemLog:
+                            description: SystemLog configures system log of mongod
+                            properties:
+                              destination:
+                                type: string
+                              logAppend:
+                                type: boolean
+                              path:
+                                type: string
+                            required:
+                            - destination
+                            - logAppend
+                            - path
+                            type: object
+                        type: object
+                      monitoringAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
+                      readinessProbe:
+                        properties:
+                          environmentVariables:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
                       startupOptions:
                         additionalProperties:
                           type: string
+                        description: |-
+                          StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                          log rotation settings as defined here:
+                        type: object
+                      systemLog:
+                        description: DEPRECATED please use mongod.systemLog
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
                         type: object
                     type: object
                 type: object
@@ -770,14 +1314,197 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   agent:
+                    description: |-
+                      Configuring logRotation is not allowed under this section.
+                      Please use the most top level resource fields for this; spec.Agent
                     properties:
+                      backupAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
                       logLevel:
                         type: string
+                      logRotate:
+                        description: DEPRECATED please use mongod.logRotate
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
                       maxLogFileDurationHours:
                         type: integer
+                      mongod:
+                        description: AgentLoggingMongodConfig contain settings for
+                          the mongodb processes configured by the agent
+                        properties:
+                          auditlogRotate:
+                            description: LogRotate configures audit log rotation for
+                              the mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          systemLog:
+                            description: SystemLog configures system log of mongod
+                            properties:
+                              destination:
+                                type: string
+                              logAppend:
+                                type: boolean
+                              path:
+                                type: string
+                            required:
+                            - destination
+                            - logAppend
+                            - path
+                            type: object
+                        type: object
+                      monitoringAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
+                      readinessProbe:
+                        properties:
+                          environmentVariables:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
                       startupOptions:
                         additionalProperties:
                           type: string
+                        description: |-
+                          StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                          log rotation settings as defined here:
+                        type: object
+                      systemLog:
+                        description: DEPRECATED please use mongod.systemLog
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
                         type: object
                     type: object
                 type: object
@@ -1066,13 +1793,191 @@ spec:
                 x-kubernetes-preserve-unknown-fields: true
               agent:
                 properties:
+                  backupAgent:
+                    properties:
+                      logRotate:
+                        description: LogRotate configures log rotation for the BackupAgent
+                          processes
+                        properties:
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              OM only supports ints
+                            type: integer
+                          timeThresholdHrs:
+                            description: Number of hours after which this MongoDB
+                              Agent rotates the log file.
+                            type: integer
+                        type: object
+                    type: object
                   logLevel:
                     type: string
+                  logRotate:
+                    description: DEPRECATED please use mongod.logRotate
+                    properties:
+                      includeAuditLogsWithMongoDBLogs:
+                        description: |-
+                          set to 'true' to have the Automation Agent rotate the audit files along
+                          with mongodb log files
+                        type: boolean
+                      numTotal:
+                        description: maximum number of log files to have total
+                        type: integer
+                      numUncompressed:
+                        description: maximum number of log files to leave uncompressed
+                        type: integer
+                      percentOfDiskspace:
+                        description: |-
+                          Maximum percentage of the total disk space these log files should take up.
+                          The string needs to be able to be converted to float64
+                        type: string
+                      sizeThresholdMB:
+                        description: |-
+                          Maximum size for an individual log file before rotation.
+                          The string needs to be able to be converted to float64.
+                          Fractional values of MB are supported.
+                        type: string
+                      timeThresholdHrs:
+                        description: maximum hours for an individual log file before
+                          rotation
+                        type: integer
+                    required:
+                    - sizeThresholdMB
+                    - timeThresholdHrs
+                    type: object
                   maxLogFileDurationHours:
                     type: integer
+                  mongod:
+                    description: AgentLoggingMongodConfig contain settings for the
+                      mongodb processes configured by the agent
+                    properties:
+                      auditlogRotate:
+                        description: LogRotate configures audit log rotation for the
+                          mongodb processes
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
+                      logRotate:
+                        description: LogRotate configures log rotation for the mongodb
+                          processes
+                        properties:
+                          includeAuditLogsWithMongoDBLogs:
+                            description: |-
+                              set to 'true' to have the Automation Agent rotate the audit files along
+                              with mongodb log files
+                            type: boolean
+                          numTotal:
+                            description: maximum number of log files to have total
+                            type: integer
+                          numUncompressed:
+                            description: maximum number of log files to leave uncompressed
+                            type: integer
+                          percentOfDiskspace:
+                            description: |-
+                              Maximum percentage of the total disk space these log files should take up.
+                              The string needs to be able to be converted to float64
+                            type: string
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              The string needs to be able to be converted to float64.
+                              Fractional values of MB are supported.
+                            type: string
+                          timeThresholdHrs:
+                            description: maximum hours for an individual log file
+                              before rotation
+                            type: integer
+                        required:
+                        - sizeThresholdMB
+                        - timeThresholdHrs
+                        type: object
+                      systemLog:
+                        description: SystemLog configures system log of mongod
+                        properties:
+                          destination:
+                            type: string
+                          logAppend:
+                            type: boolean
+                          path:
+                            type: string
+                        required:
+                        - destination
+                        - logAppend
+                        - path
+                        type: object
+                    type: object
+                  monitoringAgent:
+                    properties:
+                      logRotate:
+                        description: LogRotate configures log rotation for the BackupAgent
+                          processes
+                        properties:
+                          sizeThresholdMB:
+                            description: |-
+                              Maximum size for an individual log file before rotation.
+                              OM only supports ints
+                            type: integer
+                          timeThresholdHrs:
+                            description: Number of hours after which this MongoDB
+                              Agent rotates the log file.
+                            type: integer
+                        type: object
+                    type: object
+                  readinessProbe:
+                    properties:
+                      environmentVariables:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
                   startupOptions:
                     additionalProperties:
                       type: string
+                    description: |-
+                      StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                      log rotation settings as defined here:
+                    type: object
+                  systemLog:
+                    description: DEPRECATED please use mongod.systemLog
+                    properties:
+                      destination:
+                        type: string
+                      logAppend:
+                        type: boolean
+                      path:
+                        type: string
+                    required:
+                    - destination
+                    - logAppend
+                    - path
                     type: object
                 type: object
               backup:
@@ -2061,11 +2966,27 @@ spec:
                     description: specify configuration like startup flags and automation
                       config settings for the AutomationAgent and MonitoringAgent
                     properties:
+                      backupAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
                       logLevel:
                         type: string
                       logRotate:
-                        description: LogRotate if enabled, will enable LogRotate for
-                          all processes.
+                        description: DEPRECATED please use mongod.logRotate
                         properties:
                           includeAuditLogsWithMongoDBLogs:
                             description: |-
@@ -2099,12 +3020,128 @@ spec:
                         type: object
                       maxLogFileDurationHours:
                         type: integer
+                      mongod:
+                        description: AgentLoggingMongodConfig contain settings for
+                          the mongodb processes configured by the agent
+                        properties:
+                          auditlogRotate:
+                            description: LogRotate configures audit log rotation for
+                              the mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              mongodb processes
+                            properties:
+                              includeAuditLogsWithMongoDBLogs:
+                                description: |-
+                                  set to 'true' to have the Automation Agent rotate the audit files along
+                                  with mongodb log files
+                                type: boolean
+                              numTotal:
+                                description: maximum number of log files to have total
+                                type: integer
+                              numUncompressed:
+                                description: maximum number of log files to leave
+                                  uncompressed
+                                type: integer
+                              percentOfDiskspace:
+                                description: |-
+                                  Maximum percentage of the total disk space these log files should take up.
+                                  The string needs to be able to be converted to float64
+                                type: string
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  The string needs to be able to be converted to float64.
+                                  Fractional values of MB are supported.
+                                type: string
+                              timeThresholdHrs:
+                                description: maximum hours for an individual log file
+                                  before rotation
+                                type: integer
+                            required:
+                            - sizeThresholdMB
+                            - timeThresholdHrs
+                            type: object
+                          systemLog:
+                            description: SystemLog configures system log of mongod
+                            properties:
+                              destination:
+                                type: string
+                              logAppend:
+                                type: boolean
+                              path:
+                                type: string
+                            required:
+                            - destination
+                            - logAppend
+                            - path
+                            type: object
+                        type: object
+                      monitoringAgent:
+                        properties:
+                          logRotate:
+                            description: LogRotate configures log rotation for the
+                              BackupAgent processes
+                            properties:
+                              sizeThresholdMB:
+                                description: |-
+                                  Maximum size for an individual log file before rotation.
+                                  OM only supports ints
+                                type: integer
+                              timeThresholdHrs:
+                                description: Number of hours after which this MongoDB
+                                  Agent rotates the log file.
+                                type: integer
+                            type: object
+                        type: object
+                      readinessProbe:
+                        properties:
+                          environmentVariables:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
                       startupOptions:
                         additionalProperties:
                           type: string
+                        description: |-
+                          StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                          log rotation settings as defined here:
                         type: object
                       systemLog:
-                        description: SystemLog configures system log of mongod
+                        description: DEPRECATED please use mongod.systemLog
                         properties:
                           destination:
                             type: string
@@ -2347,14 +3384,15 @@ spec:
                       These take precedence over
                       the flags set in AutomationAgent
                     properties:
-                      logLevel:
-                        type: string
-                      maxLogFileDurationHours:
-                        type: integer
                       startupOptions:
                         additionalProperties:
                           type: string
+                        description: |-
+                          StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                          log rotation settings as defined here:
                         type: object
+                    required:
+                    - startupOptions
                     type: object
                   opsManager:
                     properties:
@@ -2808,6 +3846,23 @@ spec:
                     items:
                       type: string
                     type: array
+                  logging:
+                    properties:
+                      LogBackAccessRef:
+                        description: LogBackAccessRef points at a ConfigMap/key with
+                          the logback access configuration file to mount on the Pod
+                        properties:
+                          name:
+                            type: string
+                        type: object
+                      LogBackRef:
+                        description: LogBackRef points at a ConfigMap/key with the
+                          logback configuration file to mount on the Pod
+                        properties:
+                          name:
+                            type: string
+                        type: object
+                    type: object
                   members:
                     description: Members indicate the number of backup daemon pods
                       to create.
@@ -3329,6 +4384,23 @@ spec:
                 items:
                   type: string
                 type: array
+              logging:
+                properties:
+                  LogBackAccessRef:
+                    description: LogBackAccessRef points at a ConfigMap/key with the
+                      logback access configuration file to mount on the Pod
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                  LogBackRef:
+                    description: LogBackRef points at a ConfigMap/key with the logback
+                      configuration file to mount on the Pod
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                type: object
               opsManagerURL:
                 description: |-
                   OpsManagerURL specified the URL with which the operator and AppDB monitoring agent should access Ops Manager instance (or instances).
