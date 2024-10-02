@@ -597,11 +597,154 @@ spec:
                         - path
                         type: object
                     type: object
+                  clusterSpecList:
+                    items:
+                      description: |-
+                        ClusterSpecItem is the mongodb multi-cluster spec that is specific to a
+                        particular Kubernetes cluster, this maps to the statefulset created in each cluster
+                      properties:
+                        clusterName:
+                          description: |-
+                            ClusterName is name of the cluster where the MongoDB Statefulset will be scheduled, the
+                            name should have a one on one mapping with the service-account created in the central cluster
+                            to talk to the workload clusters.
+                          type: string
+                        externalAccess:
+                          description: ExternalAccessConfiguration provides external
+                            access configuration for Multi-Cluster.
+                          properties:
+                            externalDomain:
+                              description: An external domain that is used for exposing
+                                MongoDB to the outside world.
+                              type: string
+                            externalService:
+                              description: Provides a way to override the default
+                                (NodePort) Service
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: A map of annotations that shall be
+                                    added to the externally available Service.
+                                  type: object
+                                spec:
+                                  description: A wrapper for the Service spec object.
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                              type: object
+                          type: object
+                        memberConfig:
+                          description: MemberConfig allows to specify votes, priorities
+                            and tags for each of the mongodb process.
+                          items:
+                            properties:
+                              priority:
+                                type: string
+                              tags:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              votes:
+                                type: integer
+                            type: object
+                          type: array
+                        members:
+                          description: Amount of members for this MongoDB Replica
+                            Set
+                          type: integer
+                        podSpec:
+                          properties:
+                            persistence:
+                              description: Note, that this field is used by MongoDB
+                                resources only, let's keep it here for simplicity
+                              properties:
+                                multiple:
+                                  properties:
+                                    data:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    journal:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    logs:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                  type: object
+                                single:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            podTemplate:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
+                        service:
+                          description: this is an optional service, it will get the
+                            name "<rsName>-service" in case not provided
+                          type: string
+                        statefulSet:
+                          description: |-
+                            StatefulSetConfiguration holds the optional custom StatefulSet
+                            that should be merged into the operator created one.
+                          properties:
+                            metadata:
+                              description: StatefulSetMetadataWrapper is a wrapper
+                                around Labels and Annotations
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                              type: object
+                            spec:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          required:
+                          - spec
+                          type: object
+                      required:
+                      - members
+                      type: object
+                    type: array
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
               configSrvPodSpec:
                 properties:
                   persistence:
+                    description: Note, that this field is used by MongoDB resources
+                      only, let's keep it here for simplicity
                     properties:
                       multiple:
                         properties:
@@ -680,6 +823,14 @@ spec:
               credentials:
                 description: Name of the Secret holding credentials information
                 type: string
+              duplicateServiceObjects:
+                description: |-
+                  In few service mesh options for ex: Istio, by default we would need to duplicate the
+                  service objects created per pod in all the clusters to enable DNS resolution. Users can
+                  however configure their ServiceMesh with DNS proxy(https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy/)
+                  enabled in which case the operator doesn't need to create the service objects per cluster. This options tells the operator
+                  whether it should create the service objects in all the clusters or not. By default, if not specified the operator would create the duplicate svc objects.
+                type: boolean
               externalAccess:
                 description: ExternalAccessConfiguration provides external access
                   configuration.
@@ -715,7 +866,8 @@ spec:
                 - FATAL
                 type: string
               memberConfig:
-                description: MemberConfig
+                description: MemberConfig allows to specify votes, priorities and
+                  tags for each of the mongodb process.
                 items:
                   properties:
                     priority:
@@ -933,6 +1085,147 @@ spec:
                         - path
                         type: object
                     type: object
+                  clusterSpecList:
+                    items:
+                      description: |-
+                        ClusterSpecItem is the mongodb multi-cluster spec that is specific to a
+                        particular Kubernetes cluster, this maps to the statefulset created in each cluster
+                      properties:
+                        clusterName:
+                          description: |-
+                            ClusterName is name of the cluster where the MongoDB Statefulset will be scheduled, the
+                            name should have a one on one mapping with the service-account created in the central cluster
+                            to talk to the workload clusters.
+                          type: string
+                        externalAccess:
+                          description: ExternalAccessConfiguration provides external
+                            access configuration for Multi-Cluster.
+                          properties:
+                            externalDomain:
+                              description: An external domain that is used for exposing
+                                MongoDB to the outside world.
+                              type: string
+                            externalService:
+                              description: Provides a way to override the default
+                                (NodePort) Service
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: A map of annotations that shall be
+                                    added to the externally available Service.
+                                  type: object
+                                spec:
+                                  description: A wrapper for the Service spec object.
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                              type: object
+                          type: object
+                        memberConfig:
+                          description: MemberConfig allows to specify votes, priorities
+                            and tags for each of the mongodb process.
+                          items:
+                            properties:
+                              priority:
+                                type: string
+                              tags:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              votes:
+                                type: integer
+                            type: object
+                          type: array
+                        members:
+                          description: Amount of members for this MongoDB Replica
+                            Set
+                          type: integer
+                        podSpec:
+                          properties:
+                            persistence:
+                              description: Note, that this field is used by MongoDB
+                                resources only, let's keep it here for simplicity
+                              properties:
+                                multiple:
+                                  properties:
+                                    data:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    journal:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    logs:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                  type: object
+                                single:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            podTemplate:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
+                        service:
+                          description: this is an optional service, it will get the
+                            name "<rsName>-service" in case not provided
+                          type: string
+                        statefulSet:
+                          description: |-
+                            StatefulSetConfiguration holds the optional custom StatefulSet
+                            that should be merged into the operator created one.
+                          properties:
+                            metadata:
+                              description: StatefulSetMetadataWrapper is a wrapper
+                                around Labels and Annotations
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                              type: object
+                            spec:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          required:
+                          - spec
+                          type: object
+                      required:
+                      - members
+                      type: object
+                    type: array
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
               mongosCount:
@@ -940,6 +1233,8 @@ spec:
               mongosPodSpec:
                 properties:
                   persistence:
+                    description: Note, that this field is used by MongoDB resources
+                      only, let's keep it here for simplicity
                     properties:
                       multiple:
                         properties:
@@ -1002,6 +1297,8 @@ spec:
               podSpec:
                 properties:
                   persistence:
+                    description: Note, that this field is used by MongoDB resources
+                      only, let's keep it here for simplicity
                     properties:
                       multiple:
                         properties:
@@ -1507,13 +1804,608 @@ spec:
                         - path
                         type: object
                     type: object
+                  clusterSpecList:
+                    items:
+                      description: |-
+                        ClusterSpecItem is the mongodb multi-cluster spec that is specific to a
+                        particular Kubernetes cluster, this maps to the statefulset created in each cluster
+                      properties:
+                        clusterName:
+                          description: |-
+                            ClusterName is name of the cluster where the MongoDB Statefulset will be scheduled, the
+                            name should have a one on one mapping with the service-account created in the central cluster
+                            to talk to the workload clusters.
+                          type: string
+                        externalAccess:
+                          description: ExternalAccessConfiguration provides external
+                            access configuration for Multi-Cluster.
+                          properties:
+                            externalDomain:
+                              description: An external domain that is used for exposing
+                                MongoDB to the outside world.
+                              type: string
+                            externalService:
+                              description: Provides a way to override the default
+                                (NodePort) Service
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: A map of annotations that shall be
+                                    added to the externally available Service.
+                                  type: object
+                                spec:
+                                  description: A wrapper for the Service spec object.
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                              type: object
+                          type: object
+                        memberConfig:
+                          description: MemberConfig allows to specify votes, priorities
+                            and tags for each of the mongodb process.
+                          items:
+                            properties:
+                              priority:
+                                type: string
+                              tags:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              votes:
+                                type: integer
+                            type: object
+                          type: array
+                        members:
+                          description: Amount of members for this MongoDB Replica
+                            Set
+                          type: integer
+                        podSpec:
+                          properties:
+                            persistence:
+                              description: Note, that this field is used by MongoDB
+                                resources only, let's keep it here for simplicity
+                              properties:
+                                multiple:
+                                  properties:
+                                    data:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    journal:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    logs:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                  type: object
+                                single:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            podTemplate:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
+                        service:
+                          description: this is an optional service, it will get the
+                            name "<rsName>-service" in case not provided
+                          type: string
+                        statefulSet:
+                          description: |-
+                            StatefulSetConfiguration holds the optional custom StatefulSet
+                            that should be merged into the operator created one.
+                          properties:
+                            metadata:
+                              description: StatefulSetMetadataWrapper is a wrapper
+                                around Labels and Annotations
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                              type: object
+                            spec:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          required:
+                          - spec
+                          type: object
+                      required:
+                      - members
+                      type: object
+                    type: array
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
               shardCount:
                 type: integer
+              shardOverrides:
+                description: |-
+                  ShardOverrides allow for overriding the configuration of a specific shard.
+                  It replaces deprecated spec.shard.shardSpecificPodSpec field. When spec.shard.shardSpecificPodSpec is still defined then
+                  spec.shard.shardSpecificPodSpec is applied first to the particular shard and then spec.shardOverrides is applied on top
+                  of that (if defined for the same shard).
+                items:
+                  properties:
+                    additionalMongodConfig:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    agent:
+                      properties:
+                        backupAgent:
+                          properties:
+                            logRotate:
+                              description: LogRotate configures log rotation for the
+                                BackupAgent processes
+                              properties:
+                                sizeThresholdMB:
+                                  description: |-
+                                    Maximum size for an individual log file before rotation.
+                                    OM only supports ints
+                                  type: integer
+                                timeThresholdHrs:
+                                  description: Number of hours after which this MongoDB
+                                    Agent rotates the log file.
+                                  type: integer
+                              type: object
+                          type: object
+                        logLevel:
+                          type: string
+                        logRotate:
+                          description: DEPRECATED please use mongod.logRotate
+                          properties:
+                            includeAuditLogsWithMongoDBLogs:
+                              description: |-
+                                set to 'true' to have the Automation Agent rotate the audit files along
+                                with mongodb log files
+                              type: boolean
+                            numTotal:
+                              description: maximum number of log files to have total
+                              type: integer
+                            numUncompressed:
+                              description: maximum number of log files to leave uncompressed
+                              type: integer
+                            percentOfDiskspace:
+                              description: |-
+                                Maximum percentage of the total disk space these log files should take up.
+                                The string needs to be able to be converted to float64
+                              type: string
+                            sizeThresholdMB:
+                              description: |-
+                                Maximum size for an individual log file before rotation.
+                                The string needs to be able to be converted to float64.
+                                Fractional values of MB are supported.
+                              type: string
+                            timeThresholdHrs:
+                              description: maximum hours for an individual log file
+                                before rotation
+                              type: integer
+                          required:
+                          - sizeThresholdMB
+                          - timeThresholdHrs
+                          type: object
+                        maxLogFileDurationHours:
+                          type: integer
+                        mongod:
+                          description: AgentLoggingMongodConfig contain settings for
+                            the mongodb processes configured by the agent
+                          properties:
+                            auditlogRotate:
+                              description: LogRotate configures audit log rotation
+                                for the mongodb processes
+                              properties:
+                                includeAuditLogsWithMongoDBLogs:
+                                  description: |-
+                                    set to 'true' to have the Automation Agent rotate the audit files along
+                                    with mongodb log files
+                                  type: boolean
+                                numTotal:
+                                  description: maximum number of log files to have
+                                    total
+                                  type: integer
+                                numUncompressed:
+                                  description: maximum number of log files to leave
+                                    uncompressed
+                                  type: integer
+                                percentOfDiskspace:
+                                  description: |-
+                                    Maximum percentage of the total disk space these log files should take up.
+                                    The string needs to be able to be converted to float64
+                                  type: string
+                                sizeThresholdMB:
+                                  description: |-
+                                    Maximum size for an individual log file before rotation.
+                                    The string needs to be able to be converted to float64.
+                                    Fractional values of MB are supported.
+                                  type: string
+                                timeThresholdHrs:
+                                  description: maximum hours for an individual log
+                                    file before rotation
+                                  type: integer
+                              required:
+                              - sizeThresholdMB
+                              - timeThresholdHrs
+                              type: object
+                            logRotate:
+                              description: LogRotate configures log rotation for the
+                                mongodb processes
+                              properties:
+                                includeAuditLogsWithMongoDBLogs:
+                                  description: |-
+                                    set to 'true' to have the Automation Agent rotate the audit files along
+                                    with mongodb log files
+                                  type: boolean
+                                numTotal:
+                                  description: maximum number of log files to have
+                                    total
+                                  type: integer
+                                numUncompressed:
+                                  description: maximum number of log files to leave
+                                    uncompressed
+                                  type: integer
+                                percentOfDiskspace:
+                                  description: |-
+                                    Maximum percentage of the total disk space these log files should take up.
+                                    The string needs to be able to be converted to float64
+                                  type: string
+                                sizeThresholdMB:
+                                  description: |-
+                                    Maximum size for an individual log file before rotation.
+                                    The string needs to be able to be converted to float64.
+                                    Fractional values of MB are supported.
+                                  type: string
+                                timeThresholdHrs:
+                                  description: maximum hours for an individual log
+                                    file before rotation
+                                  type: integer
+                              required:
+                              - sizeThresholdMB
+                              - timeThresholdHrs
+                              type: object
+                            systemLog:
+                              description: SystemLog configures system log of mongod
+                              properties:
+                                destination:
+                                  type: string
+                                logAppend:
+                                  type: boolean
+                                path:
+                                  type: string
+                              required:
+                              - destination
+                              - logAppend
+                              - path
+                              type: object
+                          type: object
+                        monitoringAgent:
+                          properties:
+                            logRotate:
+                              description: LogRotate configures log rotation for the
+                                BackupAgent processes
+                              properties:
+                                sizeThresholdMB:
+                                  description: |-
+                                    Maximum size for an individual log file before rotation.
+                                    OM only supports ints
+                                  type: integer
+                                timeThresholdHrs:
+                                  description: Number of hours after which this MongoDB
+                                    Agent rotates the log file.
+                                  type: integer
+                              type: object
+                          type: object
+                        readinessProbe:
+                          properties:
+                            environmentVariables:
+                              additionalProperties:
+                                type: string
+                              type: object
+                          type: object
+                        startupOptions:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            StartupParameters can be used to configure the startup parameters with which the agent starts. That also contains
+                            log rotation settings as defined here:
+                          type: object
+                        systemLog:
+                          description: DEPRECATED please use mongod.systemLog
+                          properties:
+                            destination:
+                              type: string
+                            logAppend:
+                              type: boolean
+                            path:
+                              type: string
+                          required:
+                          - destination
+                          - logAppend
+                          - path
+                          type: object
+                      type: object
+                    clusterSpecList:
+                      items:
+                        description: |-
+                          ClusterSpecItemOverride is almost exact copy of ClusterSpecItem object.
+                          The object is used in ClusterSpecList in ShardedClusterComponentOverrideSpec in shard overrides.
+                          The difference lies in some fields being optional, e.g. Members to make it possible to NOT override fields and rely on
+                          what was set in top level shard configuration.
+                        properties:
+                          clusterName:
+                            description: |-
+                              ClusterName is name of the cluster where the MongoDB Statefulset will be scheduled, the
+                              name should have a one on one mapping with the service-account created in the central cluster
+                              to talk to the workload clusters.
+                            type: string
+                          externalAccess:
+                            description: ExternalAccessConfiguration provides external
+                              access configuration for Multi-Cluster.
+                            properties:
+                              externalDomain:
+                                description: An external domain that is used for exposing
+                                  MongoDB to the outside world.
+                                type: string
+                              externalService:
+                                description: Provides a way to override the default
+                                  (NodePort) Service
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    description: A map of annotations that shall be
+                                      added to the externally available Service.
+                                    type: object
+                                  spec:
+                                    description: A wrapper for the Service spec object.
+                                    type: object
+                                    x-kubernetes-preserve-unknown-fields: true
+                                type: object
+                            type: object
+                          memberConfig:
+                            description: MemberConfig allows to specify votes, priorities
+                              and tags for each of the mongodb process.
+                            items:
+                              properties:
+                                priority:
+                                  type: string
+                                tags:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                votes:
+                                  type: integer
+                              type: object
+                            type: array
+                            x-kubernetes-preserve-unknown-fields: true
+                          members:
+                            description: Amount of members for this MongoDB Replica
+                              Set
+                            type: integer
+                          podSpec:
+                            properties:
+                              persistence:
+                                description: Note, that this field is used by MongoDB
+                                  resources only, let's keep it here for simplicity
+                                properties:
+                                  multiple:
+                                    properties:
+                                      data:
+                                        properties:
+                                          labelSelector:
+                                            type: object
+                                            x-kubernetes-preserve-unknown-fields: true
+                                          storage:
+                                            type: string
+                                          storageClass:
+                                            type: string
+                                        type: object
+                                      journal:
+                                        properties:
+                                          labelSelector:
+                                            type: object
+                                            x-kubernetes-preserve-unknown-fields: true
+                                          storage:
+                                            type: string
+                                          storageClass:
+                                            type: string
+                                        type: object
+                                      logs:
+                                        properties:
+                                          labelSelector:
+                                            type: object
+                                            x-kubernetes-preserve-unknown-fields: true
+                                          storage:
+                                            type: string
+                                          storageClass:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  single:
+                                    properties:
+                                      labelSelector:
+                                        type: object
+                                        x-kubernetes-preserve-unknown-fields: true
+                                      storage:
+                                        type: string
+                                      storageClass:
+                                        type: string
+                                    type: object
+                                type: object
+                              podTemplate:
+                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
+                            type: object
+                          statefulSet:
+                            description: |-
+                              StatefulSetConfiguration holds the optional custom StatefulSet
+                              that should be merged into the operator created one.
+                            properties:
+                              metadata:
+                                description: StatefulSetMetadataWrapper is a wrapper
+                                  around Labels and Annotations
+                                properties:
+                                  annotations:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  labels:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                type: object
+                              spec:
+                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
+                            required:
+                            - spec
+                            type: object
+                        type: object
+                      type: array
+                    memberConfig:
+                      description: Process configuration override for this shard.
+                        Used in SingleCluster only. The number of items specified
+                        must be >= spec.mongodsPerShardCount or spec.shardOverride.members.
+                      items:
+                        properties:
+                          priority:
+                            type: string
+                          tags:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          votes:
+                            type: integer
+                        type: object
+                      type: array
+                      x-kubernetes-preserve-unknown-fields: true
+                    members:
+                      description: Number of member nodes in this shard. Used only
+                        in SingleCluster. For MultiCluster the number of members is
+                        specified in ShardOverride.ClusterSpecList.
+                      type: integer
+                    podSpec:
+                      description: The following override fields work for SingleCluster
+                        only. For MultiCluster - fields from specific clusters are
+                        used.
+                      properties:
+                        persistence:
+                          description: Note, that this field is used by MongoDB resources
+                            only, let's keep it here for simplicity
+                          properties:
+                            multiple:
+                              properties:
+                                data:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                                journal:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                                logs:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            single:
+                              properties:
+                                labelSelector:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                              type: object
+                          type: object
+                        podTemplate:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      type: object
+                    shardNames:
+                      items:
+                        type: string
+                      minItems: 1
+                      type: array
+                    statefulSet:
+                      description: Statefulset override for this particular shard.
+                      properties:
+                        metadata:
+                          description: StatefulSetMetadataWrapper is a wrapper around
+                            Labels and Annotations
+                          properties:
+                            annotations:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                          type: object
+                        spec:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - spec
+                      type: object
+                  required:
+                  - shardNames
+                  type: object
+                type: array
               shardPodSpec:
                 properties:
                   persistence:
+                    description: Note, that this field is used by MongoDB resources
+                      only, let's keep it here for simplicity
                     properties:
                       multiple:
                         properties:
@@ -1564,11 +2456,14 @@ spec:
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
               shardSpecificPodSpec:
-                description: ShardSpecificPodSpec allows you to provide a Statefulset
-                  override per shard.
+                description: |-
+                  ShardSpecificPodSpec allows you to provide a Statefulset override per shard.
+                  DEPRECATED please use spec.shard.shardOverrides instead
                 items:
                   properties:
                     persistence:
+                      description: Note, that this field is used by MongoDB resources
+                        only, let's keep it here for simplicity
                       properties:
                         multiple:
                           properties:
@@ -1644,6 +2539,15 @@ spec:
                 required:
                 - spec
                 type: object
+              topology:
+                description: |-
+                  Topology sets the desired cluster topology of MongoDB resources
+                  It defaults (if empty or not set) to SingleCluster. If MultiCluster specified,
+                  then clusterSpecList field is mandatory and at least one member cluster has to be specified.
+                enum:
+                - SingleCluster
+                - MultiCluster
+                type: string
               type:
                 enum:
                 - Standalone
@@ -1670,6 +2574,8 @@ spec:
                 type: object
               configServerCount:
                 type: integer
+              featureCompatibilityVersion:
+                type: string
               lastTransition:
                 type: string
               link:
@@ -1687,6 +2593,18 @@ spec:
                 type: integer
               phase:
                 type: string
+              pvc:
+                items:
+                  properties:
+                    phase:
+                      type: string
+                    statefulsetName:
+                      type: string
+                  required:
+                  - phase
+                  - statefulsetName
+                  type: object
+                type: array
               resourcesNotReady:
                 items:
                   description: ResourceNotReady describes the dependent resource which
@@ -1716,6 +2634,23 @@ spec:
                 type: array
               shardCount:
                 type: integer
+              sizeStatusInClusters:
+                description: MongodbShardedSizeStatusInClusters describes the number
+                  and sizes of replica sets members deployed across member clusters
+                properties:
+                  configServerMongodsInClusters:
+                    additionalProperties:
+                      type: integer
+                    type: object
+                  mongosCountInClusters:
+                    additionalProperties:
+                      type: integer
+                    type: object
+                  shardMongodsInClusters:
+                    additionalProperties:
+                      type: integer
+                    type: object
+                type: object
               version:
                 type: string
               warnings:
@@ -2159,7 +3094,8 @@ spec:
                           type: object
                       type: object
                     memberConfig:
-                      description: MemberConfig
+                      description: MemberConfig allows to specify votes, priorities
+                        and tags for each of the mongodb process.
                       items:
                         properties:
                           priority:
@@ -2172,10 +3108,63 @@ spec:
                             type: integer
                         type: object
                       type: array
-                      x-kubernetes-preserve-unknown-fields: true
                     members:
                       description: Amount of members for this MongoDB Replica Set
                       type: integer
+                    podSpec:
+                      properties:
+                        persistence:
+                          description: Note, that this field is used by MongoDB resources
+                            only, let's keep it here for simplicity
+                          properties:
+                            multiple:
+                              properties:
+                                data:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                                journal:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                                logs:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            single:
+                              properties:
+                                labelSelector:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                storage:
+                                  type: string
+                                storageClass:
+                                  type: string
+                              type: object
+                          type: object
+                        podTemplate:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      type: object
                     service:
                       description: this is an optional service, it will get the name
                         "<rsName>-service" in case not provided
@@ -2566,6 +3555,15 @@ spec:
                 required:
                 - spec
                 type: object
+              topology:
+                description: |-
+                  Topology sets the desired cluster topology of MongoDB resources
+                  It defaults (if empty or not set) to SingleCluster. If MultiCluster specified,
+                  then clusterSpecList field is mandatory and at least one member cluster has to be specified.
+                enum:
+                - SingleCluster
+                - MultiCluster
+                type: string
               type:
                 enum:
                 - Standalone
@@ -2617,6 +3615,18 @@ spec:
                           type: integer
                         phase:
                           type: string
+                        pvc:
+                          items:
+                            properties:
+                              phase:
+                                type: string
+                              statefulsetName:
+                                type: string
+                            required:
+                            - phase
+                            - statefulsetName
+                            type: object
+                          type: array
                         resourcesNotReady:
                           items:
                             description: ResourceNotReady describes the dependent
@@ -2653,6 +3663,8 @@ spec:
                       type: object
                     type: array
                 type: object
+              featureCompatibilityVersion:
+                type: string
               lastTransition:
                 type: string
               link:
@@ -2664,6 +3676,18 @@ spec:
                 type: integer
               phase:
                 type: string
+              pvc:
+                items:
+                  properties:
+                    phase:
+                      type: string
+                    statefulsetName:
+                      type: string
+                  required:
+                  - phase
+                  - statefulsetName
+                  type: object
+                type: array
               resourcesNotReady:
                 items:
                   description: ResourceNotReady describes the dependent resource which
@@ -2817,6 +3841,18 @@ spec:
                 type: string
               project:
                 type: string
+              pvc:
+                items:
+                  properties:
+                    phase:
+                      type: string
+                    statefulsetName:
+                      type: string
+                  required:
+                  - phase
+                  - statefulsetName
+                  type: object
+                type: array
               resourcesNotReady:
                 items:
                   description: ResourceNotReady describes the dependent resource which
@@ -3270,7 +4306,8 @@ spec:
                               type: object
                           type: object
                         memberConfig:
-                          description: MemberConfig
+                          description: MemberConfig allows to specify votes, priorities
+                            and tags for each of the mongodb process.
                           items:
                             properties:
                               priority:
@@ -3283,11 +4320,64 @@ spec:
                                 type: integer
                             type: object
                           type: array
-                          x-kubernetes-preserve-unknown-fields: true
                         members:
                           description: Amount of members for this MongoDB Replica
                             Set
                           type: integer
+                        podSpec:
+                          properties:
+                            persistence:
+                              description: Note, that this field is used by MongoDB
+                                resources only, let's keep it here for simplicity
+                              properties:
+                                multiple:
+                                  properties:
+                                    data:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    journal:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                    logs:
+                                      properties:
+                                        labelSelector:
+                                          type: object
+                                          x-kubernetes-preserve-unknown-fields: true
+                                        storage:
+                                          type: string
+                                        storageClass:
+                                          type: string
+                                      type: object
+                                  type: object
+                                single:
+                                  properties:
+                                    labelSelector:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                    storage:
+                                      type: string
+                                    storageClass:
+                                      type: string
+                                  type: object
+                              type: object
+                            podTemplate:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                          type: object
                         service:
                           description: this is an optional service, it will get the
                             name "<rsName>-service" in case not provided
@@ -3351,16 +4441,9 @@ spec:
                     type: string
                   featureCompatibilityVersion:
                     type: string
-                  logLevel:
-                    enum:
-                    - DEBUG
-                    - INFO
-                    - WARN
-                    - ERROR
-                    - FATAL
-                    type: string
                   memberConfig:
-                    description: MemberConfig
+                    description: MemberConfig allows to specify votes, priorities
+                      and tags for each of the mongodb process.
                     items:
                       properties:
                         priority:
@@ -3417,6 +4500,8 @@ spec:
                   podSpec:
                     properties:
                       persistence:
+                        description: Note, that this field is used by MongoDB resources
+                          only, let's keep it here for simplicity
                         properties:
                           multiple:
                             properties:
@@ -4488,6 +5573,8 @@ spec:
                     type: array
                   configServerCount:
                     type: integer
+                  featureCompatibilityVersion:
+                    type: string
                   lastTransition:
                     type: string
                   link:
@@ -4505,6 +5592,18 @@ spec:
                     type: integer
                   phase:
                     type: string
+                  pvc:
+                    items:
+                      properties:
+                        phase:
+                          type: string
+                        statefulsetName:
+                          type: string
+                      required:
+                      - phase
+                      - statefulsetName
+                      type: object
+                    type: array
                   resourcesNotReady:
                     items:
                       description: ResourceNotReady describes the dependent resource
@@ -4534,6 +5633,24 @@ spec:
                     type: array
                   shardCount:
                     type: integer
+                  sizeStatusInClusters:
+                    description: MongodbShardedSizeStatusInClusters describes the
+                      number and sizes of replica sets members deployed across member
+                      clusters
+                    properties:
+                      configServerMongodsInClusters:
+                        additionalProperties:
+                          type: integer
+                        type: object
+                      mongosCountInClusters:
+                        additionalProperties:
+                          type: integer
+                        type: object
+                      shardMongodsInClusters:
+                        additionalProperties:
+                          type: integer
+                        type: object
+                    type: object
                   version:
                     type: string
                   warnings:
@@ -4564,6 +5681,18 @@ spec:
                     type: integer
                   phase:
                     type: string
+                  pvc:
+                    items:
+                      properties:
+                        phase:
+                          type: string
+                        statefulsetName:
+                          type: string
+                      required:
+                      - phase
+                      - statefulsetName
+                      type: object
+                    type: array
                   resourcesNotReady:
                     items:
                       description: ResourceNotReady describes the dependent resource
@@ -4620,6 +5749,18 @@ spec:
                     type: integer
                   phase:
                     type: string
+                  pvc:
+                    items:
+                      properties:
+                        phase:
+                          type: string
+                        statefulsetName:
+                          type: string
+                      required:
+                      - phase
+                      - statefulsetName
+                      type: object
+                    type: array
                   replicas:
                     type: integer
                   resourcesNotReady:

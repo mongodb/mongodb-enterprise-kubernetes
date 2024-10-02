@@ -2,8 +2,6 @@ module github.com/10gen/ops-manager-kubernetes/multi
 
 go 1.22.0
 
-toolchain go1.22.4
-
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/spf13/cobra v1.6.1
