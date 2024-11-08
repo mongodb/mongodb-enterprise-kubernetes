@@ -104,7 +104,10 @@ dump_all() {
 
     mdb_container_name="mongodb-enterprise-database"
     for pod in ${pods_in_namespace}; do
-      kubectl -n "${namespace}" logs "${pod}" -c ${mdb_container_name} --tail 2000 >"${log_dir}/${pod}.log"
+      if ! kubectl -n "${namespace}" get pod "${pod}" --no-headers -o custom-columns=":spec.containers[*].name" | grep -E "^${mdb_container_name}$" > /dev/null; then
+        continue
+      fi
+      kubectl -n "${namespace}" logs "${pod}" -c "${mdb_container_name}" --tail 2000 >"${log_dir}/${pod}.log"
       kubectl -n "${namespace}" get event --field-selector "involvedObject.name=${pod}" >"${log_dir}/${pod}_events.log"
     done
 
