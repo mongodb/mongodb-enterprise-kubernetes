@@ -1,12 +1,12 @@
 ARG imagebase
 FROM ${imagebase} as base
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM registry.access.redhat.com/ubi9/ubi-minimal
 
 ARG version
 
 LABEL name="MongoDB Agent" \
-      version="${agent_version}" \
+      version="${version}" \
       summary="MongoDB Agent" \
       description="MongoDB Agent" \
       vendor="MongoDB" \
@@ -18,17 +18,24 @@ COPY --from=base /data/readinessprobe /opt/scripts/readinessprobe
 COPY --from=base /data/version-upgrade-hook /opt/scripts/version-upgrade-hook
 COPY --from=base /data/agent-launcher-lib.sh /opt/scripts/agent-launcher-lib.sh
 COPY --from=base /data/agent-launcher.sh /opt/scripts/agent-launcher.sh
-COPY --from=base /data/LICENSE /LICENSE
+COPY --from=base /data/LICENSE /licenses/LICENSE
+
+# Replace libcurl-minimal and curl-minimal with the full versions
+# https://bugzilla.redhat.com/show_bug.cgi?id=1994521
+RUN  microdnf install -y libssh libpsl libbrotli \
+    && microdnf download curl libcurl \
+    && rpm -Uvh --nodeps --replacefiles "*curl*$( uname -i ).rpm" \
+    && microdnf remove -y libcurl-minimal curl-minimal
 
 RUN microdnf install -y --disableplugin=subscription-manager --setopt=install_weak_deps=0 nss_wrapper
 # Copy-pasted from https://www.mongodb.com/docs/manual/tutorial/install-mongodb-enterprise-on-red-hat-tarball/
-RUN microdnf install -y --disableplugin=subscription-manager --setopt=install_weak_deps=0 \
- cyrus-sasl cyrus-sasl-gssapi cyrus-sasl-plain krb5-libs libcurl openldap openssl xz-libs
+RUN microdnf install -y --disableplugin=subscription-manager \
+ cyrus-sasl cyrus-sasl-gssapi cyrus-sasl-plain krb5-libs openldap openssl xz-libs
 # Dependencies for the Agent
 RUN microdnf install -y --disableplugin=subscription-manager  --setopt=install_weak_deps=0 \
         net-snmp \
         net-snmp-agent-libs
-RUN microdnf install -y --disableplugin=subscription-manager curl \
+RUN microdnf install -y --disableplugin=subscription-manager \
     hostname tar gzip procps jq \
     && microdnf upgrade -y  \
     && rm -rf /var/lib/apt/lists/*
