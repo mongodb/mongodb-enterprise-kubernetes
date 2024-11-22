@@ -76,6 +76,13 @@ tasks:
       - func: "install goreleaser"
       - func: "install macos notarization service"
       - func: "release"
+# add a noop task because if the only task in a variant is git_tag_only: true Evergreen doesn't start it at all
+  - name: noop
+    commands:
+      - command: shell.exec
+        params:
+          shell: bash
+          script: echo "this is the noop task"
 
 buildvariants:
 # This variant is run when a new tag is out similar to github actions.
@@ -85,3 +92,4 @@ buildvariants:
     - ubuntu2204-small
   tasks:
     - name: package_goreleaser
+    - name: noop
