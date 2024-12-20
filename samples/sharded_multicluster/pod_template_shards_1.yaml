@@ -69,7 +69,6 @@ spec:
           template:
             spec:
               containers:
-              # TODO: find a realistic example ?
                 - name: sidecar-shard-2
                   image: busybox
                   command: [ "sleep" ]
