@@ -2167,30 +2167,6 @@ spec:
                               name should have a one on one mapping with the service-account created in the central cluster
                               to talk to the workload clusters.
                             type: string
-                          externalAccess:
-                            description: ExternalAccessConfiguration provides external
-                              access configuration for Multi-Cluster.
-                            properties:
-                              externalDomain:
-                                description: An external domain that is used for exposing
-                                  MongoDB to the outside world.
-                                type: string
-                              externalService:
-                                description: Provides a way to override the default
-                                  (NodePort) Service
-                                properties:
-                                  annotations:
-                                    additionalProperties:
-                                      type: string
-                                    description: A map of annotations that shall be
-                                      added to the externally available Service.
-                                    type: object
-                                  spec:
-                                    description: A wrapper for the Service spec object.
-                                    type: object
-                                    x-kubernetes-preserve-unknown-fields: true
-                                type: object
-                            type: object
                           memberConfig:
                             description: MemberConfig allows to specify votes, priorities
                               and tags for each of the mongodb process.
@@ -2649,6 +2625,12 @@ spec:
                   shardMongodsInClusters:
                     additionalProperties:
                       type: integer
+                    type: object
+                  shardOverridesInClusters:
+                    additionalProperties:
+                      additionalProperties:
+                        type: integer
+                      type: object
                     type: object
                 type: object
               version:
@@ -5649,6 +5631,12 @@ spec:
                       shardMongodsInClusters:
                         additionalProperties:
                           type: integer
+                        type: object
+                      shardOverridesInClusters:
+                        additionalProperties:
+                          additionalProperties:
+                            type: integer
+                          type: object
                         type: object
                     type: object
                   version:

@@ -2,7 +2,7 @@ variables:
   - &go_env
     XDG_CONFIG_HOME: ${go_base_path}${workdir}
     GO111MODULE: "on"
-    GOROOT: "/opt/golang/go1.22"
+    GOROOT: "/opt/golang/go1.23"
 functions:
   "clone":
     - command: subprocess.exec

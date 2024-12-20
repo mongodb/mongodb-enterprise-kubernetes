@@ -6,7 +6,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal
 ARG version
 
 LABEL name="MongoDB Agent" \
-      version="${version}" \
+      version="${agent_version}" \
       summary="MongoDB Agent" \
       description="MongoDB Agent" \
       vendor="MongoDB" \
