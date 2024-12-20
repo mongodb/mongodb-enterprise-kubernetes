@@ -6,7 +6,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal
 ARG version
 
 LABEL name="MongoDB Agent" \
-      version="${agent_version}" \
+      version="${version}" \
       summary="MongoDB Agent" \
       description="MongoDB Agent" \
       vendor="MongoDB" \
@@ -18,7 +18,7 @@ COPY --from=base /data/readinessprobe /opt/scripts/readinessprobe
 COPY --from=base /data/version-upgrade-hook /opt/scripts/version-upgrade-hook
 COPY --from=base /data/agent-launcher-lib.sh /opt/scripts/agent-launcher-lib.sh
 COPY --from=base /data/agent-launcher.sh /opt/scripts/agent-launcher.sh
-COPY --from=base /data/LICENSE /LICENSE
+COPY --from=base /data/LICENSE /licenses/LICENSE
 
 # Replace libcurl-minimal and curl-minimal with the full versions
 # https://bugzilla.redhat.com/show_bug.cgi?id=1994521
