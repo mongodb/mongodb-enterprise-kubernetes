@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/golang:1.23 as builder
+FROM golang:1.22 as builder
 WORKDIR /go/src
 ADD . .
 
