@@ -1,0 +1,31 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: sh-single-overrides
+spec:
+  shardCount: 2
+  mongodsPerShardCount: 1
+  mongosCount: 1
+  configServerCount: 1
+  version: "7.0.15-ent"
+  type: ShardedCluster
+  configSrvPodSpec:
+    persistence:
+      single:
+        storage: 0.5G
+  shardPodSpec:
+    persistence:
+      single:
+        storage: 1G
+  shardOverrides:
+    - shardNames: [sh-single-overrides-0]
+      members: 3
+    - shardNames: [sh-single-overrides-1]
+      podSpec:
+        persistence:
+          single:
+            storage: 2Gi
+  opsManager:
+    configMapRef:
+      name: my-project
+  credentials: my-credentials

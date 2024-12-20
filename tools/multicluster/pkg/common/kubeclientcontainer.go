@@ -34,7 +34,7 @@ import (
 	eventsv1 "k8s.io/client-go/kubernetes/typed/events/v1"
 	eventsv1beta1 "k8s.io/client-go/kubernetes/typed/events/v1beta1"
 	extensionsv1beta1 "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
-	flowcontrolv1alpha1 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1alpha1"
+	v1 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1"
 	flowcontrolv1beta1 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta1"
 	flowcontrolv1beta2 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta2"
 	flowcontrolv1beta3 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta3"
@@ -73,6 +73,10 @@ type KubeClientContainer struct {
 	staticClient  kubernetes.Interface
 	dynamicClient dynamic.Interface
 	restConfig    *rest.Config
+}
+
+func (k *KubeClientContainer) FlowcontrolV1() v1.FlowcontrolV1Interface {
+	panic("implement me")
 }
 
 func (k *KubeClientContainer) CertificatesV1alpha1() certificatesv1alpha1.CertificatesV1alpha1Interface {
@@ -208,10 +212,6 @@ func (k *KubeClientContainer) EventsV1beta1() eventsv1beta1.EventsV1beta1Interfa
 
 func (k *KubeClientContainer) ExtensionsV1beta1() extensionsv1beta1.ExtensionsV1beta1Interface {
 	return k.staticClient.ExtensionsV1beta1()
-}
-
-func (k *KubeClientContainer) FlowcontrolV1alpha1() flowcontrolv1alpha1.FlowcontrolV1alpha1Interface {
-	return k.staticClient.FlowcontrolV1alpha1()
 }
 
 func (k *KubeClientContainer) FlowcontrolV1beta1() flowcontrolv1beta1.FlowcontrolV1beta1Interface {
