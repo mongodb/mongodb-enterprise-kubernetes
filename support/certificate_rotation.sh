@@ -34,14 +34,14 @@ mdb_resource_type=$(kubectl -n "${namespace}" get "mdb/${mdb_resource_name}" -o 
 mdb_resource_members=$(kubectl -n "${namespace}" get "mdb/${mdb_resource_name}" -o jsonpath='{.spec.members}')
 mdb_resource_members=$(("${mdb_resource_members}" - 1))
 
-if [[ $mdb_resource_type != "ReplicaSet" ]]; then
+if [[ ${mdb_resource_type} != "ReplicaSet" ]]; then
     echo "Only Replica Set TLS certificates are supported as of now."
     exit 1
 fi
 
 echo "Removing existing CSRs if they still exist."
 for i in $(seq 0 ${mdb_resource_members}); do
-    kubectl delete "csr/${mdb_resource_name}-$i.${namespace}" || true
+    kubectl delete "csr/${mdb_resource_name}-${i}.${namespace}" || true
 done
 
 echo "Removing the 'Secret' object holding the current certificates and private keys."
@@ -56,11 +56,11 @@ echo "Wait until the operator recreates the CSRs."
 while true; do
     all_created=0
     for i in $(seq 0 "${mdb_resource_members}"); do
-        if ! kubectl get "csr/${mdb_resource_name}-$i.${namespace}" -o name > /dev/null ; then
+        if ! kubectl get "csr/${mdb_resource_name}-${i}.${namespace}" -o name > /dev/null ; then
             all_created=1
         fi
     done
-    if [[ $all_created != 0 ]]; then
+    if [[ ${all_created} != 0 ]]; then
         sleep 10
     else
         break
@@ -69,7 +69,7 @@ done
 
 echo "CSRs have been generated. Approving certificates."
 for i in $(seq 0 ${mdb_resource_members}); do
-    kubectl certificate approve "${mdb_resource_name}-$i.${namespace}"
+    kubectl certificate approve "${mdb_resource_name}-${i}.${namespace}"
 done
 
 echo "A this point, the operator should take the new certificates and generate the Secret."
