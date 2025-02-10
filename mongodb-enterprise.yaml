@@ -227,7 +227,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.30.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.31.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -265,21 +265,21 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.30.0
+              value: 1.31.0
             - name: DATABASE_VERSION
-              value: 1.30.0
+              value: 1.31.0
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.30.0
+              value: 1.31.0
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.30.0
+              value: 1.31.0
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
