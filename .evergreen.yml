@@ -39,12 +39,14 @@ functions:
           unzip -u macos-notary.zip
           chmod 755 ./linux_amd64/macnotary
   "release":
+    - command: github.generate_token
+      params:
+        expansion_name: generated_token
     - command: shell.exec
       type: setup
       params:
         working_dir: src/github.com/mongodb/mongodb-enterprise-kubernetes/tools/multicluster
         include_expansions_in_env:
-          - GITHUB_TOKEN
           - GRS_USERNAME
           - GRS_PASSWORD
           - PKCS11_URI
@@ -65,11 +67,12 @@ functions:
           set -Eeu pipefail
 
           export PATH=$GOROOT/bin:$PATH
+          export GITHUB_TOKEN=${generated_token}
           ${workdir}/goreleaser release --rm-dist
 
 tasks:
   - name: package_goreleaser
-    git_tag_only: true
+    allowed_requesters: [ "patch", "github_tag" ]
     tags: ["packaging"]
     commands:
       - func: "clone"
