@@ -51,6 +51,7 @@ type Flags struct {
 	Cleanup                     bool
 	ClusterScoped               bool
 	InstallDatabaseRoles        bool
+	CreateTelemetryClusterRoles bool
 	OperatorName                string
 	SourceCluster               string
 	CreateServiceAccountSecrets bool
@@ -457,9 +458,52 @@ func buildMemberEntityClusterRole() rbacv1.ClusterRole {
 		APIGroups: []string{""},
 	})
 
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs: []string{"get"},
+		Resources: []string{"nodes"},
+		APIGroups: []string{""},
+	})
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs:         []string{"get"},
+		Resources:     []string{"namespaces"},
+		APIGroups:     []string{""},
+		ResourceNames: []string{"kube-system"},
+	})
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs:           []string{"get"},
+		NonResourceURLs: []string{"/version"},
+	})
+
 	return rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "mongodb-enterprise-operator-multi-cluster-role",
+			Labels: multiClusterLabels(),
+		},
+		Rules: rules,
+	}
+}
+
+func buildClusterRoleTelemetry() rbacv1.ClusterRole {
+	var rules []rbacv1.PolicyRule
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs: []string{"list"},
+		Resources: []string{"nodes"},
+		APIGroups: []string{""},
+	})
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs:         []string{"get"},
+		Resources:     []string{"namespaces"},
+		APIGroups:     []string{""},
+		ResourceNames: []string{"kube-system"},
+	})
+	rules = append(rules, rbacv1.PolicyRule{
+		Verbs:           []string{"get"},
+		NonResourceURLs: []string{"/version"},
+	})
+
+	return rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "mongodb-enterprise-operator-multi-cluster-role-telemetry",
 			Labels: multiClusterLabels(),
 		},
 		Rules: rules,
@@ -490,10 +534,10 @@ func buildRoleBinding(role rbacv1.Role, serviceAccount string, serviceAccountNam
 }
 
 // buildClusterRoleBinding creates the ClusterRoleBinding which binds the ClusterRole to the given ServiceAccount.
-func buildClusterRoleBinding(clusterRole rbacv1.ClusterRole, serviceAccountName, serviceAccountNamespace string) rbacv1.ClusterRoleBinding {
+func buildClusterRoleBinding(clusterRole rbacv1.ClusterRole, serviceAccountName, serviceAccountNamespace, clusterRoleBindingName string) rbacv1.ClusterRoleBinding {
 	return rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   "mongodb-enterprise-operator-multi-cluster-role-binding",
+			Name: clusterRoleBindingName,
 			Labels: multiClusterLabels(),
 		},
 		Subjects: []rbacv1.Subject{
@@ -512,8 +556,22 @@ func buildClusterRoleBinding(clusterRole rbacv1.ClusterRole, serviceAccountName,
 }
 
 // createRoles creates the ServiceAccount and Roles, RoleBindings, ClusterRoles and ClusterRoleBindings required.
-func createRoles(ctx context.Context, c KubeClient, serviceAccountName, serviceAccountNamespace, namespace string, clusterScoped bool, clusterType clusterType) error {
+func createRoles(ctx context.Context, c KubeClient, serviceAccountName, serviceAccountNamespace, namespace string, clusterScoped, telemetryClusterRoles bool, clusterType clusterType) error {
 	var err error
+
+	if telemetryClusterRoles {
+		clusterRoleTelemetry := buildClusterRoleTelemetry()
+		_, err = c.RbacV1().ClusterRoles().Create(ctx, &clusterRoleTelemetry, metav1.CreateOptions{})
+		if !errors.IsAlreadyExists(err) && err != nil {
+			return xerrors.Errorf("error creating cluster role: %w", err)
+		}
+		fmt.Printf("created clusterrole: %s\n", clusterRoleTelemetry.Name)
+		if err = createClusterRoleBinding(ctx, c, serviceAccountName, serviceAccountNamespace, "mongodb-enterprise-operator-multi-telemetry-cluster-role-binding", clusterRoleTelemetry); err != nil {
+			return err
+		}
+
+	}
+
 	if !clusterScoped {
 		var role rbacv1.Role
 		if clusterType == clusterTypeCentral {
@@ -561,8 +619,15 @@ func createRoles(ctx context.Context, c KubeClient, serviceAccountName, serviceA
 	}
 	fmt.Printf("created clusterrole: %s\n", clusterRole.Name)
 
-	clusterRoleBinding := buildClusterRoleBinding(clusterRole, serviceAccountName, serviceAccountNamespace)
-	_, err = c.RbacV1().ClusterRoleBindings().Create(ctx, &clusterRoleBinding, metav1.CreateOptions{})
+	if err = createClusterRoleBinding(ctx, c, serviceAccountName, serviceAccountNamespace, "mongodb-enterprise-operator-multi-cluster-role-binding", clusterRole); err != nil {
+		return err
+	}
+	return nil
+}
+
+func createClusterRoleBinding(ctx context.Context, c KubeClient, serviceAccountName string, serviceAccountNamespace string, clusterRoleBindingName string, clusterRole rbacv1.ClusterRole) error {
+	clusterRoleBinding := buildClusterRoleBinding(clusterRole, serviceAccountName, serviceAccountNamespace, clusterRoleBindingName)
+	_, err := c.RbacV1().ClusterRoleBindings().Create(ctx, &clusterRoleBinding, metav1.CreateOptions{})
 	if !errors.IsAlreadyExists(err) && err != nil {
 		return xerrors.Errorf("error creating cluster role binding: %w", err)
 	}
@@ -584,14 +649,14 @@ func createOperatorServiceAccountsAndRoles(ctx context.Context, clientMap map[st
 		}
 	}
 
-	if err := createRoles(ctx, centralClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.CentralClusterNamespace, f.ClusterScoped, clusterTypeCentral); err != nil {
+	if err := createRoles(ctx, centralClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.CentralClusterNamespace, f.ClusterScoped, f.CreateTelemetryClusterRoles, clusterTypeCentral); err != nil {
 		return err
 	}
 
 	// in case the operator namespace (CentralClusterNamespace) is different from member cluster namespace we need
 	// to provide roles and role binding to the operator's SA in member namespace
 	if f.CentralClusterNamespace != f.MemberClusterNamespace {
-		if err := createRoles(ctx, centralClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.MemberClusterNamespace, f.ClusterScoped, clusterTypeCentral); err != nil {
+		if err := createRoles(ctx, centralClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.MemberClusterNamespace, f.ClusterScoped, f.CreateTelemetryClusterRoles, clusterTypeCentral); err != nil {
 			return err
 		}
 	}
@@ -614,10 +679,10 @@ func createOperatorServiceAccountsAndRoles(ctx context.Context, clientMap map[st
 			}
 		}
 
-		if err := createRoles(ctx, memberClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.MemberClusterNamespace, f.ClusterScoped, clusterTypeMember); err != nil {
+		if err := createRoles(ctx, memberClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.MemberClusterNamespace, f.ClusterScoped, f.CreateTelemetryClusterRoles, clusterTypeMember); err != nil {
 			return err
 		}
-		if err := createRoles(ctx, memberClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.CentralClusterNamespace, f.ClusterScoped, clusterTypeMember); err != nil {
+		if err := createRoles(ctx, memberClusterClient, f.ServiceAccount, f.CentralClusterNamespace, f.CentralClusterNamespace, f.ClusterScoped, f.CreateTelemetryClusterRoles, clusterTypeMember); err != nil {
 			return err
 		}
 	}

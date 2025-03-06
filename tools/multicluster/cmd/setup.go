@@ -23,6 +23,7 @@ func init() {
 	setupCmd.Flags().StringVar(&setupFlags.CentralClusterNamespace, "central-cluster-namespace", "", "The namespace the Operator will be deployed to. [required]")
 	setupCmd.Flags().BoolVar(&setupFlags.Cleanup, "cleanup", false, "Delete all previously created resources except for namespaces. [optional default: false]")
 	setupCmd.Flags().BoolVar(&setupFlags.ClusterScoped, "cluster-scoped", false, "Create ClusterRole and ClusterRoleBindings for member clusters. [optional default: false]")
+	setupCmd.Flags().BoolVar(&setupFlags.CreateTelemetryClusterRoles, "create-telemetry-roles", true, "Create ClusterRole and ClusterRoleBindings for member clusters for telemetry. [optional default: true]")
 	setupCmd.Flags().BoolVar(&setupFlags.InstallDatabaseRoles, "install-database-roles", false, "Install the ServiceAccounts and Roles required for running database workloads in the member clusters. [optional default: false]")
 	setupCmd.Flags().BoolVar(&setupFlags.CreateServiceAccountSecrets, "create-service-account-secrets", true, "Create service account token secrets. [optional default: true]")
 	setupCmd.Flags().StringVar(&setupFlags.ImagePullSecrets, "image-pull-secrets", "", "Name of the secret for imagePullSecrets to set in created service accounts")
