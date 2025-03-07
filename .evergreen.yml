@@ -2,7 +2,7 @@ variables:
   - &go_env
     XDG_CONFIG_HOME: ${go_base_path}${workdir}
     GO111MODULE: "on"
-    GOROOT: "/opt/golang/go1.23"
+    GOROOT: "/opt/golang/go1.24"
 functions:
   "clone":
     - command: subprocess.exec
@@ -34,7 +34,7 @@ functions:
           - notary_service_url
         script: |
           set -Eeu pipefail
-          
+
           curl "${notary_service_url}" --output macos-notary.zip
           unzip -u macos-notary.zip
           chmod 755 ./linux_amd64/macnotary
@@ -72,14 +72,14 @@ functions:
 
 tasks:
   - name: package_goreleaser
-    allowed_requesters: [ "patch", "github_tag" ]
+    allowed_requesters: ["patch", "github_tag"]
     tags: ["packaging"]
     commands:
       - func: "clone"
       - func: "install goreleaser"
       - func: "install macos notarization service"
       - func: "release"
-# add a noop task because if the only task in a variant is git_tag_only: true Evergreen doesn't start it at all
+  # add a noop task because if the only task in a variant is git_tag_only: true Evergreen doesn't start it at all
   - name: noop
     commands:
       - command: shell.exec
@@ -88,11 +88,11 @@ tasks:
           script: echo "this is the noop task"
 
 buildvariants:
-# This variant is run when a new tag is out similar to github actions.
-- name: release_mcli
-  display_name: Release Go multi-cluster binary
-  run_on:
-    - ubuntu2204-small
-  tasks:
-    - name: package_goreleaser
-    - name: noop
+  # This variant is run when a new tag is out similar to github actions.
+  - name: release_mcli
+    display_name: Release Go multi-cluster binary
+    run_on:
+      - ubuntu2204-small
+    tasks:
+      - name: package_goreleaser
+      - name: noop

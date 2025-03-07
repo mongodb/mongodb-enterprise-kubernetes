@@ -27,6 +27,34 @@ rules:
       - delete
 ---
 # Source: enterprise-operator/templates/operator-roles.yaml
+# Additional ClusterRole for clusterVersionDetection
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-cluster-telemetry
+rules:
+  # Non-resource URL permissions
+  - nonResourceURLs:
+      - "/version"
+    verbs:
+      - get
+  # Cluster-scoped resource permissions
+  - apiGroups:
+      - ''
+    resources:
+      - namespaces
+    resourceNames:
+      - kube-system
+    verbs:
+      - get
+  - apiGroups:
+      - ''
+    resources:
+      - nodes
+    verbs:
+      - list
+---
+# Source: enterprise-operator/templates/operator-roles.yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -35,6 +63,21 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: mongodb-enterprise-operator-mongodb-webhook
+subjects:
+  - kind: ServiceAccount
+    name: mongodb-enterprise-operator
+    namespace: mongodb
+---
+# Source: enterprise-operator/templates/operator-roles.yaml
+# ClusterRoleBinding for clusterVersionDetection
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-enterprise-operator-mongodb-cluster-telemetry-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongodb-enterprise-operator-cluster-telemetry
 subjects:
   - kind: ServiceAccount
     name: mongodb-enterprise-operator
@@ -227,7 +270,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-enterprise-operator
-          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.31.0"
+          image: "quay.io/mongodb/mongodb-enterprise-operator-ubi:1.32.0"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -247,14 +290,18 @@ spec:
               value: prod
             - name: MDB_DEFAULT_ARCHITECTURE
               value: non-static
-            - name: WATCH_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MDB_OPERATOR_TELEMETRY_COLLECTION_FREQUENCY
+              value: "1h"
+            - name: MDB_OPERATOR_TELEMETRY_SEND_FREQUENCY
+              value: "168h"
             - name: CLUSTER_CLIENT_TIMEOUT
               value: "10"
             - name: IMAGE_PULL_POLICY
@@ -265,21 +312,21 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.31.0
+              value: 1.32.0
             - name: DATABASE_VERSION
-              value: 1.31.0
+              value: 1.32.0
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.31.0
+              value: 1.32.0
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: quay.io/mongodb/mongodb-enterprise-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.31.0
+              value: 1.32.0
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE

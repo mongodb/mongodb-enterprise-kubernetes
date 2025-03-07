@@ -88,6 +88,7 @@ func testFlags(t *testing.T, cleanup bool) Flags {
 		CentralClusterNamespace:     "central-namespace",
 		Cleanup:                     cleanup,
 		ClusterScoped:               false,
+		CreateTelemetryClusterRoles: true,
 		OperatorName:                "mongodb-enterprise-operator",
 		CreateServiceAccountSecrets: true,
 	}
@@ -181,6 +182,17 @@ func TestClusterRoles_DoNotGetCreated_WhenNotSpecified(t *testing.T) {
 	require.NoError(t, err)
 	assertMemberRolesExist(t, ctx, clientMap, flags)
 	assertCentralRolesExist(t, ctx, clientMap, flags)
+}
+
+func Test_TelemetryClusterRoles_GetCreated_WhenNotSpecified(t *testing.T) {
+	ctx := context.Background()
+	flags := testFlags(t, false)
+
+	clientMap := getClientResources(ctx, flags)
+	err := EnsureMultiClusterResources(ctx, flags, clientMap)
+
+	require.NoError(t, err)
+	assertClusterRoles(t, ctx, clientMap, flags, false, true, clusterTypeCentral)
 }
 
 func TestClusterRoles_GetCreated_WhenSpecified(t *testing.T) {
@@ -693,24 +705,43 @@ func assertDatabaseRolesExist(t *testing.T, ctx context.Context, clientMap map[s
 
 // assertMemberClusterRolesExist should be used when member cluster cluster roles should exist.
 func assertMemberClusterRolesExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
-	assertClusterRoles(t, ctx, clientMap, flags, true, clusterTypeMember)
+	assertClusterRoles(t, ctx, clientMap, flags, true, true, clusterTypeMember)
 }
 
 // assertMemberClusterRolesDoNotExist should be used when member cluster cluster roles should not exist.
 func assertMemberClusterRolesDoNotExist(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags) {
-	assertClusterRoles(t, ctx, clientMap, flags, false, clusterTypeCentral)
+	assertClusterRoles(t, ctx, clientMap, flags, false, false, clusterTypeCentral)
 }
 
-// assertClusterRoles should be used to assert the existence of member cluster cluster roles. The boolean
+// assertClusterRoles should be used to assert the existence of member-cluster cluster roles. The boolean
 // shouldExist should be true for roles existing, and false for cluster roles not existing.
-func assertClusterRoles(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool, clusterType clusterType) {
+// telemetryShouldExist should be true for roles existing, and false for cluster roles not existing.
+func assertClusterRoles(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, clusterScopeShouldExist bool, telemetryShouldExist bool, clusterType clusterType) {
 	var expectedClusterRole rbacv1.ClusterRole
 	if clusterType == clusterTypeCentral {
 		expectedClusterRole = buildCentralEntityClusterRole()
 	} else {
 		expectedClusterRole = buildMemberEntityClusterRole()
 	}
+	assertClusterRoleMembers(t, ctx, clientMap, flags, clusterScopeShouldExist, expectedClusterRole)
+	assertClusterRoleCentral(t, ctx, clientMap, flags, clusterScopeShouldExist, expectedClusterRole)
 
+	expectedClusterRoleTelemetry := buildClusterRoleTelemetry()
+	assertClusterRoleMembers(t, ctx, clientMap, flags, telemetryShouldExist, expectedClusterRoleTelemetry)
+	assertClusterRoleCentral(t, ctx, clientMap, flags, telemetryShouldExist, expectedClusterRoleTelemetry)
+}
+
+func assertClusterRoleCentral(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool, expectedClusterRole rbacv1.ClusterRole) {
+	clusterRole, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().Get(ctx, expectedClusterRole.Name, metav1.GetOptions{})
+	if shouldExist {
+		assert.Nil(t, err)
+		assert.NotNil(t, clusterRole)
+	} else {
+		assert.Error(t, err)
+	}
+}
+
+func assertClusterRoleMembers(t *testing.T, ctx context.Context, clientMap map[string]KubeClient, flags Flags, shouldExist bool, expectedClusterRole rbacv1.ClusterRole) {
 	for _, clusterName := range flags.MemberClusters {
 		client := clientMap[clusterName]
 		role, err := client.RbacV1().ClusterRoles().Get(ctx, expectedClusterRole.Name, metav1.GetOptions{})
@@ -722,14 +753,6 @@ func assertClusterRoles(t *testing.T, ctx context.Context, clientMap map[string]
 			assert.Error(t, err)
 			assert.Nil(t, role)
 		}
-	}
-
-	clusterRole, err := clientMap[flags.CentralCluster].RbacV1().ClusterRoles().Get(ctx, expectedClusterRole.Name, metav1.GetOptions{})
-	if shouldExist {
-		assert.Nil(t, err)
-		assert.NotNil(t, clusterRole)
-	} else {
-		assert.Error(t, err)
 	}
 }
 

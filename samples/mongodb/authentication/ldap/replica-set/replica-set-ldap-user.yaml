@@ -15,5 +15,3 @@ spec:
       name: userAdminAnyDatabase
     - db: admin
       name: readWrite
-    - db: admin
-      name: userAdminAnyDatabase
