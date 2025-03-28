@@ -49,7 +49,7 @@ COPY --from=base /data/scripts /opt/scripts
 
 
 
-RUN curl --fail -L -o ops_manager.tar.gz https://s3.amazonaws.com/mongodb-mms-build-onprem/441df54b742c8fd372d91a6dd79b4a42f4d33837/mongodb-mms-8.0.0.500.20240924T1611Z.tar.gz \
+RUN curl --fail -L -o ops_manager.tar.gz https://downloads.mongodb.com/on-prem-mms/tar/mongodb-mms-8.0.0.500.20240924T1611Z.tar.gz \
   && tar -xzf ops_manager.tar.gz \
   && rm ops_manager.tar.gz \
   && mv mongodb-mms* "${MMS_HOME}"
