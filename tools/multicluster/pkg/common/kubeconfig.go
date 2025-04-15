@@ -18,7 +18,7 @@ const (
 
 // LoadKubeConfigFilePath returns the path of the local KubeConfig file.
 func LoadKubeConfigFilePath() string {
-	env := os.Getenv(kubeConfigEnv)
+	env := os.Getenv(kubeConfigEnv) // nolint:forbidigo
 	if env != "" {
 		return env
 	}

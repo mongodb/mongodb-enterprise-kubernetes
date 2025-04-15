@@ -45,9 +45,6 @@ mongodb:
   imageType: ubi8
   name: mongodb-enterprise-server
   repo: quay.io/mongodb
-mongodbLegacyAppDb:
-  name: mongodb-enterprise-appdb-database-ubi
-  repo: quay.io/mongodb
 multiCluster:
   clusterClientTimeout: 10
   clusters:

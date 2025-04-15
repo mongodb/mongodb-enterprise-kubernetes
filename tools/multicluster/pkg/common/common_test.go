@@ -82,7 +82,7 @@ func testFlags(t *testing.T, cleanup bool) Flags {
 	return Flags{
 		MemberClusterApiServerUrls:  memberClusterApiServerUrls,
 		MemberClusters:              memberClusters,
-		ServiceAccount:              "test-service-account",
+		ServiceAccount:              "mongodb-enterprise-operator-multicluster",
 		CentralCluster:              "central-cluster",
 		MemberClusterNamespace:      "member-namespace",
 		CentralClusterNamespace:     "central-namespace",
@@ -462,7 +462,7 @@ func TestReplaceClusterMembersConfigMap(t *testing.T) {
 // it, please set EXPORT_RBAC_SAMPLES variable to "true".
 func TestPrintingOutRolesServiceAccountsAndRoleBindings(t *testing.T) {
 	ctx := context.Background()
-	if os.Getenv("EXPORT_RBAC_SAMPLES") != "true" {
+	if os.Getenv("EXPORT_RBAC_SAMPLES") != "true" { // nolint:forbidigo
 		t.Skip("Skipping as EXPORT_RBAC_SAMPLES is false")
 	}
 
