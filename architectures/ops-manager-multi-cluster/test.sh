@@ -26,8 +26,6 @@ run 0500_ops_manager_prepare_s3_backup_secrets.sh
 run 0510_ops_manager_enable_s3_backup.sh
 run_for_output 0522_ops_manager_wait_for_running_state.sh
 
-run 0605_start_forwarding_om_api.sh
-run_for_output 0610_create_mdb_org_and_get_credentials.sh
-run 0615_stop_forwarding_om_api.sh
+run 0610_create_mdb_org_and_get_credentials.sh
 
 popd

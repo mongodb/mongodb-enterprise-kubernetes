@@ -12,5 +12,6 @@ pushd "${script_dir}"
 prepare_snippets
 
 run 0040_install_istio.sh
+run 0050_label_namespaces.sh
 
 popd
