@@ -1,3 +1,8 @@
+> **DEPRECATED:** This repository is no longer maintained. Please use the new repository at [mongodb/mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) instead.
+>
+> For more information on this decision - what it means and entails - see the [announcement](https://github.com/mongodb/mongodb-kubernetes/releases/tag/v1.0.0) and our [public documentation](https://www.mongodb.com/docs/kubernetes-operator/).
+
+
 # MongoDB Enterprise Kubernetes Operator #
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploy of the following applications into Kubernetes clusters:
