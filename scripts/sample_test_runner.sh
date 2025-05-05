@@ -18,7 +18,6 @@ function run_cleanup() {
   script_file=$1
   rm -rf "${snippets_run_dir}" 2>/dev/null || true
   rm -rf "log" 2>/dev/null || true
-  rm -rf "output" 2>/dev/null || true
   rm -rf "${script_file}.run.log" 2>/dev/null || true
 }
 

@@ -1,4 +1,4 @@
-export MDB_GKE_PROJECT="### Set your GKE project name here ###"
+export MDB_GKE_PROJECT="scratch-kubernetes-team"
 
 export NAMESPACE="mongodb"
 export OPERATOR_NAMESPACE="mongodb-operator"
