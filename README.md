@@ -1,6 +1,6 @@
 > **DEPRECATED:** This repository is no longer maintained. Please use the new repository at [mongodb/mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) instead.
 >
-> For more information on this decision - what it means and entails - see the [announcement](https://github.com/mongodb/mongodb-kubernetes/releases/tag/v1.0.0) and our [public documentation](https://www.mongodb.com/docs/kubernetes-operator/).
+> For more information on this decision - what it means and entails - see the [announcement](https://github.com/mongodb/mongodb-kubernetes/releases/tag/v1.0.0) and our [public documentation](https://www.mongodb.com/docs/kubernetes/current/).
 
 
 # MongoDB Enterprise Kubernetes Operator #
