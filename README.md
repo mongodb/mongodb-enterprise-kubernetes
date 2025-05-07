@@ -1,3 +1,8 @@
+> **DEPRECATED:** The MongoDB Enterprise Kubernetes Operator is now deprecated in favor of a new replacement Operator available here [mongodb/mongodb-kubernetes](https://github.com/mongodb/mongodb-kubernetes) with [official documentation here](https://www.mongodb.com/docs/kubernetes-operator/current/). Existing versions of the Enterprise Kubernetes Operator remain supported until end of life dates listed here: [official support lifecycle](https://www.mongodb.com/docs/kubernetes-operator/current/reference/support-lifecycle/).
+>
+> For more information on this decision - what it means and entails - see the [announcement](https://github.com/mongodb/mongodb-kubernetes/releases/tag/v1.0.0) and our [public documentation](https://www.mongodb.com/docs/kubernetes/current/).
+
+
 # MongoDB Enterprise Kubernetes Operator #
 
 Welcome to the MongoDB Enterprise Kubernetes Operator. The Operator enables easy deploy of the following applications into Kubernetes clusters:
