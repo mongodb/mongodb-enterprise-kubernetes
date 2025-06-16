@@ -78,7 +78,7 @@ func compressDirectory(path string) (string, error) {
 		if info.IsDir() {
 			return nil
 		}
-		file, err := os.Open(path)
+		file, err := os.Open(filepath.Clean(path))
 		if err != nil {
 			return err
 		}
